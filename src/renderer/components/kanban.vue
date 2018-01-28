@@ -1,0 +1,135 @@
+<template>
+  <div>
+  <img id="logo" src="~@/assets/logo.png" alt="gmba-red">
+<!--   {{ test }} -->
+  <div class="bar">
+    <el-menu :default-active="activeIndex" class="el-menu" mode="horizontal" :router="true">
+      <el-menu-item :route="{ name: 'landing-page' }" index="1">
+        <i class="el-icon-menu"></i>
+        首頁
+      </el-menu-item>
+      <el-menu-item :route="{ name: 'single-search-page' }" index="2">
+        <i class="el-icon-search"></i>
+        搜尋單一對象
+      </el-menu-item>
+      <el-menu-item :route="{ name: 'consolidate-page' }" index="3">
+        <i class="el-icon-document"></i>
+        檢視歷年資料
+      </el-menu-item>
+      <el-submenu index="4">
+        <template slot="title">圖表呈現</template>
+        <el-menu-item
+          index="4-1"
+          :route="{ name: 'statistic-art', params: { activeIndex: '4-1' } }">
+          學生基本資料統計
+        </el-menu-item>
+      </el-submenu>
+    </el-menu>
+    <el-dropdown class="item" size="medium" placement="bottom-start" @command="openExcel">
+        <el-button type="danger">
+          編輯Excel
+          <i class="el-icon-edit el-icon--right"></i>
+        </el-button>
+        <el-dropdown-menu class="dropdown_menu" slot="dropdown">
+          <el-dropdown-item class="dropdown_item" :command="bus.profile['excel_path']">
+            <i class="el-icon-document"></i>&nbsp;
+            歷年學生資料
+          </el-dropdown-item>
+          <el-dropdown-item class="dropdown_item" :command="bus.course['excel_path']">
+            <i class="el-icon-document"></i>
+            &nbsp;
+            歷年學生修課紀錄
+          </el-dropdown-item>
+          <el-dropdown-item class="dropdown_item" :command="bus.graduateStandard['excel_path']">
+            <i class="el-icon-document"></i>
+            &nbsp;
+            畢業標準
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    <el-badge :value="12" class="item">
+      <el-dropdown size="medium" placement="bottom-start">
+        <el-button type="primary">
+          通知
+          <i class="el-icon-bell el-icon--right"></i>
+        </el-button>
+        <el-dropdown-menu class="dropdown_menu" slot="dropdown">
+          <el-dropdown-item class="dropdown_item">
+            <i class="el-icon-warning"></i>&nbsp;
+            已至新學期，仍未更新學生資料
+          </el-dropdown-item>
+          <el-dropdown-item class="dropdown_item">
+            <i class="el-icon-warning"></i>&nbsp;
+            資料格式錯誤 - 重複資料
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </el-badge>
+  </div>
+</div>
+</template>
+
+<script>
+  import { shell } from 'electron';
+  import eventBus from './eventBus';
+
+  export default {
+    name: 'kanban',
+    data() {
+      return {
+        // test: path.join(remote.app.getAppPath(), '../../../../'),
+        bus: eventBus,
+      };
+    },
+    props: ['activeIndex'],
+    methods: {
+      openExcel(filePath) {
+        shell.openItem(filePath);
+      },
+    },
+  };
+</script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  .bar {
+    display: flex;
+    justify-content:center;
+    align-items: top;
+    margin-bottom: 15px;
+  }
+
+  .el-icon-bell {
+    /*font-size: 25px;*/
+  }
+
+  .el-icon-bell:hover {
+    cursor: pointer;
+  }
+
+  .item {
+    margin-top: 10px;
+    margin-right: 10px;
+  }
+
+  body { font-family: 'Source Sans Pro', sans-serif; }
+
+  .dropdown_menu {
+    /*background-color: gray;*/
+    opacity: .95;
+  }
+
+  #logo {
+    margin: 0px;
+    width: 420px;
+    height: auto;
+  }
+
+</style>
