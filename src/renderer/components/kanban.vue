@@ -10,7 +10,7 @@
       </el-menu-item>
       <el-menu-item :route="{ name: 'single-search-page' }" index="2">
         <i class="el-icon-search"></i>
-        搜尋單一對象
+        快速搜尋
       </el-menu-item>
       <el-menu-item :route="{ name: 'consolidate-page' }" index="3">
         <i class="el-icon-document"></i>
@@ -27,7 +27,7 @@
     </el-menu>
     <el-dropdown class="item" size="medium" placement="bottom-start" @command="openExcel">
         <el-button type="danger">
-          編輯Excel
+          編輯操作
           <i class="el-icon-edit el-icon--right"></i>
         </el-button>
         <el-dropdown-menu class="dropdown_menu" slot="dropdown">
@@ -45,9 +45,29 @@
             &nbsp;
             畢業標準
           </el-dropdown-item>
+          <el-dropdown-item class="dropdown_item" :command="bus.papers['excel_path']">
+            <i class="el-icon-document"></i>
+            &nbsp;
+            畢業生論文
+          </el-dropdown-item>
+          <el-dropdown-item class="dropdown_item" :command="bus.council['excel_path']">
+            <i class="el-icon-document"></i>
+            &nbsp;
+            歷年學生會
+          </el-dropdown-item>
+          <el-dropdown-item class="dropdown_item" :command="bus.questionnaire['excel_path']">
+            <i class="el-icon-document"></i>
+            &nbsp;
+            GMBA問卷
+          </el-dropdown-item>
+          <el-dropdown-item class="dropdown_item" :command="bus.profilePicFolder">
+            <i class="el-icon-document"></i>
+            &nbsp;
+            照片資料夾
+          </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-    <el-badge :value="12" class="item">
+    <el-badge :value="12" class="item" v-if="false">
       <el-dropdown size="medium" placement="bottom-start">
         <el-button type="primary">
           通知

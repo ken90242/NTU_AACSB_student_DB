@@ -6,7 +6,12 @@
   "license": null,
   "main": "./dist/electron/main.js",
   "scripts": {
-    "build": "node .electron-vue/build.js && electron-builder",
+    "dist": "build",
+    "build": "node .electron-vue/build.js && electron-builder --w",
+    "build:darwin": "cross-env BUILD_TARGET=darwin node .electron-vue/build.js",
+    "build:linux": "cross-env BUILD_TARGET=linux node .electron-vue/build.js",
+    "build:mas": "cross-env BUILD_TARGET=mas node .electron-vue/build.js",
+    "build:win32": "cross-env BUILD_TARGET=win32 node .electron-vue/build.js",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
@@ -21,7 +26,7 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "aacsb_db",
+    "productName": "aacsb_db-tkb",
     "appId": "org.simulatedgreg.electron-vue",
     "directories": {
       "output": "build"
@@ -48,7 +53,19 @@
       "icon": "build/icons/icon.icns"
     },
     "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
       "icon": "build/icons/icon.ico"
+    },
+    "nsis": {
+      "artifactName": "${productName}Installer.${version}.${ext}",
+      "installerIcon": "build/icons/icon.ico",
+      "installerHeaderIcon": "build/icons/icon.ico"
+    },
+    "portable": {
+      "artifactName": "${productName}Portable.${version}.${ext}"
     },
     "linux": {
       "icon": "build/icons"
@@ -57,14 +74,12 @@
   "dependencies": {
     "axios": "^0.16.1",
     "chart.js": "^2.7.1",
-    "electron": "^1.7.11",
     "element-ui": "^2.0.11",
     "moment": "^2.20.1",
     "vue": "^2.3.3",
     "vue-chartjs": "^3.1.0",
     "vue-electron": "^1.0.6",
     "vue-router": "^2.5.3",
-    "vue-virtual-scroller": "^0.10.6",
     "vuex": "^2.3.1",
     "xlsx": "^0.11.11"
   },
@@ -86,6 +101,7 @@
     "css-loader": "^0.28.4",
     "del": "^3.0.0",
     "devtron": "^1.4.0",
+    "electron": "^2.0.8",
     "electron-builder": "^19.19.1",
     "electron-debug": "^1.4.0",
     "electron-devtools-installer": "^2.2.0",

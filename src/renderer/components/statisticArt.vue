@@ -20,13 +20,31 @@
         </el-form-item>
       </el-form>
     </div>
+    平均年齡：{{ datacollection.ageAverage }}
     <div class="chartWrapper">
       <pie-chart
         :chart-data="datacollection['sexRatio']"
         :options="{ responsive: false, maintainAspectRatio: false }">
       </pie-chart>
     </div>
-    平均年齡：{{ datacollection.ageAverage }}
+    <div class="chartWrapper">
+      <pie-chart
+        :chart-data="datacollection['majorRatio']"
+        :options="{ responsive: false, maintainAspectRatio: false }">
+      </pie-chart>
+    </div>
+    <div class="chartWrapper">
+      <pie-chart
+        :chart-data="datacollection['educationRatio']"
+        :options="{ responsive: false, maintainAspectRatio: false }">
+      </pie-chart>
+    </div>
+    <div class="chartWrapper">
+      <pie-chart
+        :chart-data="datacollection['workFieldRatio']"
+        :options="{ responsive: false, maintainAspectRatio: false }">
+      </pie-chart>
+    </div>
   </div>
 </template>
 <script>
@@ -64,11 +82,42 @@
       updateData() {
         // 性別比例
         this.datacollection.sexRatio = {
-          labels: ['January', 'February'],
+          labels: ['Male', 'Female'],
           datasets: [{
             label: 'Data One',
             backgroundColor: '#f87979',
-            data: [40, 20],
+            data: this.totalMF,
+          }],
+        };
+
+        const majorLabels = Object.keys(this.major);
+        this.datacollection.majorRatio = {
+          labels: majorLabels,
+          datasets: [{
+            label: 'Data One',
+            backgroundColor: '#f87979',
+            data: majorLabels.map(l => this.major[l]),
+          }],
+        };
+
+        const educationLabels = Object.keys(this.education);
+        this.datacollection.educationRatio = {
+          labels: educationLabels,
+          datasets: [{
+            label: 'Data One',
+            backgroundColor: '#f87979',
+            data: educationLabels.map(l => this.education[l]),
+          }],
+        };
+
+        const workFieldLabels = Object.keys(this.workField);
+        console.log(workFieldLabels);
+        this.datacollection.workFieldRatio = {
+          labels: workFieldLabels,
+          datasets: [{
+            label: 'Data One',
+            backgroundColor: '#f87979',
+            data: workFieldLabels.map(l => this.workField[l]),
           }],
         };
 
@@ -107,6 +156,61 @@
       this.updateData();
     },
     computed: {
+      totalMF() {
+        console.log(this.bus.profile);
+        let m = 0;
+        let f = 0;
+        this.bus.profile.data.forEach((curV) => {
+          if (this.selectYear.indexOf(curV.enrollYear) !== -1) {
+            switch (curV['性別']) {
+              case 'M':
+                m += 1;
+                break;
+              case 'F':
+                f += 1;
+                break;
+              default:
+            }
+          }
+        });
+        return [m, f];
+      },
+      major() {
+        const res = {};
+        this.bus.profile.data.forEach((curV) => {
+          if (this.selectYear.indexOf(curV.enrollYear) !== -1) {
+            const label = curV['主修1'];
+            if (label !== '-' && label !== undefined) {
+              res[label] = res[label] ? res[label] + 1 : 1;
+            }
+          }
+        });
+        return res;
+      },
+      education() {
+        const res = {};
+        this.bus.profile.data.forEach((curV) => {
+          if (this.selectYear.indexOf(curV.enrollYear) !== -1) {
+            const label = curV['學位1'];
+            if (label !== '-' && label !== undefined) {
+              res[label] = res[label] ? res[label] + 1 : 1;
+            }
+          }
+        });
+        return res;
+      },
+      workField() {
+        const res = {};
+        this.bus.profile.data.forEach((curV) => {
+          if (this.selectYear.indexOf(curV.enrollYear) !== -1) {
+            const label = curV['公司行業別'];
+            if (label !== '-' && label !== undefined) {
+              res[label] = res[label] ? res[label] + 1 : 1;
+            }
+          }
+        });
+        return res;
+      },
       activeIndex() {
         return this.$route.params.activeIndex;
       },

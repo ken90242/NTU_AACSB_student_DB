@@ -19,15 +19,51 @@
               <el-input
                 class="searchCond"
                 v-model="rawSearchInput"
-                :placeholder="searchCondition === 'sid' ? '學號' : '課號, 識別碼, 課程名稱'">
+                :placeholder="searchCondition === 'sid' ? '學號, 中英文姓名' : '課號, 識別碼, 課程名稱'">
               </el-input>
             </el-form-item>
           </el-form>
         </div>
         <div>
         <el-table
+          :data="poi"
+          v-show="poi.length > 1"
+          highlight-current-row
+          style="width: 100%">
+          <el-table-column
+            prop="學號"
+            label="學號"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            prop="中文姓名"
+            label="中文姓名"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            prop="英文姓名"
+            label="英文姓名">
+          </el-table-column>
+          <el-table-column
+            prop="國籍"
+            label="國籍">
+          </el-table-column>
+          <el-table-column
+            prop="email"
+            label="Email">
+          </el-table-column>
+          <el-table-column
+            fixed="right"
+            label="操作"
+            width="100">
+            <template slot-scope="scope">
+              <el-button @click="selectPOIbyID(scope.row['學號'])" type="text" size="small">查看</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <el-table
           :data="searchedTableData['student']"
-          v-if="searchCondition === 'sid'"
+          v-if="searchCondition === 'sid' && poi.length <= 1"
           :default-expand-all="true"
           style="width: 100%;">
           <el-table-column type="expand">
@@ -43,13 +79,15 @@
                   :description="`${ step.date } ${ step.desc }`">
                 </el-step>
               </el-steps>
-
               <el-form label-position="left" inline class="demo-table-expand">
                 <el-form-item label="國籍">
                   <span>{{ props.row['國籍'] }}</span>
                 </el-form-item>
                 <el-form-item label="出生年月日">
                   <span>{{ props.row['出生年月日'] }}</span>
+                </el-form-item>
+                <el-form-item label="年齡">
+                  <span>{{ props.row['年齡'] }}</span>
                 </el-form-item>
                 <el-form-item label="入學前學籍資訊">
                   <span>
@@ -66,45 +104,88 @@
                 <el-form-item label="email">
                   <span>{{ props.row['email'] }}</span>
                 </el-form-item>
-                <el-form-item label="系定必修">
+                <el-form-item label="畢業年份規定標準">
+                  <span>規定學年：{{ personalGradStandard['score']['學年'] }}</span>
+                  <span>
+                    /
+                  </span>
+                  <span><strong>系定必修</strong>：{{ personalGradStandard['score']['系定必修'] }}</span>
+                  <span>
+                    /
+                  </span>
+                  <span>選修：{{ personalGradStandard['score']['選修'] }}</span>
+                  <span>
+                    /
+                  </span>
+                  <span>應修最低畢業學分：{{ personalGradStandard['score']['應修最低畢業學分'] }}</span>
+                </el-form-item>
+                <el-form-item label="已修[系定必修]學分數">
                   <span
                     :style="{
                       'color': personalGraduateScore['totalRequiredScore'] < personalGradStandard['score']['系定必修'] ? 'red' : 'black'
                     }">
                     {{ personalGraduateScore['totalRequiredScore'] }}
                   </span>
-                  <span>
-                    /
-                  </span>
-                  <span>
-                    {{ personalGradStandard['score']['系定必修'] }}
-                  </span>
                 </el-form-item>
-                <el-form-item label="選修">
+                <el-form-item label="已修[選修]學分數">
                   <span
                     :style="{
                       'color': personalGraduateScore['totalSelectableScore'] < personalGradStandard['score']['選修'] ? 'red' : 'black'
                     }">
                     {{ personalGraduateScore['totalSelectableScore'] }}
                   </span>
-                  <span>/</span>
-                  <span>
-                    {{ personalGradStandard['score']['選修'] }}
-                  </span>
                 </el-form-item>
-                <el-form-item label="應修最低畢業學分">
+                <el-form-item label="已修[總學分數]">
                   <span
                     :style="{
                       'color': personalGraduateScore['totalSelectableScore'] + personalGraduateScore['totalRequiredScore'] < personalGradStandard['score']['應修最低畢業學分'] ? 'red' : 'black'
                     }">
                     {{ personalGraduateScore['totalSelectableScore'] + personalGraduateScore['totalRequiredScore'] }}
                   </span>
+                </el-form-item>
+                <el-form-item v-if="personalPapers !== null" label="論文資訊">
                   <span>
-                    /
+                    {{ personalPapers['中文標題'] }}
                   </span>
+                  ,
                   <span>
-                    {{ personalGradStandard['score']['應修最低畢業學分'] }}
+                    {{ personalPapers['英文標題'] }}
                   </span>
+                  ,
+                  <span>
+                    {{ personalPapers['年份'] }}
+                  </span>
+                  ,
+                  <span>
+                    指導教授：{{ personalPapers['指導教授'] }}
+                  </span>
+                </el-form-item>
+                <el-form-item v-else label="論文資訊">
+                  無
+                </el-form-item>
+                <el-form-item v-if="personalCouncil !== null" label="學生會資訊">
+                  <span>
+                    {{ personalCouncil['學年'] }}
+                  </span>
+                  ,
+                  <span>
+                    {{ personalCouncil['title'] }}
+                  </span>
+                  ,
+                  <span>
+                    {{ personalCouncil['note1'] }}
+                  </span>
+                  ,
+                  <span>
+                    {{ personalCouncil['note2'] }}
+                  </span>
+                  ,
+                  <span>
+                    {{ personalCouncil['note3'] }}
+                  </span>
+                </el-form-item>
+                <el-form-item v-else label="學生會資訊">
+                  無
                 </el-form-item>
               </el-form>
             </template>
@@ -125,10 +206,21 @@
             label="畢業年月"
             prop="畢業年月">
           </el-table-column>
+          <el-table-column label="個人照片" width="200px">
+            <template slot-scope="scope">
+              <el-carousel v-if="profile_pics.length > 0" indicator-position="none" height="150px">
+                <el-carousel-item v-for="pic_path in profile_pics" :key="pic_path">
+                  <img class="profile_img" :src="'data:image/png;base64,' + base64_encode(pic_path)" />
+                </el-carousel-item>
+              </el-carousel>
+              <span v-else>無</span>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
         <el-table
           :data="searchedTableData['course']"
+          v-show="poi.length <= 1"
           highlight-current-row
           style="width: 100%">
           <el-table-column
@@ -200,6 +292,9 @@
 </template>
 
 <script>
+  import fs from 'fs';
+  import path from 'path';
+  import { remote } from 'electron';
   import kanban from './kanban';
   import eventBus from './eventBus';
 
@@ -214,16 +309,31 @@
         },
         {
           value: 'cid',
-          label: '課程',
+          label: '必修課程',
         },
         ],
         searchCondition: 'sid',
-        rawSearchInput: 'R96749024',
+        rawSearchInput: 'R98723075',
         currentPage: 1,
         pageSize: 10,
+        poi: [], // person of interest，可能符合搜尋條件的學生
+        profile_pic_idx: 0,
       };
     },
     methods: {
+      base64_encode(file_path) {
+        // read binary data
+        const bitmap = fs.readFileSync(file_path);
+        // convert binary data to base64 encoded string
+        return new Buffer(bitmap).toString('base64');
+      },
+      clearSearchPOIs() {
+        this.poi = [];
+      },
+      selectPOIbyID(sid) {
+        this.rawSearchInput = sid;
+        // this.clearSearchPOIs();
+      },
       isCourseDeptRequired(row) {
         let flag = false;
         const requireCourseClassId1 = this.personalGradStandard.specific.map(row => row['課號']);
@@ -253,25 +363,35 @@
           student: null,
           course: [],
         };
+  
+        this.clearSearchPOIs();
 
         switch (searchCondition) {
-          // 以學生為本
+          // 查詢學生
           case 'sid':
             for (let i = 0; i < profile.data.length; i += 1) {
-              if (profile.data[i]['學號'] === searchInput) {
-                res.student = [profile.data[i]];
-                break;
+              if (
+                profile.data[i]['中文姓名'].trim().indexOf(searchInput) !== -1 ||
+                profile.data[i]['英文姓名'].trim().toUpperCase().indexOf(searchInput) !== -1 ||
+                profile.data[i]['學號'].trim().toUpperCase().indexOf(searchInput) !== -1) {
+                // 避免一次載入太多資料不流暢
+                if (this.poi.length < 50) {
+                  this.poi.push(profile.data[i]);
+                }
               }
             }
-
-            for (let i = 0; i < course.data.length; i += 1) {
-              if (course.data[i]['學號'] === searchInput) {
-                res.course.push(course.data[i]);
-              }
-            }
-            break;
   
-          // 以課程為本
+            if (this.poi.length === 1) {
+              for (let i = 0; i < course.data.length; i += 1) {
+                if (course.data[i]['學號'] === this.poi[0]['學號']) {
+                  res.course.push(course.data[i]);
+                }
+              }
+              res.student = this.poi;
+              break;
+            }
+  
+          // 查詢課程
           case 'cid': {
             const keysMap = [];
 
@@ -349,6 +469,22 @@
       },
     },
     computed: {
+      profile_pics() {
+        const sid = this.poi[0]['學號'];
+        const file_dir = path.join(this.bus.profilePicFolder, sid);
+        let res = [];
+  
+        if (fs.existsSync(file_dir)) {
+          const files = fs.readdirSync(file_dir)
+            .filter(nm => ['.png', '.gif', '.bmp', '.jpg'].indexOf(path.extname(nm)) != -1)
+            .map(nm => path.join(this.bus.profilePicFolder, sid, nm));
+
+          if (files.length > 0) {
+            res = files;
+          }
+        }
+        return res;
+      },
       searchInput() {
         return this.rawSearchInput.trim().toUpperCase();
       },
@@ -368,6 +504,24 @@
       },
       totalPages() {
         return this[this.displayType].data.length;
+      },
+      personalCouncil() {
+        let res = this.bus.council.data.filter(obj => obj['學號'] === this.poi[0]['學號']);
+        if (res.length === 0) {
+          res = null;
+        } else {
+          res = res[0];
+        }
+        return res;
+      },
+      personalPapers() {
+        let res = this.bus.papers.data.filter(obj => obj['作者學號'] === this.poi[0]['學號']);
+        if (res.length === 0) {
+          res = null;
+        } else {
+          res = res[0];
+        }
+        return res;
       },
       personalGradStandard() {
         // assume rawSearchInput is student id
@@ -512,5 +666,9 @@
     border-radius: 20px;
     display: flex;
     justify-content:center;
+  }
+  .profile_img {
+    max-width: 200px;
+    height: 100%;
   }
 </style>
