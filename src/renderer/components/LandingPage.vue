@@ -4,9 +4,6 @@
     <div class="githubWrapper">
       <a href="https://github.com/ken90242/NTU_AACSB_student_DB" target="_blank">程式源碼</a>
     </div>
-    {{latest_release_info}}
-    {{$electron.remote.app.getPath('userData')}}
-    <el-button @click="showUpdate">test</el-button>
     <div>
       <a href="https://trello.com/b/fY9TENhi" target="_blank">項目進度</a>
     </div>
