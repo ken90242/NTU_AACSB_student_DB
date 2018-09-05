@@ -25,6 +25,7 @@
           </el-form>
         </div>
         <div>
+        {{ bus.profilePicFolder }}
         <el-table
           :data="poi"
           v-show="poi.length > 1"
@@ -317,7 +318,6 @@
         currentPage: 1,
         pageSize: 10,
         poi: [], // person of interest，可能符合搜尋條件的學生
-        profile_pic_idx: 0,
       };
     },
     methods: {

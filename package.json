@@ -26,6 +26,11 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
+    "asar": true,
+    "extraResources": {
+      "from":"static",
+      "to":"public"
+    },
     "productName": "aacsb_db-tkb",
     "appId": "org.simulatedgreg.electron-vue",
     "directories": {
