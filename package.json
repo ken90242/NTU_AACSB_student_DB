@@ -1,13 +1,12 @@
 {
   "name": "aacsb_db",
-  "version": "0.0.0-beta",
+  "version": "0.0.0",
   "author": "r06725053@ntu.edu.tw",
   "description": "An electron-vue project",
   "license": null,
   "main": "./dist/electron/main.js",
   "scripts": {
-    "dist": "build",
-    "build": "node .electron-vue/build.js && electron-builder --w",
+    "build": "node .electron-vue/build.js && electron-builder",
     "build:darwin": "cross-env BUILD_TARGET=darwin node .electron-vue/build.js",
     "build:linux": "cross-env BUILD_TARGET=linux node .electron-vue/build.js",
     "build:mas": "cross-env BUILD_TARGET=mas node .electron-vue/build.js",
