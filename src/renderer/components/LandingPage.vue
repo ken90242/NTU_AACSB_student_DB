@@ -4,12 +4,14 @@
     <div class="githubWrapper">
       <a href="https://github.com/ken90242/NTU_AACSB_student_DB" target="_blank">程式源碼</a>
     </div>
+    {{latest_release_info}}
     {{$electron.remote.app.getPath('userData')}}
+    <el-button @click="showUpdate">test</el-button>
     <div>
       <a href="https://trello.com/b/fY9TENhi" target="_blank">項目進度</a>
     </div>
     <br/>
-    <div>版本: {{ package_version }}</div>
+    <div>版本: {{ app_version }}</div>
     <div>
       專案簡介
       <p>
@@ -50,8 +52,9 @@
     name: 'landing-page',
     data() {
       return {
-        package_version: app_version,
+        app_version: app_version,
         bus: eventBus,
+        latest_release_info: null,
       };
     },
     components: { kanban },
@@ -63,19 +66,20 @@
         this.$notify({
           title: '警告',
           dangerouslyUseHTMLString: true,
-          message: '新版本已推出，請<a href="" target="_blank">點此</a>立即更新！',
+          message: this.notify_html,
           type: 'warning',
           duration: 0,
         });
       },
     },
-    mounted() {
+    beforeMount() {
       fetch('https://api.github.com/repos/ken90242/NTU_AACSB_student_DB/releases/latest')
         .then(v => v.json())
         .then(v => {
+          this.latest_release_info = v;
           const github_version = v.tag_name.match(/\d\.\d\.\d/g)[0]
 
-          if (needUpdate(app_version, github_version) === false) {
+          if (needUpdate(app_version, github_version) === true) {
             console.log('Need update!');
             this.showUpdate();
             
@@ -86,6 +90,16 @@
         .catch(e => {
           console.error(e)
         }) 
+    },
+    computed: {
+      notify_html() {
+        const download_link = this.latest_release_info.assets
+          .filter(v => v.name !== 'latest.yml')
+          .map(v => v.browser_download_url)[0];
+        const context = '新版本已推出，請<a href="' + download_link + '" download>點此</a>立即更新！';
+
+        return context;
+      },
     },
   };
 </script>
