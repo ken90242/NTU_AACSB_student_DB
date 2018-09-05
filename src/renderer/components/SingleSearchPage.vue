@@ -25,7 +25,6 @@
           </el-form>
         </div>
         <div>
-        {{ bus.profilePicFolder }}
         <el-table
           :data="poi"
           v-show="poi.length > 1"
