@@ -65,7 +65,7 @@
           dangerouslyUseHTMLString: true,
           message: this.notify_html,
           type: 'warning',
-          duration: 0,
+          duration: 15,
         });
       },
     },
