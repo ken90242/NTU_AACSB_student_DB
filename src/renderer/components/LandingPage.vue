@@ -8,15 +8,16 @@
       <a href="https://trello.com/b/fY9TENhi" target="_blank">項目進度</a>
     </div>
     <br/>
+
+    <div>版本: {{ package_json_info.version }}</div>
     <div>
       專案簡介
       <p>
-        主要以Javascript(ES7)開發，主要使用組件為:<br/>
+        主要以Javascript(ES7)開發，使用組件為:<br/>
         <ul>
           <li>electron.js — 桌面應用程序</li>
           <li>vue.js — 介面frameWork</li>
           <li>element-ui.js — UI元件庫</li>
-          <li>chart.js — 圖表框架</li>
           <li>xlsx.js - 讀取excel資料表</li>
         </ul> 
       </p>
@@ -34,6 +35,7 @@
     name: 'landing-page',
     data() {
       return {
+        package_json_info: require('../../../package.json'),
         bus: eventBus,
       };
     },
