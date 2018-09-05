@@ -92,11 +92,11 @@
   }
 
   const production_path = path.join(__dirname, '../../../public');
-  const static_file_path = fs.existsSync(production_path) ? production_path : __static;
+  const public_file_path = fs.existsSync(production_path) ? production_path : path.join(__static, 'public');
   const bus = new Vue({
     computed: {
       profile() {
-        const rawData = getExcelContent2List(path.join(static_file_path, '/excels/basic_info.xlsx'));
+        const rawData = getExcelContent2List(path.join(public_file_path, '/excels/basic_info.xlsx'));
         rawData.data = rawData.data.map((row) => {
           // EXCEL表格從1899開始計算
           const valDiff = moment('1899-12-30').add(parseInt(row['出生年月日'], 10), 'day');
@@ -108,8 +108,8 @@
           return row;
         });
 
-        const artificialMaintain = getExcelContent2List(path.join(static_file_path, '/excels/usable.xlsx'));
-        console.log(path.join(static_file_path, '/excels/usable.xlsx'));
+        const artificialMaintain = getExcelContent2List(path.join(public_file_path, '/excels/usable.xlsx'));
+        console.log(path.join(public_file_path, '/excels/usable.xlsx'));
         // console.log(path.join(remote.app.getAppPath(), '../../../../', 'usable.xlsx'))
         console.log(artificialMaintain);
         // combined data
@@ -131,19 +131,19 @@
       },
       course() {
         // remote.app.getAppPath()
-        return getExcelContent2List(path.join(static_file_path, '/excels/course_record.xlsx'));
+        return getExcelContent2List(path.join(public_file_path, '/excels/course_record.xlsx'));
       },
       council() {
-        return getExcelContent2List(path.join(static_file_path, '/excels/student_council.xlsx'));
+        return getExcelContent2List(path.join(public_file_path, '/excels/student_council.xlsx'));
       },
       papers() {
-        return getExcelContent2List(path.join(static_file_path, '/excels/papers.xlsx'));
+        return getExcelContent2List(path.join(public_file_path, '/excels/papers.xlsx'));
       },
       questionnaire() {
-        return getExcelContent2List(path.join(static_file_path, '/excels/yvonne_questionnaire.xlsx'));
+        return getExcelContent2List(path.join(public_file_path, '/excels/yvonne_questionnaire.xlsx'));
       },
       graduateStandard() {
-        return getExcelContent2List(path.join(static_file_path, '/excels/graduate_standard.xlsx'));
+        return getExcelContent2List(path.join(public_file_path, '/excels/graduate_standard.xlsx'));
       },
       enrollYears() {
         const years = this.profile.data.map(row => row.enrollYear);
@@ -151,7 +151,7 @@
         return [...new Set(years)].sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
       },
       profilePicFolder() {
-        return path.join(static_file_path, 'profile_pics/');
+        return path.join(public_file_path, 'profile_pics/');
       },
     },
   });

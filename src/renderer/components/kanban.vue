@@ -98,7 +98,7 @@
     data() {
       return {
         // test: path.join(remote.app.getAppPath(), '../../../../'),
-        gmba_logo: path.join(__dirname, '../assets/aacsb_logo.png'),
+        gmba_logo: 'static/assets/aacsb_logo.png',
         bus: eventBus,
       };
     },

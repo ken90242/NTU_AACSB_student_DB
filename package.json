@@ -26,7 +26,7 @@
   "build": {
     "asar": true,
     "extraResources": {
-      "from":"static",
+      "from":"static/public",
       "to":"public"
     },
     "productName": "aacsb_db-tkb",

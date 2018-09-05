@@ -37,8 +37,8 @@
     data() {
       return {
         github_imgs: {
-          mark: path.join(__dirname, '../assets/GitHub-Mark.png'),
-          logo: path.join(__dirname, '../assets/Github_Logo.png'),
+          mark: 'static/assets/GitHub-Mark.png',
+          logo: 'static/assets/Github_Logo.png',
         },
         bus: eventBus,
       };
