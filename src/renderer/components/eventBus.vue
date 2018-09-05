@@ -91,8 +91,7 @@
     return multiSheetsRes;
   }
 
-  const production_path = path.join(remote.app.getPath('userData'), '/public');
-  const public_file_path = production_path;
+  const public_file_path = path.join(remote.app.getPath('userData'), '/public');
   const bus = new Vue({
     computed: {
       profile() {

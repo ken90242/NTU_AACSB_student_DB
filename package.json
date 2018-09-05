@@ -21,10 +21,6 @@
   },
   "build": {
     "asar": true,
-    "extraResources": {
-      "from":"static/public",
-      "to":"public"
-    },
     "productName": "aacsb_db-tkb",
     "appId": "org.simulatedgreg.electron-vue",
     "directories": {
