@@ -2,8 +2,6 @@
   <div id="wrapper">
     <kanban activeIndex="1"></kanban>
     <div class="githubWrapper">
-      <img class="githublogo" :src="github_imgs.mark" alt="github">
-      <img class="githublogo" :src="github_imgs.logo" alt="github">
       <a href="https://github.com/ken90242/NTU_AACSB_student_DB">原始碼(unaccesible now)</a>
     </div>
     <div>
@@ -36,10 +34,6 @@
     name: 'landing-page',
     data() {
       return {
-        github_imgs: {
-          mark: 'static/assets/GitHub-Mark.png',
-          logo: 'static/assets/Github_Logo.png',
-        },
         bus: eventBus,
       };
     },
