@@ -1,7 +1,6 @@
 <template>
   <div>
-  <img id="logo" src="../assets/aacsb_logo.png" alt="gmba-red">
-<!--   {{ test }} -->
+  <img id="logo" :src="gmba_logo" alt="gmba-red">
   <div class="bar">
     <el-menu :default-active="activeIndex" class="el-menu" mode="horizontal" :router="true">
       <el-menu-item :route="{ name: 'landing-page' }" index="1">
@@ -92,12 +91,14 @@
 <script>
   import { shell } from 'electron';
   import eventBus from './eventBus';
+  import path from 'path';
 
   export default {
     name: 'kanban',
     data() {
       return {
         // test: path.join(remote.app.getAppPath(), '../../../../'),
+        gmba_logo: path.join(__dirname, '../assets/aacsb_logo.png'),
         bus: eventBus,
       };
     },

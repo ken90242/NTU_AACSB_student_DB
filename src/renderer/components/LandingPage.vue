@@ -2,8 +2,8 @@
   <div id="wrapper">
     <kanban activeIndex="1"></kanban>
     <div class="githubWrapper">
-      <img class="githublogo" src="../assets/GitHub-Mark.png" alt="github">
-      <img class="githublogo" src="../assets/Github_Logo.png" alt="github">
+      <img class="githublogo" :src="github_imgs.mark" alt="github">
+      <img class="githublogo" :src="github_imgs.logo" alt="github">
       <a href="https://github.com/ken90242/NTU_AACSB_student_DB">原始碼(unaccesible now)</a>
     </div>
     <div>
@@ -30,11 +30,16 @@
 <script>
   import kanban from './kanban';
   import eventBus from './eventBus';
+  import path from 'path';
 
   export default {
     name: 'landing-page',
     data() {
       return {
+        github_imgs: {
+          mark: path.join(__dirname, '../assets/GitHub-Mark.png'),
+          logo: path.join(__dirname, '../assets/Github_Logo.png'),
+        },
         bus: eventBus,
       };
     },
