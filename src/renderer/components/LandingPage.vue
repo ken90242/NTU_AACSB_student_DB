@@ -2,11 +2,12 @@
   <div id="wrapper">
     <kanban activeIndex="1"></kanban>
     <div class="githubWrapper">
-      <a href="https://github.com/ken90242/NTU_AACSB_student_DB">原始碼(unaccesible now)</a>
+      <a href="https://github.com/ken90242/NTU_AACSB_student_DB" target="_blank">程式源碼</a>
     </div>
     <div>
-      <a href="https://trello.com/b/fY9TENhi">點此查看項目進度</a>
+      <a href="https://trello.com/b/fY9TENhi" target="_blank">項目進度</a>
     </div>
+    <br/>
     <div>
       專案簡介
       <p>
