@@ -4,12 +4,12 @@
     <div class="githubWrapper">
       <a href="https://github.com/ken90242/NTU_AACSB_student_DB" target="_blank">程式源碼</a>
     </div>
+    {{$electron.remote.app.getPath('userData')}}
     <div>
       <a href="https://trello.com/b/fY9TENhi" target="_blank">項目進度</a>
     </div>
     <br/>
-
-    <div>版本: {{ package_json_info.version }}</div>
+    <div>版本: {{ package_version }}</div>
     <div>
       專案簡介
       <p>
@@ -30,12 +30,27 @@
   import kanban from './kanban';
   import eventBus from './eventBus';
   import path from 'path';
+  import { version as app_version } from '../../../package.json';
+
+  const needUpdate = function(application_v, latest_release_v) {
+    const app_v = application_v.split('.');
+    const github_v = latest_release_v.split('.');
+
+    let flag = false;
+
+    app_v.forEach((value, idx) => {
+      if (value < github_v[idx]) {
+        flag = true;
+      }
+    })
+    return flag;
+  }
 
   export default {
     name: 'landing-page',
     data() {
       return {
-        package_json_info: require('../../../package.json'),
+        package_version: app_version,
         bus: eventBus,
       };
     },
@@ -44,6 +59,33 @@
       open(link) {
         this.$electron.shell.openExternal(link);
       },
+      showUpdate() {
+        this.$notify({
+          title: '警告',
+          dangerouslyUseHTMLString: true,
+          message: '新版本已推出，請<a href="" target="_blank">點此</a>立即更新！',
+          type: 'warning',
+          duration: 0,
+        });
+      },
+    },
+    mounted() {
+      fetch('https://api.github.com/repos/ken90242/NTU_AACSB_student_DB/releases/latest')
+        .then(v => v.json())
+        .then(v => {
+          const github_version = v.tag_name.match(/\d\.\d\.\d/g)[0]
+
+          if (needUpdate(app_version, github_version) === false) {
+            console.log('Need update!');
+            this.showUpdate();
+            
+          } else {
+            console.log('No need to update!');
+          }
+        })
+        .catch(e => {
+          console.error(e)
+        }) 
     },
   };
 </script>
