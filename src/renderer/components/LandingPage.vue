@@ -2,8 +2,8 @@
   <div id="wrapper">
     <kanban activeIndex="1"></kanban>
     <div class="githubWrapper">
-      <img class="githublogo" src="~@/assets/GitHub-Mark.png" alt="github">
-      <img class="githublogo" src="~@/assets/Github_Logo.png" alt="github">
+      <img class="githublogo" src="../assets/GitHub-Mark.png" alt="github">
+      <img class="githublogo" src="../assets/Github_Logo.png" alt="github">
       <a href="https://github.com/ken90242/NTU_AACSB_student_DB">原始碼(unaccesible now)</a>
     </div>
     <div>

@@ -1,6 +1,6 @@
 <template>
   <div>
-  <img id="logo" src="~@/assets/logo.png" alt="gmba-red">
+  <img id="logo" src="../assets/aacsb_logo.png" alt="gmba-red">
 <!--   {{ test }} -->
   <div class="bar">
     <el-menu :default-active="activeIndex" class="el-menu" mode="horizontal" :router="true">
