@@ -32,13 +32,11 @@
           style="width: 100%">
           <el-table-column
             prop="學號"
-            label="學號"
-            width="180">
+            label="學號">
           </el-table-column>
           <el-table-column
             prop="中文姓名"
-            label="中文姓名"
-            width="180">
+            label="中文姓名">
           </el-table-column>
           <el-table-column
             prop="英文姓名"
@@ -54,10 +52,16 @@
           </el-table-column>
           <el-table-column
             fixed="right"
-            label="操作"
-            width="100">
+            label="操作">
             <template slot-scope="scope">
-              <el-button @click="selectPOIbyID(scope.row['學號'])" type="text" size="small">查看</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                icon="el-icon-search"
+                round
+                @click="selectPOIbyID(scope.row['學號'])">
+              </el-button>
+              <!-- <el-button type="info" icon="el-icon-message" round size="mini" style="margin:0px"></el-button> -->
             </template>
           </el-table-column>
         </el-table>
@@ -313,7 +317,7 @@
         },
         ],
         searchCondition: 'sid',
-        rawSearchInput: 'R98723075',
+        rawSearchInput: 'R98', //'R98723075'
         currentPage: 1,
         pageSize: 10,
         poi: [], // person of interest，可能符合搜尋條件的學生

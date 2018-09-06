@@ -3,14 +3,14 @@
     <kanban activeIndex="3"></kanban>
     <div>
       
-      <div class="littlebar">
+      <!-- <div class="littlebar"> -->
         <el-tabs v-model="displayType" type="card">
-        <el-tab-pane label="學生資料" name="profile"></el-tab-pane>
-        <el-tab-pane label="修課紀錄" name="course"></el-tab-pane>
-        <el-tab-pane label="畢業生論文" name="papers"></el-tab-pane>
-        <el-tab-pane label="學生會紀錄" name="council"></el-tab-pane>
-        <el-tab-pane label="GMBA線上問卷" name="questionnaire"></el-tab-pane>
-      </el-tabs>
+          <el-tab-pane label="學生資料" name="profile"></el-tab-pane>
+          <el-tab-pane label="修課紀錄" name="course"></el-tab-pane>
+          <el-tab-pane label="畢業生論文" name="papers"></el-tab-pane>
+          <el-tab-pane label="學生會紀錄" name="council"></el-tab-pane>
+          <el-tab-pane label="GMBA線上問卷" name="questionnaire"></el-tab-pane>
+        </el-tabs>
         <div class="paginateWrapper">
           <el-pagination
             @size-change="handleSizeChange"
@@ -22,7 +22,7 @@
             :total="totalPages">
           </el-pagination>
         </div>
-      </div>
+      <!-- </div> -->
       <div v-if="displayType === 'profile'">
         <el-table
           :data="displayTable"

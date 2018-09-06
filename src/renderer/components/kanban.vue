@@ -1,6 +1,6 @@
 <template>
   <div>
-  <img id="logo" :src="gmba_logo" alt="gmba-red">
+  <img id="logo" src="static/assets/aacsb_logo.png" alt="gmba-red-logo">
   <div class="bar">
     <el-menu :default-active="activeIndex" class="el-menu" mode="horizontal" :router="true">
       <el-menu-item :route="{ name: 'landing-page' }" index="1">
@@ -24,48 +24,14 @@
         </el-menu-item>
       </el-submenu>
     </el-menu>
-    <el-dropdown class="item" size="medium" placement="bottom-start" @command="openExcel">
-        <el-button type="danger">
-          編輯操作
-          <i class="el-icon-edit el-icon--right"></i>
-        </el-button>
-        <el-dropdown-menu class="dropdown_menu" slot="dropdown">
-          <el-dropdown-item class="dropdown_item" :command="bus.profile['excel_path']">
-            <i class="el-icon-document"></i>&nbsp;
-            歷年學生資料
-          </el-dropdown-item>
-          <el-dropdown-item class="dropdown_item" :command="bus.course['excel_path']">
-            <i class="el-icon-document"></i>
-            &nbsp;
-            歷年學生修課紀錄
-          </el-dropdown-item>
-          <el-dropdown-item class="dropdown_item" :command="bus.graduateStandard['excel_path']">
-            <i class="el-icon-document"></i>
-            &nbsp;
-            畢業標準
-          </el-dropdown-item>
-          <el-dropdown-item class="dropdown_item" :command="bus.papers['excel_path']">
-            <i class="el-icon-document"></i>
-            &nbsp;
-            畢業生論文
-          </el-dropdown-item>
-          <el-dropdown-item class="dropdown_item" :command="bus.council['excel_path']">
-            <i class="el-icon-document"></i>
-            &nbsp;
-            歷年學生會
-          </el-dropdown-item>
-          <el-dropdown-item class="dropdown_item" :command="bus.questionnaire['excel_path']">
-            <i class="el-icon-document"></i>
-            &nbsp;
-            GMBA問卷
-          </el-dropdown-item>
-          <el-dropdown-item class="dropdown_item" :command="bus.profilePicFolder">
-            <i class="el-icon-document"></i>
-            &nbsp;
-            照片資料夾
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+    <el-cascader
+      expand-trigger="hover"
+      class="item"
+      :options="options"
+      v-model="selectedOptions"
+      placeholder="請選擇編輯目標"
+      @change="handleChange">
+    </el-cascader>
     <el-badge :value="12" class="item" v-if="false">
       <el-dropdown size="medium" placement="bottom-start">
         <el-button type="primary">
@@ -100,14 +66,42 @@
         // test: path.join(remote.app.getAppPath(), '../../../../'),
         gmba_logo: 'static/assets/aacsb_logo.png',
         bus: eventBus,
+        selectedOptions: null,
+        options: [{
+          value: path.join(eventBus.profilePicFolder, '/../excels'),
+          label: 'Excels資料夾',
+          children: [{
+            value: eventBus.profile['excel_path'],
+            label: '歷年學生資料',
+          }, {
+            value: eventBus.course['excel_path'],
+            label: '歷年學生修課紀錄',
+          }, {
+            value: eventBus.graduateStandard['excel_path'],
+            label: '畢業標準',
+          }, {
+            value: eventBus.papers['excel_path'],
+            label: '畢業生論文',
+          }, {
+            value: eventBus.council['excel_path'],
+            label: '歷年學生會',
+          }, {
+            value: eventBus.questionnaire['excel_path'],
+            label: 'GMBA問卷',
+          },]
+        }, {
+          value: eventBus.profilePicFolder,
+          label: '個人照片資料夾',
+        }],
       };
     },
     props: ['activeIndex'],
     methods: {
-      openExcel(filePath) {
-        shell.openItem(filePath);
+      handleChange() {
+        // console.log(this.selectedOptions)
+        shell.openItem(this.selectedOptions[this.selectedOptions.length - 1])
       },
-    },
+    }
   };
 </script>
 

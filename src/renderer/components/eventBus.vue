@@ -7,94 +7,101 @@
   import { remote } from 'electron';
 
   function getExcelContent2List(xlsxPath) {
-    const filledUpFields = function filledUpFields(rowData, keys) {
-      Object.entries(keys).forEach(([, label]) => { // [symbol, label]
-        rowData[label] = rowData[label] || '-';
-      });
-      return rowData;
-    };
-
-    const workbook = XLSX.readFile(xlsxPath);
-    const sheetNameList = workbook.SheetNames;
-
-    let currentSheetRes = {};
-    const multiSheetsRes = {};
-
-    /* iterate through sheets */
-    sheetNameList.forEach((sheetname) => {
-      const totalDataFields = [];
-      const totalHeadFields = [];
-      const worksheet = workbook.Sheets[sheetname];
-      const keys = {};
-      const re = new RegExp('(\\D+)(\\d+)');
-      const symbols_arr = [];
-
-      let lastSymbol = null;
-      let rowData = {};
-
-      Object.keys(worksheet)
-        /* 带!的属性（比如!ref）是表格的特殊属性，用来输出表格的信息，不是表格的内容，所以去掉 */
-        .forEach((z) => {
-          // symbol為第column ID(A,B,...), seq為第幾列
-          // [source, symbol, seq, ...]
-          if (z[0] !== '!') {
-            const [, symbol, seq] = re.exec(z);
-            const cellVal = worksheet[z].v.toString().trim();
-
-            // 把標頭取下
-            if (seq === '1') {
-              keys[symbol] = cellVal;
-              totalHeadFields.push(cellVal);
-              symbols_arr.push(symbol); // 在第一列上一直更新，找最後一個column symbol, ex: A, B, ...
-            } else {
-              const label = keys[symbol];
-              // 換行，column id = 'A', 同時避免初始化rowData還沒資料的問題
-              if (sheetname == 'gmba學籍資料_1220' && seq == 613) {
-                // console.log(cellVal, symbol)
-                // console.log(rowData)
-              }
-              if (sheetname == 'courses') {
-                // console.log(cellVal, symbol)
-                // console.log(rowData)
-              }
-
-              if (lastSymbol !== null &&
-                  symbols_arr.indexOf(symbol) <= symbols_arr.indexOf(lastSymbol) &&
-                  seq >= 2) {
-                totalDataFields.push(filledUpFields(rowData, keys));
-                rowData = {};
-              }
-              rowData[label] = cellVal;
-              lastSymbol = symbol;
-            }
-          }
+    try {
+      const filledUpFields = function filledUpFields(rowData, keys) {
+        Object.entries(keys).forEach(([, label]) => { // [symbol, label]
+          rowData[label] = rowData[label] || '-';
         });
-      // 補上最後一個row的資料，並清空
-      totalDataFields.push(filledUpFields(rowData, keys));
-      rowData = {};
-
-      currentSheetRes = {
-        head: totalHeadFields,
-        data: totalDataFields,
-        excel_path: xlsxPath,
+        return rowData;
       };
-      multiSheetsRes[sheetname] = currentSheetRes;
-    });
-  
-    if (Object.keys(multiSheetsRes).length === 1) {
-      // basic_infos, course_standatd
-      return currentSheetRes;
+
+      const workbook = XLSX.readFile(xlsxPath);
+      const sheetNameList = workbook.SheetNames;
+
+      let currentSheetRes = {};
+      const multiSheetsRes = {};
+
+      /* iterate through sheets */
+      sheetNameList.forEach((sheetname) => {
+        const totalDataFields = [];
+        const totalHeadFields = [];
+        const worksheet = workbook.Sheets[sheetname];
+        const keys = {};
+        const re = new RegExp('(\\D+)(\\d+)');
+        const symbols_arr = [];
+
+        let lastSymbol = null;
+        let rowData = {};
+
+        Object.keys(worksheet)
+          /* 带!的属性（比如!ref）是表格的特殊属性，用来输出表格的信息，不是表格的内容，所以去掉 */
+          .forEach((z) => {
+            // symbol為第column ID(A,B,...), seq為第幾列
+            // [source, symbol, seq, ...]
+            if (z[0] !== '!') {
+              const [, symbol, seq] = re.exec(z);
+              const cellVal = worksheet[z].v.toString().trim();
+
+              // 把標頭取下
+              if (seq === '1') {
+                keys[symbol] = cellVal;
+                totalHeadFields.push(cellVal);
+                symbols_arr.push(symbol); // 在第一列上一直更新，找最後一個column symbol, ex: A, B, ...
+              } else {
+                const label = keys[symbol];
+                // 換行，column id = 'A', 同時避免初始化rowData還沒資料的問題
+                if (sheetname == 'gmba學籍資料_1220' && seq == 613) {
+                  // console.log(cellVal, symbol)
+                  // console.log(rowData)
+                }
+                if (sheetname == 'courses') {
+                  // console.log(cellVal, symbol)
+                  // console.log(rowData)
+                }
+
+                if (lastSymbol !== null &&
+                    symbols_arr.indexOf(symbol) <= symbols_arr.indexOf(lastSymbol) &&
+                    seq >= 2) {
+                  totalDataFields.push(filledUpFields(rowData, keys));
+                  rowData = {};
+                }
+                rowData[label] = cellVal;
+                lastSymbol = symbol;
+              }
+            }
+          });
+        // 補上最後一個row的資料，並清空
+        totalDataFields.push(filledUpFields(rowData, keys));
+        rowData = {};
+
+        currentSheetRes = {
+          head: totalHeadFields,
+          data: totalDataFields,
+          excel_path: xlsxPath,
+        };
+        multiSheetsRes[sheetname] = currentSheetRes;
+      });
+    
+      if (Object.keys(multiSheetsRes).length === 1) {
+        // basic_infos, course_standatd
+        return currentSheetRes;
+      }
+    
+      // graduate_standard
+      multiSheetsRes.excel_path = xlsxPath;
+      return multiSheetsRes;
+    } catch(e) {
+      throw e;
     }
-  
-    // graduate_standard
-    multiSheetsRes.excel_path = xlsxPath;
-    return multiSheetsRes;
   }
 
   const production_path = path.join(remote.app.getPath('userData'), '/public');
   const public_file_path = fs.existsSync(production_path) ? production_path : path.join(__static, 'public');
   const bus = new Vue({
     computed: {
+      publicDataExisted() {
+        return fs.existsSync(production_path);
+      },
       profile() {
         const rawData = getExcelContent2List(path.join(public_file_path, '/excels/basic_info.xlsx'));
         rawData.data = rawData.data.map((row) => {
