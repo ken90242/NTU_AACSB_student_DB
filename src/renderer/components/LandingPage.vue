@@ -1,7 +1,7 @@
 <template>
   <div id="wrapper">
     <kanban activeIndex="1"></kanban>
-    <div style="margin:15px">
+    <!-- <div style="margin:15px">
       <el-button
         type="info"
         icon="el-icon-message"
@@ -9,7 +9,7 @@
         size="medium"
         @click="mailToKen">
       </el-button>
-    </div>
+    </div> -->
     <div style="margin:5px">
       <h3 style="display:inline-block">程式資訊</h3>
       <ul style="margin-left:20px">
@@ -24,8 +24,9 @@
     <div style="margin:5px">
       <h3 style="margin-bottom:5px">本次更新</h3>
         <ul style="margin-left:20px">
-          <li>偵測版本除錯</li>
-          <li>修正不良代碼</li>
+          <li>去除冗余按鈕</li>
+          <li>介面增加測試變數</li>
+          <li>改善通知呈現</li>
         </ul> 
     </div>
     <hr/>
@@ -122,11 +123,7 @@
                 type: 'error',
               });
             }
-            this.$notify({
-              title: '成功',
-              message: '資料初始化成功！',
-              type: 'success',
-            });
+
             this.$alert('即將重啟應用程式', '消息', {
               confirmButtonText: '確定',
               type: 'info',
@@ -138,6 +135,12 @@
               callback: action => {
                 location.reload();
               }
+            });
+
+            this.$notify({
+              title: '成功',
+              message: '資料初始化成功！',
+              type: 'success',
             });
           });
         }).catch(() => {
