@@ -109,9 +109,12 @@
           const valDiff = moment('1899-12-30').add(parseInt(row['出生年月日'], 10), 'day');
           row['出生年月日'] = moment(valDiff).format('YYYY/MM/DD');
           row['年齡'] = moment().diff(row['出生年月日'], 'years');
-          const rawYear = row['學號'].match(/\w(\d{2})\d+/)[1];
-          const processedYear = parseInt(rawYear, 10) < 94 ? `1${rawYear}`.toString() : rawYear.toString();
-          row.enrollYear = processedYear;
+          const detectRawYear = row['學號'].match(/\w(\d{2})\d+/);
+          if (detectRawYear) {
+            const rawYear = detectRawYear[1];
+            const processedYear = parseInt(rawYear, 10) < 94 ? `1${rawYear}`.toString() : rawYear.toString();
+            row.enrollYear = processedYear;
+          }
           return row;
         });
 

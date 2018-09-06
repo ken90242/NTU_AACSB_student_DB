@@ -10,37 +10,28 @@
         @click="mailToKen">
       </el-button>
     </div>
-    <h3 style="margin:5px">當前版本: v{{ app_version }}</h3>
-    <hr/>
     <div style="margin:5px">
-      <h3 style="display:inline-block">當前版本發布時間：</h3>
-      {{ new Date().toString() }}
+      <h3 style="display:inline-block">程式資訊</h3>
+      <ul style="margin-left:20px">
+        <li>版本：v{{ app_version }}</li>
+        <li>發布時間：{{ new Date().toString() }}</li>
+        <li>項目進度：<a href="https://trello.com/b/fY9TENhi" target="_blank">https://trello.com/b/fY9TENhi</a></li>
+        <li>原始程式碼：<a href="https://github.com/ken90242/NTU_AACSB_student_DB" target="_blank">https://github.com/ken90242/NTU_AACSB_student_DB</a></li>
+        <li>歷代版本下載：<a href="https://github.com/ken90242/NTU_AACSB_student_DB/releases/" target="_blank">https://github.com/ken90242/NTU_AACSB_student_DB/releases/</a></li>
+      </ul> 
     </div>
     <hr/>
     <div style="margin:5px">
       <h3 style="margin-bottom:5px">本次更新</h3>
         <ul style="margin-left:20px">
-          <li>美化查看按鈕、首頁佈告爛</li>
-          <li>新增快速寄信連結</li>
-          <li>新增檢驗資料功能</li>
-          <li>編輯資料介面改為cascader</li>
-          <li>內部測試 - asar檔copy為獨立檔案</li>
+          <li>偵測版本除錯</li>
+          <li>修正不良代碼</li>
         </ul> 
     </div>
     <hr/>
     <div style="margin:5px">
-      <h3 style="display:inline-block">歷代版本下載：</h3>
-      <a href="https://github.com/ken90242/NTU_AACSB_student_DB/releases/" target="_blank">https://github.com/ken90242/NTU_AACSB_student_DB/releases/</a>
-    </div>
-    <hr/>
-    <div style="margin:5px">
-      <h3 style="display:inline-block">項目進度：</h3>
-      <a href="https://trello.com/b/fY9TENhi" target="_blank">https://trello.com/b/fY9TENhi</a>
-    </div>
-    <hr/>
-    <div style="margin:5px">
-      <h3 style="display:inline-block">原始程式碼：</h3>
-      <a href="https://github.com/ken90242/NTU_AACSB_student_DB" target="_blank">https://github.com/ken90242/NTU_AACSB_student_DB</a>
+      <h3 style="display:inline-block">內部測試變數：</h3>
+      <p>{{ test }}</p>
     </div>
     <hr/>
   </div>
@@ -60,20 +51,27 @@
     const app_v = application_v.split('.');
     const github_v = latest_release_v.split('.');
 
-    let flag = false;
+    const weights = [100, 10, 1];
 
-    app_v.forEach((value, idx) => {
-      if (value < github_v[idx]) {
-        flag = true;
-      }
-    })
-    return flag;
+    const app_wgt = app_v.reduce((v, idx) => {
+      return v * weights[idx];
+    }, 0);
+    const github_wgt = github_v.reduce((v, idx) => {
+      return v * weights[idx];
+    }, 0);
+
+
+    return github_v > app_wgt;
   }
 
   export default {
     name: 'landing-page',
     data() {
       return {
+        test: {
+          static_path: __static,
+          userdata_path: remote.app.getPath('userData'),
+        },
         app_version: app_version,
         bus: eventBus,
         latest_release_info: null,
