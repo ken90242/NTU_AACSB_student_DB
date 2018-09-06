@@ -62,7 +62,6 @@
                 round
                 @click="selectPOIbyID(scope.row['學號'])">
               </el-button>
-              <!-- <el-button type="info" icon="el-icon-message" round size="mini" style="margin:0px"></el-button> -->
             </template>
           </el-table-column>
         </el-table>

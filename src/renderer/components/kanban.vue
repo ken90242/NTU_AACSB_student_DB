@@ -122,7 +122,6 @@
   }
 
   .el-icon-bell {
-    /*font-size: 25px;*/
   }
 
   .el-icon-bell:hover {

@@ -1,6 +1,6 @@
 {
-  "name": "aacsb_db",
-  "version": "0.1.3",
+  "name": "GMBA_APP",
+  "version": "0.1.4",
   "author": "r06725053@ntu.edu.tw",
   "description": "An electron-vue project",
   "license": null,
@@ -21,7 +21,7 @@
   },
   "build": {
     "asar": true,
-    "productName": "aacsb_db-tkb",
+    "productName": "gmba",
     "appId": "org.simulatedgreg.electron-vue",
     "directories": {
       "output": "build"
@@ -51,7 +51,7 @@
       "icon": "build/icons/icon.ico"
     },
     "nsis": {
-      "artifactName": "${productName}Installer.${version}.${ext}",
+      "artifactName": "${productName}-${version}.${ext}",
       "oneClick": true,
       "installerIcon": "build/icons/icon.ico",
       "installerHeaderIcon": "build/icons/icon.ico"

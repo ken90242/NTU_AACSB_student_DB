@@ -1,15 +1,6 @@
 <template>
   <div id="wrapper">
     <kanban activeIndex="1"></kanban>
-    <!-- <div style="margin:15px">
-      <el-button
-        type="info"
-        icon="el-icon-message"
-        round
-        size="medium"
-        @click="mailToKen">
-      </el-button>
-    </div> -->
     <div style="margin:5px">
       <h3 style="display:inline-block">程式資訊</h3>
       <ul style="margin-left:20px">
@@ -24,7 +15,8 @@
     <div style="margin:5px">
       <h3 style="margin-bottom:5px">本次更新</h3>
         <ul style="margin-left:20px">
-          <li>修正版本偵測</li>
+          <li>修正安裝器、APP名稱</li>
+          <li>去除冗余註解、console.log</li>
         </ul> 
     </div>
     <hr/>
@@ -156,9 +148,6 @@
           });
         });
       },
-      mailToKen() {
-        window.location.href = `mailto:ken90242@ntu.edu.tw?body=<version: ${this.app_version}>`;
-      },
     },
     beforeMount() {
       fetch('https://api.github.com/repos/ken90242/NTU_AACSB_student_DB/releases/latest')
@@ -168,15 +157,13 @@
           const github_version = v.tag_name.match(/\d\.\d\.\d/g)[0]
 
           if (needUpdate(app_version, github_version) === true) {
-            console.log('Need update!');
+            // Need update!
             this.showUpdate();
             
-          } else {
-            console.log('No need to update!');
           }
         })
         .catch(e => {
-          console.error(e);
+          throw e;
         }) 
     },
     mounted() {
@@ -212,7 +199,6 @@
     padding: 60px 80px;
     padding-top: 40px;
     width: 100%;
-    /*width: 100vw;*/
   }
 
   .githubWrapper {
