@@ -25,7 +25,6 @@
           </el-form>
         </div>
         <div>
-        {{ bus.questionnaire }}
         <el-table
           :data="poi"
           v-show="poi.length > 1"
@@ -102,11 +101,20 @@
                 <el-form-item label="家裡電話">
                   <span>{{ props.row['家裡電話'] }} / {{ props.row['電話3'] }}</span>
                 </el-form-item>
+                <el-form-item label="經常使用家裡電話">
+                  <span>{{ personalQuestionnaire.freq_telephone }}</span>
+                </el-form-item>
                 <el-form-item label="手機">
                   <span>{{ props.row['手機'] }}</span>
                 </el-form-item>
+                <el-form-item label="經常使用手機">
+                  <span>{{ personalQuestionnaire.freq_mobile }}</span>
+                </el-form-item>
                 <el-form-item label="email">
                   <span>{{ props.row['email'] }}</span>
+                </el-form-item>
+                <el-form-item label="經常使用email">
+                  <span>{{ personalQuestionnaire.freq_email }}</span>
                 </el-form-item>
                 <el-form-item label="畢業年份規定標準">
                   <span>規定學年：{{ personalGradStandard['score']['學年'] }}</span>
@@ -517,7 +525,18 @@
         }
         return res;
       },
+      personalQuestionnaire() {
+        let res = this.bus.questionnaire.data.filter(obj => obj['NTU_ID'] === this.poi[0]['學號']);
+        if (res.length === 0) {
+          res = null;
+        } else {
+          res = res[0];
+        }
+        console.log(res)
+        return res;
+      },
       personalPapers() {
+        console.log(this.poi)
         let res = this.bus.papers.data.filter(obj => obj['作者學號'] === this.poi[0]['學號']);
         if (res.length === 0) {
           res = null;

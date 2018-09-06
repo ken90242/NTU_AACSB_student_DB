@@ -15,7 +15,9 @@
     <div style="margin:5px">
       <h3 style="margin-bottom:5px">本次更新</h3>
         <ul style="margin-left:20px">
-          <li>修APP名稱</li>
+          <li>修正APP名稱</li>
+          <li>加入Yvonne問卷名稱、修正相關欄位名稱</li>
+          <li>更正excel預設欄位為1899/12/30問題</li>
         </ul> 
     </div>
     <hr/>

@@ -109,6 +109,13 @@
           const valDiff = moment('1899-12-30').add(parseInt(row['出生年月日'], 10), 'day');
           row['出生年月日'] = moment(valDiff).format('YYYY/MM/DD');
           row['年齡'] = moment().diff(row['出生年月日'], 'years');
+
+          // EXCEL預設年齡為118歲
+          if(row['年齡'] > 117) {
+            row['出生年月日'] = '-';
+            row['年齡'] = undefined;
+          }
+
           const detectRawYear = row['學號'].match(/\w(\d{2})\d+/);
           if (detectRawYear) {
             const rawYear = detectRawYear[1];

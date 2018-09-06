@@ -1,6 +1,6 @@
 {
-  "name": "GMBA_APP",
-  "version": "0.1.5",
+  "name": "GMBA_Student",
+  "version": "0.1.6",
   "author": "r06725053@ntu.edu.tw",
   "description": "An electron-vue project",
   "license": null,
@@ -51,7 +51,7 @@
       "icon": "build/icons/icon.ico"
     },
     "nsis": {
-      "artifactName": "${productName}-${version}.${ext}",
+      "artifactName": "${productName}Setup-${version}.${ext}",
       "oneClick": true,
       "installerIcon": "build/icons/icon.ico",
       "installerHeaderIcon": "build/icons/icon.ico"
