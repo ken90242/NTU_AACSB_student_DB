@@ -24,9 +24,7 @@
     <div style="margin:5px">
       <h3 style="margin-bottom:5px">本次更新</h3>
         <ul style="margin-left:20px">
-          <li>去除冗余按鈕</li>
-          <li>介面增加測試變數</li>
-          <li>改善通知呈現</li>
+          <li>修正版本偵測</li>
         </ul> 
     </div>
     <hr/>
@@ -54,15 +52,14 @@
 
     const weights = [100, 10, 1];
 
-    const app_wgt = app_v.reduce((v, idx) => {
-      return v * weights[idx];
+    const app_wgt = app_v.reduce((acc, v, idx) => {
+      return acc + v * weights[idx];
     }, 0);
-    const github_wgt = github_v.reduce((v, idx) => {
-      return v * weights[idx];
+    const github_wgt = github_v.reduce((acc, v, idx) => {
+      return acc + v * weights[idx];
     }, 0);
 
-
-    return github_v > app_wgt;
+    return github_wgt > app_wgt;
   }
 
   export default {
