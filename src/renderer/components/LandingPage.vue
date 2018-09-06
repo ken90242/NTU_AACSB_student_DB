@@ -15,8 +15,7 @@
     <div style="margin:5px">
       <h3 style="margin-bottom:5px">本次更新</h3>
         <ul style="margin-left:20px">
-          <li>修正安裝器、APP名稱</li>
-          <li>去除冗余註解、console.log</li>
+          <li>修APP名稱</li>
         </ul> 
     </div>
     <hr/>
