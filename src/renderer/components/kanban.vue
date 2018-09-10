@@ -136,7 +136,6 @@
   body { font-family: 'Source Sans Pro', sans-serif; }
 
   .dropdown_menu {
-    /*background-color: gray;*/
     opacity: .95;
   }
 
