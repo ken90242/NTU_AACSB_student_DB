@@ -1,6 +1,6 @@
 <template>
   <div>
-  <img id="logo" src="static/assets/aacsb_logo.png" alt="gmba-red-logo">
+  <img id="logo" src="static/assets/gmba_logo.png" alt="gmba-red-logo">
   <div class="bar">
     <el-menu :default-active="activeIndex" class="el-menu" mode="horizontal" :router="true">
       <el-menu-item :route="{ name: 'landing-page' }" index="1">
@@ -69,7 +69,6 @@
     data() {
       return {
         // test: path.join(remote.app.getAppPath(), '../../../../'),
-        gmba_logo: 'static/assets/aacsb_logo.png',
         bus: eventBus,
         selectedOptions: null,
         options: [{

@@ -3,7 +3,7 @@
   "version": "0.5.2",
   "author": "r06725053@ntu.edu.tw",
   "description": "An electron-vue project",
-  "license": null,
+  "license": "UNLICENSED",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",

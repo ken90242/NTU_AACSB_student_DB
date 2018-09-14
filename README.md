@@ -1,4 +1,4 @@
-# aacsb_db
+# GMBA Student DB Tool
 
 > An electron-vue project
 

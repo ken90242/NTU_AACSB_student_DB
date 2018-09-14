@@ -477,7 +477,7 @@
     left: 0px;
     bottom: 0px;
     background: black;
-    opacity:.9;
+    opacity:1.0;
     width: 80px;
     padding: 15px;
   }
