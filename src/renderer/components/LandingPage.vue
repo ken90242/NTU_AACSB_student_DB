@@ -170,9 +170,9 @@
         }) 
     },
     mounted() {
-      if (this.bus.publicDataExisted === false) {
-        this.showDataIssue();
-      }
+      // if (this.bus.publicDataExisted === false) {
+      //   this.showDataIssue();
+      // }
     },
     computed: {
       notify_html() {
