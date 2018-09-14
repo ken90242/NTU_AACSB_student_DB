@@ -5,6 +5,7 @@
       <h3 style="display:inline-block">程式資訊</h3>
       <ul style="margin-left:20px">
         <li>版本：v{{ app_version }}</li>
+        <li>說明文件: [待補]</li>
         <li>項目進度：<a href="https://trello.com/b/fY9TENhi" target="_blank">https://trello.com/b/fY9TENhi</a></li>
         <li>原始程式碼：<a href="https://github.com/ken90242/NTU_AACSB_student_DB" target="_blank">https://github.com/ken90242/NTU_AACSB_student_DB</a></li>
         <li>歷代版本下載：<a href="https://github.com/ken90242/NTU_AACSB_student_DB/releases/" target="_blank">https://github.com/ken90242/NTU_AACSB_student_DB/releases/</a></li>
@@ -14,9 +15,11 @@
     <div style="margin:5px">
       <h3 style="margin-bottom:5px">本次更新</h3>
         <ul style="margin-left:20px">
-          <li>修正APP名稱</li>
-          <li>加入Yvonne問卷名稱、修正相關欄位名稱</li>
-          <li>更正excel預設欄位為1899/12/30問題</li>
+          <li>celia - 修改tab文字</li>
+          <li>celia - 改成三個column - 個人資料、畢業資料、論文</li>
+          <li>celia-切分圖表生成區塊、圖表顏色生成</li>
+          <li>新增圖表分析的選單功能</li>
+          <li>lisa - 生成excel表</li>
         </ul> 
     </div>
     <hr/>

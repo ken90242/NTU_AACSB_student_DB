@@ -26,6 +26,11 @@ export default new Router({
       component: require('@/components/statisticArt').default,
     },
     {
+      path: '/consolidateclassstudent',
+      name: 'consolidate-class-student',
+      component: require('@/components/consolidateClassStudent').default,
+    },
+    {
       path: '*',
       redirect: '/',
     },

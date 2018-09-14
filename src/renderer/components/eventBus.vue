@@ -125,8 +125,8 @@
           return row;
         });
 
-        const artificialMaintain = getExcelContent2List(path.join(public_file_path, '/excels/usable.xlsx'));
-        console.log(path.join(public_file_path, '/excels/usable.xlsx'));
+        const artificialMaintain = getExcelContent2List(path.join(public_file_path, '/excels/需重新維護進yvonne資料.xlsx'));
+        console.log(path.join(public_file_path, '/excels/需重新維護進yvonne資料.xlsx'));
         // console.log(path.join(remote.app.getAppPath(), '../../../../', 'usable.xlsx'))
         console.log(artificialMaintain);
         // combined data

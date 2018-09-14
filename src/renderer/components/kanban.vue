@@ -16,11 +16,16 @@
         檢視歷年資料
       </el-menu-item>
       <el-submenu index="4">
-        <template slot="title">圖表呈現</template>
+        <template slot="title">功能區</template>
         <el-menu-item
           index="4-1"
           :route="{ name: 'statistic-art', params: { activeIndex: '4-1' } }">
-          學生基本資料統計
+          圖表統計
+        </el-menu-item>
+        <el-menu-item
+          index="4-2"
+          :route="{ name: 'consolidate-class-student', params: { activeIndex: '4-2' } }">
+          學生背景統整
         </el-menu-item>
       </el-submenu>
     </el-menu>
@@ -72,22 +77,22 @@
           label: 'Excels資料夾',
           children: [{
             value: eventBus.profile['excel_path'],
-            label: '歷年學生資料',
+            label: 'A. 研教組年度資料',
           }, {
             value: eventBus.course['excel_path'],
-            label: '歷年學生修課紀錄',
-          }, {
-            value: eventBus.graduateStandard['excel_path'],
-            label: '畢業標準',
+            label: 'B. 歷年學生修課紀錄',
           }, {
             value: eventBus.papers['excel_path'],
-            label: '畢業生論文',
+            label: 'C. 畢業生論文',
           }, {
             value: eventBus.council['excel_path'],
-            label: '歷年學生會',
+            label: 'D. 學生會成員',
           }, {
             value: eventBus.questionnaire['excel_path'],
-            label: 'GMBA問卷',
+            label: 'E. GMBA線上問卷',
+          }, {
+            value: eventBus.graduateStandard['excel_path'],
+            label: 'F. 畢業標準',
           },]
         }, {
           value: eventBus.profilePicFolder,

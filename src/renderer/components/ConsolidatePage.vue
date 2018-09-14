@@ -5,11 +5,11 @@
       
       <!-- <div class="littlebar"> -->
         <el-tabs v-model="displayType" type="card">
-          <el-tab-pane label="學生資料" name="profile"></el-tab-pane>
-          <el-tab-pane label="修課紀錄" name="course"></el-tab-pane>
-          <el-tab-pane label="畢業生論文" name="papers"></el-tab-pane>
-          <el-tab-pane label="學生會紀錄" name="council"></el-tab-pane>
-          <el-tab-pane label="GMBA線上問卷" name="questionnaire"></el-tab-pane>
+          <el-tab-pane label="A. 研教組年度資料" name="profile"></el-tab-pane>
+          <el-tab-pane label="B. 歷年學生修課紀錄" name="course"></el-tab-pane>
+          <el-tab-pane label="C. 畢業生論文" name="papers"></el-tab-pane>
+          <el-tab-pane label="D. 學生會成員" name="council"></el-tab-pane>
+          <el-tab-pane label="E. GMBA線上問卷" name="questionnaire"></el-tab-pane>
         </el-tabs>
         <div class="paginateWrapper">
           <el-pagination

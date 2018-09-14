@@ -72,6 +72,7 @@
           <el-table-column type="expand">
             <template slot-scope="props">
               <el-steps
+                style="padding-bottom: 20px;"
                 :active="schoolSteps.length - 1"
                 finish-status="success"
                 :process-status="'B,O'.indexOf(searchedTableData['student'][0]['異動碼']) == -1 ? 'success' : 'error'"
@@ -82,124 +83,146 @@
                   :description="`${ step.date } ${ step.desc }`">
                 </el-step>
               </el-steps>
-              <el-form label-position="left" inline class="demo-table-expand">
-                <el-form-item label="國籍">
-                  <span>{{ props.row['國籍'] }}</span>
-                </el-form-item>
-                <el-form-item label="出生年月日">
-                  <span>{{ props.row['出生年月日'] }}</span>
-                </el-form-item>
-                <el-form-item label="年齡">
-                  <span>{{ props.row['年齡'] }}</span>
-                </el-form-item>
-                <el-form-item label="入學前學籍資訊">
-                  <span>
-                    {{ props.row['入學前畢業年月'] }} / {{ props.row['入學前畢業學校'] }} - 
-                    {{ props.row['入學前畢業系所'] }}
-                  </span>
-                </el-form-item>
-                <el-form-item label="家裡電話">
-                  <span>{{ props.row['家裡電話'] }} / {{ props.row['電話3'] }}</span>
-                </el-form-item>
-                <el-form-item label="經常使用家裡電話">
-                  <span>{{ personalQuestionnaire.freq_telephone }}</span>
-                </el-form-item>
-                <el-form-item label="手機">
-                  <span>{{ props.row['手機'] }}</span>
-                </el-form-item>
-                <el-form-item label="經常使用手機">
-                  <span>{{ personalQuestionnaire.freq_mobile }}</span>
-                </el-form-item>
-                <el-form-item label="email">
-                  <span>{{ props.row['email'] }}</span>
-                </el-form-item>
-                <el-form-item label="經常使用email">
-                  <span>{{ personalQuestionnaire.freq_email }}</span>
-                </el-form-item>
-                <el-form-item label="畢業年份規定標準">
-                  <span>規定學年：{{ personalGradStandard['score']['學年'] }}</span>
-                  <span>
-                    /
-                  </span>
-                  <span><strong>系定必修</strong>：{{ personalGradStandard['score']['系定必修'] }}</span>
-                  <span>
-                    /
-                  </span>
-                  <span>選修：{{ personalGradStandard['score']['選修'] }}</span>
-                  <span>
-                    /
-                  </span>
-                  <span>應修最低畢業學分：{{ personalGradStandard['score']['應修最低畢業學分'] }}</span>
-                </el-form-item>
-                <el-form-item label="已修[系定必修]學分數">
-                  <span
-                    :style="{
-                      'color': personalGraduateScore['totalRequiredScore'] < personalGradStandard['score']['系定必修'] ? 'red' : 'black'
-                    }">
-                    {{ personalGraduateScore['totalRequiredScore'] }}
-                  </span>
-                </el-form-item>
-                <el-form-item label="已修[選修]學分數">
-                  <span
-                    :style="{
-                      'color': personalGraduateScore['totalSelectableScore'] < personalGradStandard['score']['選修'] ? 'red' : 'black'
-                    }">
-                    {{ personalGraduateScore['totalSelectableScore'] }}
-                  </span>
-                </el-form-item>
-                <el-form-item label="已修[總學分數]">
-                  <span
-                    :style="{
-                      'color': personalGraduateScore['totalSelectableScore'] + personalGraduateScore['totalRequiredScore'] < personalGradStandard['score']['應修最低畢業學分'] ? 'red' : 'black'
-                    }">
-                    {{ personalGraduateScore['totalSelectableScore'] + personalGraduateScore['totalRequiredScore'] }}
-                  </span>
-                </el-form-item>
-                <el-form-item v-if="personalPapers !== null" label="論文資訊">
-                  <span>
-                    {{ personalPapers['中文標題'] }}
-                  </span>
-                  ,
-                  <span>
-                    {{ personalPapers['英文標題'] }}
-                  </span>
-                  ,
-                  <span>
-                    {{ personalPapers['年份'] }}
-                  </span>
-                  ,
-                  <span>
-                    指導教授：{{ personalPapers['指導教授'] }}
-                  </span>
-                </el-form-item>
-                <el-form-item v-else label="論文資訊">
-                  無
-                </el-form-item>
-                <el-form-item v-if="personalCouncil !== null" label="學生會資訊">
-                  <span>
-                    {{ personalCouncil['學年'] }}
-                  </span>
-                  ,
-                  <span>
-                    {{ personalCouncil['title'] }}
-                  </span>
-                  ,
-                  <span>
-                    {{ personalCouncil['note1'] }}
-                  </span>
-                  ,
-                  <span>
-                    {{ personalCouncil['note2'] }}
-                  </span>
-                  ,
-                  <span>
-                    {{ personalCouncil['note3'] }}
-                  </span>
-                </el-form-item>
-                <el-form-item v-else label="學生會資訊">
-                  無
-                </el-form-item>
-              </el-form>
+              <div style="display:flex; justify-content: space-around">
+                <el-card class="box-card">
+                  <div slot="header" class="clearfix">
+                    <span>個人資訊</span>
+                    <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
+                  </div>
+                  <el-form label-position="left" inline class="demo-table-expand">
+                    <el-form-item label="國籍">
+                      <span>{{ props.row['國籍'] }}</span>
+                    </el-form-item>
+                    <el-form-item label="出生年月日">
+                      <span>{{ props.row['出生年月日'] }}</span>
+                    </el-form-item>
+                    <el-form-item label="年齡">
+                      <span>{{ props.row['年齡'] }}</span>
+                    </el-form-item>
+                    <el-form-item label="入學前學籍資訊">
+                      <span>
+                        {{ props.row['入學前畢業年月'] }} / {{ props.row['入學前畢業學校'] }} - 
+                        {{ props.row['入學前畢業系所'] }}
+                      </span>
+                    </el-form-item>
+                    <el-form-item label="家裡電話">
+                      <span>{{ props.row['家裡電話'] }} / {{ props.row['電話3'] }}</span>
+                    </el-form-item>
+                    <el-form-item label="經常使用家裡電話">
+                      <span>{{ personalQuestionnaire.freq_telephone }}</span>
+                    </el-form-item>
+                    <el-form-item label="手機">
+                      <span>{{ props.row['手機'] }}</span>
+                    </el-form-item>
+                    <el-form-item label="經常使用手機">
+                      <span>{{ personalQuestionnaire.freq_mobile }}</span>
+                    </el-form-item>
+                    <el-form-item label="email">
+                      <span>{{ props.row['email'] }}</span>
+                    </el-form-item>
+                    <el-form-item label="經常使用email">
+                      <span>{{ personalQuestionnaire.freq_email }}</span>
+                    </el-form-item>
+                    <el-form-item v-if="personalCouncil !== null" label="學生會資訊">
+                      <span>
+                        {{ personalCouncil['學年'] }}
+                      </span>
+                      ,
+                      <span>
+                        {{ personalCouncil['title'] }}
+                      </span>
+                      ,
+                      <span>
+                        {{ personalCouncil['note1'] }}
+                      </span>
+                      ,
+                      <span>
+                        {{ personalCouncil['note2'] }}
+                      </span>
+                      ,
+                      <span>
+                        {{ personalCouncil['note3'] }}
+                      </span>
+                    </el-form-item>
+                    <el-form-item v-else label="學生會資訊">
+                      無
+                    </el-form-item>
+                  </el-form>
+                </el-card>
+                <el-card class="box-card">
+                  <div slot="header" class="clearfix">
+                    <span>畢業資訊</span>
+                  </div>
+                  <el-form label-position="left" inline class="demo-table-expand">
+                    <el-form-item label="畢業年份規定標準">
+                      <span>規定學年：{{ personalGradStandard['score']['學年'] }}</span>
+                      <span>
+                        /
+                      </span>
+                      <span><strong>系定必修</strong>：{{ personalGradStandard['score']['系定必修'] }}</span>
+                      <span>
+                        /
+                      </span>
+                      <span>選修：{{ personalGradStandard['score']['選修'] }}</span>
+                      <span>
+                        /
+                      </span>
+                      <span>應修最低畢業學分：{{ personalGradStandard['score']['應修最低畢業學分'] }}</span>
+                    </el-form-item>
+                    <el-form-item label="已修[系定必修]學分數">
+                      <span
+                        :style="{
+                          'color': personalGraduateScore['totalRequiredScore'] < personalGradStandard['score']['系定必修'] ? 'red' : 'black'
+                        }">
+                        {{ personalGraduateScore['totalRequiredScore'] }}
+                      </span>
+                    </el-form-item>
+                    <el-form-item label="已修[選修]學分數">
+                      <span
+                        :style="{
+                          'color': personalGraduateScore['totalSelectableScore'] < personalGradStandard['score']['選修'] ? 'red' : 'black'
+                        }">
+                        {{ personalGraduateScore['totalSelectableScore'] }}
+                      </span>
+                    </el-form-item>
+                    <el-form-item label="已修[總學分數]">
+                      <span
+                        :style="{
+                          'color': personalGraduateScore['totalSelectableScore'] + personalGraduateScore['totalRequiredScore'] < personalGradStandard['score']['應修最低畢業學分'] ? 'red' : 'black'
+                        }">
+                        {{ personalGraduateScore['totalSelectableScore'] + personalGraduateScore['totalRequiredScore'] }}
+                      </span>
+                    </el-form-item>
+                  </el-form>
+                </el-card>
+                <el-card class="box-card">
+                  <div slot="header" class="clearfix">
+                    <span>論文資訊</span>
+                  </div>
+                  <el-form label-position="left" inline class="demo-table-expand">
+                    <el-form-item v-if="personalPapers !== null" label="論文資訊">
+                      <span>
+                        {{ personalPapers['中文標題'] }}
+                      </span>
+                      ,
+                      <span>
+                        {{ personalPapers['英文標題'] }}
+                      </span>
+                      ,
+                      <span>
+                        {{ personalPapers['年份'] }}
+                      </span>
+                      ,
+                      <span>
+                        指導教授：{{ personalPapers['指導教授'] }}
+                      </span>
+                    </el-form-item>
+                    <el-form-item v-else label="論文資訊">
+                      無
+                    </el-form-item>
+                  </el-form>
+                </el-card>
+              </div>
             </template>
           </el-table-column>
           <el-table-column
@@ -671,7 +694,11 @@
   .demo-table-expand .el-form-item {
     margin-right: 0;
     margin-bottom: 0;
-    width: 50%;
+    width: 100%;
+  }
+
+  .box-card {
+    width: 33%;
   }
 
   .el-table__row .expanded:hover {
