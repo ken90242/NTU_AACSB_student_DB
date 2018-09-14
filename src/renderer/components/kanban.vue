@@ -28,15 +28,15 @@
           學生背景統整
         </el-menu-item>
       </el-submenu>
+      <el-cascader
+        expand-trigger="hover"
+        class="item"
+        :options="options"
+        v-model="selectedOptions"
+        placeholder="請選擇編輯目標"
+        @change="handleChange">
+      </el-cascader>
     </el-menu>
-    <el-cascader
-      expand-trigger="hover"
-      class="item"
-      :options="options"
-      v-model="selectedOptions"
-      placeholder="請選擇編輯目標"
-      @change="handleChange">
-    </el-cascader>
     <el-badge :value="12" class="item" v-if="false">
       <el-dropdown size="medium" placement="bottom-start">
         <el-button type="primary">

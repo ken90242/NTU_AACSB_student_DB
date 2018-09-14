@@ -6,7 +6,11 @@
         <div class="searchCondWrapper">
           <el-form :inline="true" class="demo-form-inline">
             <el-form-item label="查詢對象">
-              <el-select class="searchCond" v-model="searchCondition" placeholder="請選擇篩選條件">
+              <el-select
+                class="searchCond"
+                v-model="searchCondition"
+                placeholder="請選擇篩選條件"
+                @change="(x) => { searchCondition==='cid' ? rawSearchInput = '資訊管理' : rawSearchInput = 'R98723075' }">
                 <el-option
                   v-for="item in searchConditionOptions"
                   :key="item.value"

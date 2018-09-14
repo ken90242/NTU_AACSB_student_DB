@@ -39,7 +39,7 @@
     name: 'consolidate-class-student',
     data() {
       return {
-        value2: [],
+        value2: [12,43,54,611,234,123,54,34,252,542,222,556,124,362,212,331],
         filterMethod(query, item) {
           query = query.toLowerCase();
           return item.sid.toLowerCase().indexOf(query) > -1;
@@ -55,14 +55,14 @@
         this.changeAllStyle();
         const tempFilePath = path.join(os.tmpdir(), '/report.xlsx');
         this.fullscreenLoading = true;
-        if (fs.existsSync(tempFilePath)) {
-          const link = document.getElementById('link');
-          link.setAttribute('download', 'excel.xlsx');
-          link.setAttribute('href', `file:\/\/\/${tempFilePath}`);
-          link.click();
-          this.fullscreenLoading = false;
-          console.log('done');
-        } else {
+        // if (fs.existsSync(tempFilePath)) {
+        //   const link = document.getElementById('link');
+        //   link.setAttribute('download', 'excel.xlsx');
+        //   link.setAttribute('href', `file:\/\/\/${tempFilePath}`);
+        //   link.click();
+        //   this.fullscreenLoading = false;
+        //   console.log('done');
+        // } else {
           workbook.xlsx.writeFile(tempFilePath)
           .then(() => {
             const link = document.getElementById('link');
@@ -72,7 +72,7 @@
             this.fullscreenLoading = false;
             console.log('done');
           });
-        }
+        // }
       },
       createReport() {
         this.fullscreenLoading = true;
