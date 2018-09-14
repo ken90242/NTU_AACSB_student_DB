@@ -251,7 +251,7 @@
     name: 'statistic-art',
     data() {
       return {
-        colorRandomSeed: 15,//1352388, 8215343, 11069834, 18948486, 17332352, 18927824
+        colorRandomSeed: 15,//1352388, 8215343, 11069834, 18948486, 17332352, 18927824, 8344352
         activeNames: ['1', '2', '3'],
         bus: eventBus,
         checkAll: false,
@@ -313,7 +313,6 @@
         };
 
         const workFieldLabels = Object.keys(this.workField);
-        console.log(this.workField);
         this.datacollection.workFieldRatio = {
           labels: workFieldLabels,
           datasets: [{
@@ -369,7 +368,6 @@
     },
     computed: {
       totalMF() {
-        console.log(this.bus.profile);
         let m = 0;
         let f = 0;
         this.bus.profile.data.forEach((curV) => {

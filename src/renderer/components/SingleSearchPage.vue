@@ -559,7 +559,6 @@
         } else {
           res = res[0];
         }
-        console.log(res)
         return res;
       },
       personalPapers() {
