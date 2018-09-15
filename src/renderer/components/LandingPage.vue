@@ -5,7 +5,7 @@
       <h3 style="display:inline-block">程式資訊</h3>
       <ul style="margin-left:20px">
         <li>版本：v{{ app_version }}</li>
-        <li>資料示意圖: <a href="https://github.com/ken90242/NTU_AACSB_student_DB/static/assets/data.png">Data.png</a></li>
+        <li>資料示意圖: <a href="https://github.com/ken90242/NTU_AACSB_student_DB/blob/master/static/assets/data.png">Data.png</a></li>
         <li>項目進度：<a href="https://trello.com/b/fY9TENhi" target="_blank">https://trello.com/b/fY9TENhi</a></li>
         <li>原始程式碼：<a href="https://github.com/ken90242/NTU_AACSB_student_DB" target="_blank">https://github.com/ken90242/NTU_AACSB_student_DB</a></li>
         <li>歷代版本下載：<a href="https://github.com/ken90242/NTU_AACSB_student_DB/releases/" target="_blank">https://github.com/ken90242/NTU_AACSB_student_DB/releases/</a></li>
