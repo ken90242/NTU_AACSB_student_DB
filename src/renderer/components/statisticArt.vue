@@ -251,7 +251,7 @@
     name: 'statistic-art',
     data() {
       return {
-        colorRandomSeed: 15,//1352388, 8215343, 11069834, 18948486, 17332352, 18927824, 8344352
+        colorRandomSeed: 15,//1352388, 8215343, 11069834, 18948486, 17332352, 18927824, 8344352, 804851
         activeNames: ['1', '2', '3'],
         bus: eventBus,
         checkAll: false,

@@ -84,7 +84,7 @@
           title: '成功',
           message: '製作完成！',
           type: 'success',
-          duration: 15000,
+          duration: 1500,
         });
         this.fullscreenLoading = false;
       },
