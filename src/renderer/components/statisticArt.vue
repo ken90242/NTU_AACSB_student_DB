@@ -1,7 +1,6 @@
 <template>
   <div id="wrapper">
     <kanban :activeIndex="activeIndex"></kanban>
-    <a id="link"></a>
     <div class="left-mainConsole">
       <el-popover
         placement="right"
@@ -28,6 +27,7 @@
           size="small"
           style="margin-left: 0px;"
           slot="reference"
+          @click="DownloadImageSet"
           round>
         </el-button>
       </el-popover>
@@ -245,6 +245,8 @@
   import kanban from './kanban';
   import eventBus from './eventBus';
   import PieChart from './PieChart.js';
+  import JSZip from 'jszip';
+  import { saveAs } from 'file-saver';
   import randomColor from 'randomcolor';
 
   export default {
@@ -352,12 +354,24 @@
       },
       saveImg(chartId) {
         const canvas = document.getElementById(chartId).firstChild;
-        const image = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+        canvas.toBlob((image) => {
+          saveAs(image, `${chartId}.png`);
+        }, 'image/png')
+      },
+      DownloadImageSet() {
+        const zip = new JSZip();
+        const folder = zip.folder('Charts');
+        const chartIds = ['age-chart', 'education-chart', 'sex-chart', 'major-chart'];
+        chartIds.forEach((chartId) => {
+          const canvas = document.getElementById(chartId).firstChild;
+          const image = canvas.toDataURL('image/png').replace(/^data:image\/(png|jpg);base64,/, '');
+          folder.file(chartId, image, { base64: true });
+        })
 
-        const link = document.getElementById('link');
-        link.setAttribute('download', 'image.png');
-        link.setAttribute('href', image);
-        link.click();
+        zip.generateAsync({ type:"blob" })
+          .then(function(content) {
+            saveAs(content, "charts.zip");
+        });
       },
     },
     mounted() {

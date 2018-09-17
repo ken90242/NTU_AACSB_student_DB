@@ -112,19 +112,19 @@
                     <el-form-item label="家裡電話">
                       <span>{{ props.row['家裡電話'] }} / {{ props.row['電話3'] }}</span>
                     </el-form-item>
-                    <el-form-item label="經常使用家裡電話">
+                    <el-form-item v-if="personalQuestionnaire" label="經常使用家裡電話">
                       <span>{{ personalQuestionnaire.freq_telephone }}</span>
                     </el-form-item>
                     <el-form-item label="手機">
                       <span>{{ props.row['手機'] }}</span>
                     </el-form-item>
-                    <el-form-item label="經常使用手機">
+                    <el-form-item v-if="personalQuestionnaire" label="經常使用手機">
                       <span>{{ personalQuestionnaire.freq_mobile }}</span>
                     </el-form-item>
                     <el-form-item label="email">
                       <span>{{ props.row['email'] }}</span>
                     </el-form-item>
-                    <el-form-item label="經常使用email">
+                    <el-form-item v-if="personalQuestionnaire" label="經常使用email">
                       <span>{{ personalQuestionnaire.freq_email }}</span>
                     </el-form-item>
                     <el-form-item v-if="personalCouncil !== null" label="學生會資訊">
