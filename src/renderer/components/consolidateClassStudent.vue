@@ -99,7 +99,7 @@
 
         this.changeAllStyle();
 
-        const tempFilePath = path.join(os.tmpdir(), '/report.xlsx');
+        const tempFilePath = path.join(os.tmpdir(), '/excel.xlsx');
         this.workbook.xlsx.writeFile(tempFilePath)
         .then(() => {
           const link = document.getElementById('link');
