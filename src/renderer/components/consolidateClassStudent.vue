@@ -1,8 +1,26 @@
 <template>
   <div id="wrapper">
     <kanban :activeIndex="activeIndex"></kanban>
+    <div style="display:flex;align-items:center;justify-content:flex-start;width:60%;margin-bottom:10px;">
+      <!-- {{value2}}
+      {{manualPasteSids}} -->
+      <el-input
+        type="textarea"
+        :rows="4"
+        placeholder="請貼上學號"
+        v-model="pasteSids">
+      </el-input>
+      <section>
+        <div style="margin:10px;">
+          <el-button type="primary" @click="addPasteSids">添加</el-button>
+        </div>
+        <div style="margin:10px;">
+          <el-button type="danger" @click="replacePasteSids">覆蓋</el-button>
+        </div>
+      </section>
+    </div>
     <div 
-      style="display:flex;align-items:center;justify-content:space-around"
+      style="display:flex;align-items:center;justify-content:flex-start;"
       v-loading.lock="fullscreenLoading">
       <el-transfer
         filterable
@@ -12,9 +30,8 @@
         v-model="value2"
         :data="data2">
       </el-transfer>
-      <div>
-        <el-button @click="createReport">製作</el-button>
-        <el-button @click="saveFile">匯出</el-button>
+      <div style="margin:30px;">
+        <el-button @click="createReport">匯出</el-button>
         <a id="link"></a>
       </div>
     </div>
@@ -29,12 +46,6 @@
   import fs from 'fs';
   import os from 'os';
 
-  const workbook = new Excel.Workbook();
-  const worksheet = workbook.addWorksheet('待命名');
-
-  const TopLabels = ['#', '分組', 'Student ID', 'Name', 'Name', 'Picture', 'Nationality', 'Age', 'Year of work Experience', 'Last Employment', 'Last Job Title', 'Degree', 'School', 'Major', 'non-NTU Email', 'NTU email']
-  worksheet.addRow(TopLabels);
-
   export default {
     name: 'consolidate-class-student',
     data() {
@@ -47,32 +58,37 @@
         bus: eventBus,
         currentIdx: 0,
         fullscreenLoading: false,
+        workbook: null,
+        worksheet: null,
+        pasteSids: 'R00749006\nR00749004\nR00749007\nR00749003\nR00749009\nR00749008',
       };
     },
     components: { kanban },
     methods: {
-      saveFile() {
-        this.changeAllStyle();
-        const tempFilePath = path.join(os.tmpdir(), '/report.xlsx');
-        this.fullscreenLoading = true;
-        // if (fs.existsSync(tempFilePath)) {
-        //   const link = document.getElementById('link');
-        //   link.setAttribute('download', 'excel.xlsx');
-        //   link.setAttribute('href', `file:\/\/\/${tempFilePath}`);
-        //   link.click();
-        //   this.fullscreenLoading = false;
-        //   console.log('done');
-        // } else {
-          workbook.xlsx.writeFile(tempFilePath)
-          .then(() => {
-            const link = document.getElementById('link');
-            link.setAttribute('download', 'excel.xlsx');
-            link.setAttribute('href', `file:\/\/\/${tempFilePath}`);
-            link.click();
-            this.fullscreenLoading = false;
-            console.log('done');
-          });
-        // }
+      addPasteSids() {
+        const leftSids = this.data2.map(obj => obj['sid']);
+        
+        this.manualPasteSids.forEach((sid) => {
+          const idxRes = leftSids.indexOf(sid);
+          if (idxRes !== -1 && this.value2.indexOf(idxRes) === -1) {
+            this.value2.push(idxRes);
+          }
+        });
+        this.pasteSids = '';
+      },
+      replacePasteSids() {
+        const leftSids = this.data2.map(obj => obj['sid']);
+
+        this.value2 = this.manualPasteSids.map((sid) => leftSids.indexOf(sid));
+        this.pasteSids = '';
+      },
+      initialize_excel() {
+        this.currentIdx = 0;
+        this.workbook = new Excel.Workbook();
+        this.worksheet = this.workbook.addWorksheet('待命名');
+
+        const TopLabels = ['#', '分組', 'Student ID', 'Name', 'Name', 'Picture', 'Nationality', 'Age', 'Year of work Experience', 'Last Employment', 'Last Job Title', 'Degree', 'School', 'Major', 'non-NTU Email', 'NTU email']
+        this.worksheet.addRow(TopLabels);
       },
       createReport() {
         this.fullscreenLoading = true;
@@ -80,13 +96,20 @@
           const sid = this.data2[idx].sid;
           this.createSingleRow(sid)
         });
-        this.$notify({
-          title: '成功',
-          message: '製作完成！',
-          type: 'success',
-          duration: 1500,
+
+        this.changeAllStyle();
+
+        const tempFilePath = path.join(os.tmpdir(), '/report.xlsx');
+        this.workbook.xlsx.writeFile(tempFilePath)
+        .then(() => {
+          const link = document.getElementById('link');
+          link.setAttribute('download', 'excel.xlsx');
+          link.setAttribute('href', `file:\/\/\/${tempFilePath}`);
+          link.click();
+          this.initialize_excel();
+          this.fullscreenLoading = false;
+          console.log('done');
         });
-        this.fullscreenLoading = false;
       },
       createSingleRow(sid) {
         // pois: [obj['學號'], obj['中文姓名'], obj['英文姓名'], obj['國籍'], obj['出生年月日'], obj['結束服務年'], obj['公司中文名稱1'], obj['職稱1'], obj['入學前畢業學校'], obj['入學前畢業系所'], obj['email'], obj['email2']]
@@ -140,7 +163,7 @@
         // email
         rowValues[16] = poi[12];
 
-        worksheet.addRow(rowValues);
+        this.worksheet.addRow(rowValues);
 
         // !!!!!!!!這邊學號要改變
         sid = 'R06725053';
@@ -149,15 +172,15 @@
         });
         
         if (pic_paths.length > 0) {
-          const imageId = workbook.addImage({
+          const imageId = this.workbook.addImage({
             filename: pic_paths[0],
             extension: path.extname(pic_paths[0]).replace('\.', ''),
           });
           const pic_pos = `F${ currentIdx + 2 }:F${ currentIdx + 2 }`
-          worksheet.addImage(imageId, pic_pos);
+          this.worksheet.addImage(imageId, pic_pos);
         }
 
-        const dobRow = worksheet.getRow(`${ currentIdx + 2 }`);
+        const dobRow = this.worksheet.getRow(`${ currentIdx + 2 }`);
         dobRow.alignment = { vertical: 'middle', horizontal: 'center' };
         dobRow.height = 88;
         dobRow.font = { name: 'Calibri', family: 9, size: 12 };
@@ -186,12 +209,12 @@
         };
         labels.forEach((label) => {
           // 改變column的寬度
-          worksheet.getColumn(label).width = colSetting[label].width;
+          this.worksheet.getColumn(label).width = colSetting[label].width;
 
           // 將每個cell加上border
-          for(let rowId = 1; rowId <= worksheet.lastRow.number; rowId++ ) {
+          for(let rowId = 1; rowId <= this.worksheet.lastRow.number; rowId++ ) {
             const cellId = `${ label }${ rowId }`;
-            worksheet.getCell(cellId).border = {
+            this.worksheet.getCell(cellId).border = {
               top: { style:'thin' },
               left: { style:'thin' },
               bottom: { style:'thin' },
@@ -201,22 +224,25 @@
         });
 
         // 改變worksheet第一列的樣式
-        worksheet.getRow(1).font = { name: 'Calibri', family: 9, size: 12, bold: true };
-        worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
-        worksheet.getRow(1).height = 35;
+        this.worksheet.getRow(1).font = { name: 'Calibri', family: 9, size: 12, bold: true };
+        this.worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+        this.worksheet.getRow(1).height = 35;
 
         // 改變worksheet初始化看到的範圍、凍結視窗
-        worksheet.views = [
+        this.worksheet.views = [
           {state: 'frozen', xSplit: 6, ySplit: 1, topLeftCell: 'G2', activeCell: 'A1'}
         ];
     
       },
     },
     mounted() {
-      // console.log(this.bus.profile.head)
-      
+      this.initialize_excel();
     },
     computed: {
+      manualPasteSids() {
+        const res = this.pasteSids.match(/[r|R]\d{8}/g)
+        return res;
+      },
       activeIndex() {
         return this.$route.params.activeIndex;
       },

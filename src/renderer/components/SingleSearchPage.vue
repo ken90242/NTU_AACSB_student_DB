@@ -2,6 +2,7 @@
   <div id="wrapper">
     <kanban activeIndex="2"></kanban>
     <main>
+
       <div class="left-side">
         <div class="searchCondWrapper">
           <el-form :inline="true" class="demo-form-inline">
@@ -21,10 +22,18 @@
             </el-form-item>
             <el-form-item label="查詢關鍵字">
               <el-input
+                v-if="searchCondition === 'sid'"
                 class="searchCond"
                 v-model="rawSearchInput"
                 :placeholder="searchCondition === 'sid' ? '學號, 中英文姓名' : '課號, 識別碼, 課程名稱'">
               </el-input>
+              <el-autocomplete
+                v-else
+                class="inline-input"
+                v-model="rawSearchInput"
+                :fetch-suggestions="courseQuerySearch"
+                placeholder="課號, 識別碼, 課程名稱">
+              </el-autocomplete>
             </el-form-item>
           </el-form>
         </div>
@@ -359,6 +368,25 @@
       };
     },
     methods: {
+      courseQuerySearch(queryString, cb) {
+        function createFilter(queryString) {
+          return (item) => {
+            return (item.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+          };
+        }
+
+        let courses = this.bus.course.data.map(obj => obj['課程名稱'])
+        courses = [...new Set(courses)]
+          .map((nm) => {
+            return {
+              'value': nm,
+            };
+          });
+        const results = queryString ? 
+          courses.filter(createFilter(queryString)) : courses;
+
+        cb(results); // 调用 callback 返回建议列表的数据
+      },
       base64_encode(file_path) {
         // read binary data
         const bitmap = fs.readFileSync(file_path);

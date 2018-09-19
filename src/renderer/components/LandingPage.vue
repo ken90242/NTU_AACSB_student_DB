@@ -15,13 +15,12 @@
     <div style="margin:5px">
       <h3 style="margin-bottom:5px">本次更新</h3>
         <ul style="margin-left:20px">
-          <li>celia - 修改tab文字</li>
-          <li>celia - 改成三個column - 個人資料、畢業資料、論文</li>
-          <li>celia-切分圖表生成區塊、圖表顏色生成</li>
-          <li>新增圖表分析的選單功能</li>
-          <li>lisa - 生成excel表</li>
-          <li>資料來源圖片更新</li>
-          <li>圖表打包功能完成</li>
+          <li>新增圖表打包功能</li>
+          <li>更改簡體字至繁體字</li>
+          <li>新增F列表查詢</li>
+          <li>修正匯出名單與選取不一致(output累計bug)</li>
+          <li>新增批次學號導入功能</li>
+          <li>必修課程查詢 => 關鍵字顯示</li>
         </ul> 
     </div>
     <hr/>
@@ -47,7 +46,7 @@
     const app_v = application_v.split('.');
     const github_v = latest_release_v.split('.');
 
-    const weights = [100, 10, 1];
+    const weights = [1000, 100, 1];
 
     const app_wgt = app_v.reduce((acc, v, idx) => {
       return acc + v * weights[idx];
