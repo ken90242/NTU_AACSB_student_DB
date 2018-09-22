@@ -1,40 +1,41 @@
 <template>
   <div id="wrapper">
     <kanban :activeIndex="activeIndex"></kanban>
-    <div style="display:flex;align-items:center;justify-content:flex-start;width:60%;margin-bottom:10px;">
-      <!-- {{value2}}
-      {{manualPasteSids}} -->
-      <el-input
-        type="textarea"
-        :rows="4"
-        placeholder="請貼上學號"
-        v-model="pasteSids">
-      </el-input>
-      <section>
-        <div style="margin:10px;">
-          <el-button type="primary" @click="addPasteSids">添加</el-button>
-        </div>
-        <div style="margin:10px;">
-          <el-button type="danger" @click="replacePasteSids">覆蓋</el-button>
-        </div>
-      </section>
-    </div>
-    <div 
-      style="display:flex;align-items:center;justify-content:flex-start;"
-      v-loading.lock="fullscreenLoading">
-      <el-transfer
-        filterable
-        :titles="['未選取學號', '已選取學號']"
-        :filter-method="filterMethod"
-        filter-placeholder="請輸入學號"
-        v-model="value2"
-        :data="data2">
-      </el-transfer>
-      <div style="margin:30px;">
-        <el-button @click="createReport">匯出</el-button>
-        <a id="link"></a>
+    <section v-loading.lock="fullscreenLoading">
+      <div
+        style="display:flex;align-items:center;justify-content:flex-start;width:60%;margin-bottom:10px;">
+        <!-- {{value2}}
+        {{manualPasteSids}} -->
+        <el-input
+          type="textarea"
+          :rows="4"
+          placeholder="請貼上學號列表"
+          v-model="pasteSids">
+        </el-input>
+        <section>
+          <div style="margin:10px;">
+            <el-button type="primary" @click="addPasteSids">添加(增加新學號在下方"已選取學號"的清單中)</el-button>
+          </div>
+          <div style="margin:10px;">
+            <el-button type="danger" @click="replacePasteSids">覆蓋(取代下方的"已選取學號"的清單)</el-button>
+          </div>
+        </section>
       </div>
-    </div>
+      <div style="display:flex;align-items:center;justify-content:flex-start;">
+        <el-transfer
+          filterable
+          :titles="['未選取學號', '已選取學號']"
+          :filter-method="filterMethod"
+          filter-placeholder="請輸入學號"
+          v-model="value2"
+          :data="data2">
+        </el-transfer>
+        <div style="margin:30px;">
+          <el-button @click="createReport">匯出</el-button>
+          <a id="link"></a>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 <script>
@@ -108,7 +109,13 @@
           link.click();
           this.initialize_excel();
           this.fullscreenLoading = false;
-          console.log('done');
+          // console.log('done');
+          this.$notify({
+            title: '匯出',
+            duration: 5000,
+            message: '匯出作業完成！',
+            type: 'info',
+          });
         });
       },
       createSingleRow(sid) {
@@ -166,11 +173,27 @@
         this.worksheet.addRow(rowValues);
 
         // !!!!!!!!這邊學號要改變
-        sid = 'R06725053';
-        const pic_paths = fs.readdirSync(path.join(this.bus.profilePicFolder, sid)).map(fileName => {
-          return path.join(this.bus.profilePicFolder, sid, fileName);
-        });
-        
+        sid = 'R98723075';
+        let default_img_path = '';
+
+        const pic_paths = fs.readdirSync(path.join(this.bus.profilePicFolder, sid))
+          .filter(nm => {
+            if (path.basename(nm, path.extname(nm)).toLowerCase() === sid.toLowerCase()) {
+              default_img_path = nm;
+              return false;
+            } else if (['.png', '.gif', '.bmp', '.jpg'].indexOf(path.extname(nm)) !== -1) {
+              return true;
+            }
+          })
+          .map(fileName => {
+            return path.join(this.bus.profilePicFolder, sid, fileName);
+          });
+
+        if (default_img_path !== '') {
+          default_img_path = path.join(this.bus.profilePicFolder, sid, default_img_path);
+          pic_paths.unshift(default_img_path)
+        }
+
         if (pic_paths.length > 0) {
           const imageId = this.workbook.addImage({
             filename: pic_paths[0],

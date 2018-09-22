@@ -5,7 +5,7 @@
       <h3 style="display:inline-block">程式資訊</h3>
       <ul style="margin-left:20px">
         <li>版本：v{{ app_version }}</li>
-        <li>資料示意圖: <a href="static/assets/data.png" download="data.png">Data.png</a></li>
+        <li>資料流程圖: <a href="static/assets/data.png" download="data.png">Data.png</a></li>
         <li>項目進度：<a href="https://trello.com/b/fY9TENhi" target="_blank">https://trello.com/b/fY9TENhi</a></li>
         <li>原始程式碼：<a href="https://github.com/ken90242/NTU_AACSB_student_DB" target="_blank">https://github.com/ken90242/NTU_AACSB_student_DB</a></li>
         <li>歷代版本下載：<a href="https://github.com/ken90242/NTU_AACSB_student_DB/releases/" target="_blank">https://github.com/ken90242/NTU_AACSB_student_DB/releases/</a></li>
@@ -15,14 +15,18 @@
     <div style="margin:5px">
       <h3 style="margin-bottom:5px">本次更新</h3>
         <ul style="margin-left:20px">
-          <li>新增圖表打包功能</li>
-          <li>更改簡體字至繁體字</li>
-          <li>新增F列表查詢</li>
-          <li>修正匯出名單與選取不一致(output累計bug)</li>
-          <li>新增批次學號導入功能</li>
-          <li>必修課程查詢 => 關鍵字顯示</li>
-          <li>統一excel產出名字</li>
-          <li>更新數據來源圖表</li>
+          <li>sorting其他選課field(*類別、*課程識別碼)\每個都sorting</li>
+          <li>標記是否為預設畢業標準</li>
+          <li>預設照片為學號.jpg or .png...</li>
+          <li>年齡統計要用入學年紀(GMBA問卷來源會是當下入學的年齡)</li>
+          <li>GMBA表單，註1,2,3,4,5，要顯示在搜尋學生那邊(標註)</li>
+          <li>個人查詢中的課程列表增加GPA跟等地分數</li>
+          <li>修改選修label -> 其他label</li>
+          <li>畢業標準上下對調</li>
+          <li>畢業標準 -> 預設畢業標準</li>
+          <li>修改必修課程 -> 學生曾修課程</li>
+          <li>範例大頭貼圖片更換</li>
+          <li>學生背景統整的按鈕(新增、覆蓋)小說明</li>
         </ul> 
     </div>
     <hr/>

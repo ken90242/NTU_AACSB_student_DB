@@ -2,7 +2,7 @@
   <div id="wrapper">
     <kanban activeIndex="3"></kanban>
     <div>
-      <!-- <div class="littlebar"> -->
+
         <el-tabs v-model="displayType" type="card" style="width:100%">
           <el-tab-pane label="A. 研教組年度資料" name="profile"></el-tab-pane>
           <el-tab-pane label="B. 歷年學生修課紀錄" name="course"></el-tab-pane>
@@ -11,7 +11,29 @@
           <el-tab-pane label="E. GMBA線上問卷" name="questionnaire"></el-tab-pane>
           <el-tab-pane label="F. 畢業標準" name="graduateStandard"></el-tab-pane>
         </el-tabs>
-        <h2 v-if="displayType === 'graduateStandard'">(1) 歷年必修課程</h2>
+        <div v-if="displayType === 'graduateStandard'">
+          <h2>(1) 歷年必選修學分數</h2>
+          <el-table
+            :data="displayTable['score']"
+            stripe
+            border
+            style="width: 50%;margin:20px;">
+            <el-table-column
+              fixed
+              prop="學年"
+              label="學年">
+            </el-table-column>
+            <el-table-column
+              v-for="label in bus.graduateStandard.score['head']"
+              v-if="label != '學年'"
+              :prop="label"
+              :label="label">
+            </el-table-column>
+          </el-table>
+          <br/><br/>
+        </div>
+        <h2 v-if="displayType === 'graduateStandard'">(2) 歷年必修課程</h2>
+        <br/>
         <div class="paginateWrapper">
           <el-pagination
             @size-change="handleSizeChange"
@@ -23,7 +45,25 @@
             :total="totalPages">
           </el-pagination>
         </div>
-      <!-- </div> -->
+        <el-table
+          v-if="displayType === 'graduateStandard'"
+          :data="displayTable['specific']"
+          stripe
+          border
+          style="width: 90%;margin:10px;">
+          <el-table-column
+            fixed
+            prop="學年"
+            label="學年">
+          </el-table-column>
+          <el-table-column
+            v-for="label in bus.graduateStandard.specific['head']"
+            v-if="label != '學年'"
+            :prop="label"
+            :label="label">
+          </el-table-column>
+        </el-table>
+
       <div v-if="displayType === 'profile'">
         <el-table
           :data="displayTable"
@@ -124,44 +164,7 @@
           </el-table-column>
         </el-table>
       </div>
-      <div v-if="displayType === 'graduateStandard'">
-        <el-table
-          :data="displayTable['specific']"
-          stripe
-          border
-          style="width: 90%">
-          <el-table-column
-            fixed
-            prop="學年"
-            label="學年">
-          </el-table-column>
-          <el-table-column
-            v-for="label in bus.graduateStandard.specific['head']"
-            v-if="label != '學年'"
-            :prop="label"
-            :label="label">
-          </el-table-column>
-        </el-table>
-        <br/><br/>
-        <h2>(2) 歷年必選修學分數</h2>
-        <el-table
-          :data="displayTable['score']"
-          stripe
-          border
-          style="width: 50%">
-          <el-table-column
-            fixed
-            prop="學年"
-            label="學年">
-          </el-table-column>
-          <el-table-column
-            v-for="label in bus.graduateStandard.score['head']"
-            v-if="label != '學年'"
-            :prop="label"
-            :label="label">
-          </el-table-column>
-        </el-table>
-      </div>
+      
     </div>
   </div>
 </template>

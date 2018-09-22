@@ -91,7 +91,7 @@
           </div>
         </div>
       </el-collapse-item>
-      <el-collapse-item title="B. 年齡分布" name="2">
+      <el-collapse-item title="B. 入學年齡分布" name="2">
         <div class="chartWrapper">
           <div style="width:30%; margin: 10px;">
             <el-table
@@ -120,7 +120,7 @@
               </el-table-column>
             </el-table>
             <el-card>
-              平均年齡：{{ datacollection.ageAverage }}
+              平均入學年齡：{{ datacollection.ageAverage }}
             </el-card>
           </div>
           <div style="text-align:center;">
@@ -254,7 +254,7 @@
     data() {
       return {
         colorRandomSeed: 15,//1352388, 8215343, 11069834, 18948486, 17332352, 18927824, 8344352, 804851
-        activeNames: ['1', '2', '3'],
+        activeNames: ['1', '2', '3', '4'],
         bus: eventBus,
         checkAll: false,
         isIndeterminate: false,
@@ -331,9 +331,9 @@
             return acc;
           }
           const birth = currRow['出生年月日'];
-          const age = moment().diff(moment(birth), 'years', false);
+          const entry_age = moment(`09-01-${ 1911 + parseInt(currRow.enrollYear) }`, "MM-DD-YYYY").diff(moment(birth), 'years', false);
           totalNum += 1;
-          return acc + age;
+          return acc + entry_age;
         }, 0) / totalNum).toFixed(2);
 
         const ageLabels = Object.keys(this.age)
@@ -413,18 +413,19 @@
         this.bus.profile.data.forEach((currRow) => {
           if (this.selectYear.indexOf(currRow.enrollYear) !== -1) {
             const birth = currRow['出生年月日'];
-            const age = moment().diff(moment(birth), 'years', false);
-            if (age >= 22 && age <= 26) {
+            const entry_age = moment(`09-01-${ 1911 + parseInt(currRow.enrollYear) }`, "MM-DD-YYYY").diff(moment(birth), 'years', false);
+
+            if (entry_age >= 22 && entry_age <= 26) {
               res[labels[0]] += 1;
-            } else if (age >= 27 && age <= 31) {
+            } else if (entry_age >= 27 && entry_age <= 31) {
               res[labels[1]] += 1;
-            } else if (age >= 32 && age <= 35) {
+            } else if (entry_age >= 32 && entry_age <= 35) {
               res[labels[2]] += 1;
-            } else if (age >= 36 && age <= 39) {
+            } else if (entry_age >= 36 && entry_age <= 39) {
               res[labels[3]] += 1;
-            } else if (age >= 40 && age <= 44) {
+            } else if (entry_age >= 40 && entry_age <= 44) {
               res[labels[4]] += 1;
-            } else if (age >= 45) {
+            } else if (entry_age >= 45) {
               res[labels[5]] += 1;
             } 
           }

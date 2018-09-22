@@ -2,7 +2,6 @@
   <div id="wrapper">
     <kanban activeIndex="2"></kanban>
     <main>
-
       <div class="left-side">
         <div class="searchCondWrapper">
           <el-form :inline="true" class="demo-form-inline">
@@ -136,6 +135,14 @@
                     <el-form-item v-if="personalQuestionnaire" label="經常使用email">
                       <span>{{ personalQuestionnaire.freq_email }}</span>
                     </el-form-item>
+                    <el-form-item v-if="personalQuestionnaire" label="備註">
+                      <span>{{ personalQuestionnaire['note1'] === '-' ? '' : personalQuestionnaire['note1'] }}</span>
+                      <span>{{ personalQuestionnaire['note2'] === '-' ? '' : personalQuestionnaire['note2'] }}</span>
+                      <span>{{ personalQuestionnaire['note3'] === '-' ? '' : personalQuestionnaire['note3'] }}</span>
+                      <span>{{ personalQuestionnaire['note4'] === '-' ? '' : personalQuestionnaire['note4'] }}</span>
+                      <span>{{ personalQuestionnaire['note5'] === '-' ? '' : personalQuestionnaire['note5'] }}</span>
+                      
+                    </el-form-item>
                     <el-form-item v-if="personalCouncil !== null" label="學生會資訊">
                       <span>
                         {{ personalCouncil['學年'] }}
@@ -166,21 +173,27 @@
                   <div slot="header" class="clearfix">
                     <span>畢業資訊</span>
                   </div>
+
                   <el-form label-position="left" inline class="demo-table-expand">
-                    <el-form-item label="畢業年份規定標準">
-                      <span>規定學年：{{ personalGradStandard['score']['學年'] }}</span>
-                      <span>
-                        /
+                    <el-form-item label="預測畢業年份規定標準">
+                      <span v-if="needCheckGradStandard" style="color:red">
+                        不符預設畢業標準，需人工確認
                       </span>
-                      <span><strong>系定必修</strong>：{{ personalGradStandard['score']['系定必修'] }}</span>
-                      <span>
-                        /
-                      </span>
-                      <span>選修：{{ personalGradStandard['score']['選修'] }}</span>
-                      <span>
-                        /
-                      </span>
-                      <span>應修最低畢業學分：{{ personalGradStandard['score']['應修最低畢業學分'] }}</span>
+                      <div v-else>
+                        <span>預測規定學年：{{ personalGradStandard['score']['學年'] }}</span>
+                        <span>
+                          /
+                        </span>
+                        <span><strong>預測系定必修</strong>：{{ personalGradStandard['score']['系定必修'] }}</span>
+                        <span>
+                          /
+                        </span>
+                        <span>預設選修：{{ personalGradStandard['score']['選修'] }}</span>
+                        <span>
+                          /
+                        </span>
+                        <span>預設應修最低畢業學分：{{ personalGradStandard['score']['應修最低畢業學分'] }}</span>
+                      </div>
                     </el-form-item>
                     <el-form-item label="已修[系定必修]學分數">
                       <span
@@ -190,7 +203,7 @@
                         {{ personalGraduateScore['totalRequiredScore'] }}
                       </span>
                     </el-form-item>
-                    <el-form-item label="已修[選修]學分數">
+                    <el-form-item label="已修[其他]學分數">
                       <span
                         :style="{
                           'color': personalGraduateScore['totalSelectableScore'] < personalGradStandard['score']['選修'] ? 'red' : 'black'
@@ -256,7 +269,7 @@
           </el-table-column>
           <el-table-column label="個人照片" width="200px">
             <template slot-scope="scope">
-              <el-carousel v-if="profile_pics.length > 0" indicator-position="none" height="150px">
+              <el-carousel v-if="profile_pics.length > 0" indicator-position="none" height="150px" style="text-align:center">
                 <el-carousel-item v-for="pic_path in profile_pics" :key="pic_path">
                   <img class="profile_img" :src="'data:image/png;base64,' + base64_encode(pic_path)" />
                 </el-carousel-item>
@@ -274,24 +287,39 @@
           <el-table-column
             prop="學年學期"
             label="學年學期"
-            width="180">
+            sortable>
           </el-table-column>
           <el-table-column
             prop="課程名稱"
             label="課程名稱"
-            width="180">
+            sortable>
           </el-table-column>
           <el-table-column
             prop="學分"
-            label="學分">
+            label="學分"
+            sortable>
           </el-table-column>
           <el-table-column
             prop="課程識別碼"
-            label="課程識別碼">
+            label="課程識別碼"
+            sortable>
+          </el-table-column>
+          <!-- <el-table-column
+            prop="課號"
+            label="課號"
+            sortable> -->
           </el-table-column>
           <el-table-column
-            prop="課號"
-            label="課號">
+            v-if="searchCondition === 'sid'"
+            prop="等第成績"
+            label="等第成績"
+            sortable>
+          </el-table-column>
+          <el-table-column
+            v-if="searchCondition === 'sid'"
+            prop="等第績分"
+            label="等第績分"
+            sortable>
           </el-table-column>
           <el-table-column
             v-if="searchCondition === 'cid'"
@@ -301,7 +329,8 @@
           <el-table-column
             v-else-if="searchCondition === 'sid'"
             prop="中位數成績"
-            label="中位數成績">
+            label="中位數成績"
+            sortable>
           </el-table-column>
           <el-table-column
             v-if="searchCondition === 'cid'"
@@ -311,18 +340,15 @@
           <el-table-column
             key="courseCategory"
             v-if="searchCondition === 'sid'"
-            label="類別">
+            label="類別"
+            :sort-method="compareCourseCategory"
+            sortable>
             <template slot-scope="scope">
               <el-tag 
                 v-if="isCourseDeptRequired(scope.row) === true"
                 type="danger"
                 size="medium">
                 {{ '系定必修' }}
-              </el-tag>
-              <el-tag 
-                v-else-if="'操行,碩士論文'.indexOf(scope.row['課程名稱']) === -1"
-                size="medium">
-                {{ '選修' }}
               </el-tag>
               <el-tag 
                 v-else
@@ -333,7 +359,6 @@
             </template>
           </el-table-column>
         </el-table>
-
       </div>
     </main>
   </div>
@@ -357,17 +382,23 @@
         },
         {
           value: 'cid',
-          label: '必修課程',
+          label: '學生曾修課程',
         },
         ],
         searchCondition: 'sid',
-        rawSearchInput: 'R98723075',
+        rawSearchInput: 'R98723075', //R00749021
         currentPage: 1,
         pageSize: 10,
         poi: [], // person of interest，可能符合搜尋條件的學生
       };
     },
     methods: {
+      compareCourseCategory(a, b) {
+        const aIsReq = this.isCourseDeptRequired(a) === true ? 1 : 0;
+        const bIsReq = this.isCourseDeptRequired(b) === true ? 1 : 0;
+        
+        return aIsReq - bIsReq;
+      },
       courseQuerySearch(queryString, cb) {
         function createFilter(queryString) {
           return (item) => {
@@ -539,11 +570,26 @@
         const sid = this.poi[0]['學號'];
         const file_dir = path.join(this.bus.profilePicFolder, sid);
         let res = [];
-  
+        let default_img_path = '';
+
         if (fs.existsSync(file_dir)) {
           const files = fs.readdirSync(file_dir)
-            .filter(nm => ['.png', '.gif', '.bmp', '.jpg'].indexOf(path.extname(nm)) != -1)
+            .filter(nm => {
+              if (path.basename(nm, path.extname(nm)).toLowerCase() === sid.toLowerCase()) {
+                default_img_path = nm;
+                return false;
+
+              } else if (['.png', '.gif', '.bmp', '.jpg'].indexOf(path.extname(nm)) !== -1) {
+                return true;
+              }
+            })
             .map(nm => path.join(this.bus.profilePicFolder, sid, nm));
+
+          if (default_img_path !== '') {
+            default_img_path = path.join(this.bus.profilePicFolder, sid, default_img_path);
+            // push to the list head
+            files.unshift(default_img_path);
+          }
 
           if (files.length > 0) {
             res = files;
@@ -631,6 +677,13 @@
           }
         });
         return { totalRequiredScore, totalSelectableScore };
+      },
+      needCheckGradStandard() {
+        const enrollYear = this.searchedTableData.student[0].enrollYear;
+        const firstLeaveSchoolYear = this.searchedTableData.student[0]['第一次休學'] === '-' ? 
+                0 : parseInt(this.searchedTableData.student[0]['第一次休學'].substring(0, 3));
+
+        return (enrollYear <= firstLeaveSchoolYear) ? true : false;
       },
       schoolSteps() { // 在學狀態
         const row = this.searchedTableData.student[0];
