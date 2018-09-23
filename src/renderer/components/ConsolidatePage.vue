@@ -11,13 +11,13 @@
           <el-tab-pane label="E. GMBA線上問卷" name="questionnaire"></el-tab-pane>
           <el-tab-pane label="F. 畢業標準" name="graduateStandard"></el-tab-pane>
         </el-tabs>
-        <div v-if="displayType === 'graduateStandard'">
+        <section v-if="displayType==='graduateStandard'">
           <h2>(1) 歷年必選修學分數</h2>
           <el-table
             :data="displayTable['score']"
             stripe
             border
-            style="width: 50%;margin:20px;">
+            style="width: 60%;margin:20px;">
             <el-table-column
               fixed
               prop="學年"
@@ -31,10 +31,39 @@
             </el-table-column>
           </el-table>
           <br/><br/>
-        </div>
-        <h2 v-if="displayType === 'graduateStandard'">(2) 歷年必修課程</h2>
-        <br/>
-        <div class="paginateWrapper">
+          <h2>(2) 歷年必修課程</h2>
+          <br/>
+          <div class="paginateWrapper">
+            <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="currentPage"
+              :page-sizes="[10, 50, 100, 300]"
+              :page-size="pageSize"
+              layout="sizes, total, prev, pager, next"
+              :total="totalPages">
+            </el-pagination>
+          </div>
+          <el-table
+            v-if="displayType === 'graduateStandard'"
+            :data="displayTable['specific']"
+            stripe
+            border
+            style="width: 90%;margin:10px;">
+            <el-table-column
+              fixed
+              prop="學年"
+              label="學年">
+            </el-table-column>
+            <el-table-column
+              v-for="label in bus.graduateStandard.specific['head']"
+              v-if="label != '學年'"
+              :prop="label"
+              :label="label">
+            </el-table-column>
+          </el-table>
+        </section>
+        <div v-else class="paginateWrapper">
           <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
@@ -45,24 +74,6 @@
             :total="totalPages">
           </el-pagination>
         </div>
-        <el-table
-          v-if="displayType === 'graduateStandard'"
-          :data="displayTable['specific']"
-          stripe
-          border
-          style="width: 90%;margin:10px;">
-          <el-table-column
-            fixed
-            prop="學年"
-            label="學年">
-          </el-table-column>
-          <el-table-column
-            v-for="label in bus.graduateStandard.specific['head']"
-            v-if="label != '學年'"
-            :prop="label"
-            :label="label">
-          </el-table-column>
-        </el-table>
 
       <div v-if="displayType === 'profile'">
         <el-table

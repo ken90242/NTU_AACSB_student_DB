@@ -48,16 +48,11 @@
         <div class="chartWrapper">
           <div style="width:30%; margin: 10px;">
             <el-table
-              :data="totalMF.map((v, idx) => {
-                return (idx === 0) ? 
-                  { 'label': 'Male',
-                    'number': v, 
-                    'percentage': (v * 100 / totalMF.reduce((acc, v) => acc + v)).toFixed(1),
-                  }
-                  :
-                  { 'label': 'Female',
-                    'number': v,
-                    'percentage': (v * 100 / totalMF.reduce((acc, v) => acc + v)).toFixed(1),
+              :data="totalMF.tableDisplaylabels.map((label) => {
+                return { 
+                    'label': label,
+                    'number': totalMF[label],
+                    'percentage': (totalMF[label] * 100 / totalMF.tableDisplaylabels.reduce((acc, label) => acc + totalMF[label], 0)).toFixed(1),
                   };
               })"
               :border="true"
@@ -81,13 +76,20 @@
               </el-table-column>
             </el-table>
           </div>
-          <div style="text-align:center;">
+          <div style="text-align:center;border:rgba(0,0,0,0.1) 1px solid;">
             <pie-chart
               id="sex-chart"
               :chart-data="datacollection['sexRatio']"
               :options="{ responsive: false, maintainAspectRatio: false }">
             </pie-chart>
-            <el-button type="danger" plain round @click="saveImg('sex-chart')" style="margin:10px">Download</el-button>
+            <el-button
+              type="danger"
+              :disabled="hasChartDownloadButton('totalMF')"
+              plain round
+              @click="saveImg('sex-chart')"
+              style="margin:10px">
+              Download
+            </el-button>
           </div>
         </div>
       </el-collapse-item>
@@ -95,9 +97,9 @@
         <div class="chartWrapper">
           <div style="width:30%; margin: 10px;">
             <el-table
-              :data="Object.keys(age).map((v) => {
-                return { 'label': v, 'number': age[v], 'percentage':
-                    (age[v] * 100 / Object.keys(age).reduce((acc, v) => acc + age[v], 0)).toFixed(1),};
+              :data="entry_age_stats.tableDisplaylabels.map((v) => {
+                return { 'label': v, 'number': entry_age_stats[v], 'percentage':
+                    (entry_age_stats[v] * 100 / entry_age_stats.tableDisplaylabels.reduce((acc, v) => acc + entry_age_stats[v], 0)).toFixed(1),};
               })"
               :border="true"
               :highlight-current-row="false"
@@ -123,13 +125,13 @@
               平均入學年齡：{{ datacollection.ageAverage }}
             </el-card>
           </div>
-          <div style="text-align:center;">
+          <div style="text-align:center;border:rgba(0,0,0,0.1) 1px solid;">
             <pie-chart
               id="age-chart"
-              :chart-data="datacollection['age']"
+              :chart-data="datacollection['entry_age_stats']"
               :options="{ responsive: false, maintainAspectRatio: false }">
             </pie-chart>
-            <el-button type="danger" plain round @click="saveImg('age-chart')" style="margin:10px">Download</el-button>
+            <el-button :disabled="hasChartDownloadButton('entry_age_stats')" type="danger" plain round @click="saveImg('age-chart')" style="margin:10px">Download</el-button>
           </div>
         </div>
       </el-collapse-item>
@@ -137,12 +139,12 @@
         <div class="chartWrapper">
           <div style="width:25%;margin:10px">
             <el-table
-              :data="Object.keys(education).map((v) => {
+              :data="education.tableDisplaylabels.map((v) => {
                 return { 
                   'label': v,
                   'number': education[v],
                   'percentage':
-                    (education[v] * 100 / Object.keys(education).reduce((acc, v) => acc + education[v], 0)).toFixed(1),
+                    (education[v] * 100 / education.tableDisplaylabels.reduce((acc, v) => acc + education[v], 0)).toFixed(1),
                 };
               })"
               :border="true"
@@ -168,13 +170,13 @@
               </el-table-column>
             </el-table>
           </div>
-          <div style="text-align:center;">
+          <div style="text-align:center;border:rgba(0,0,0,0.1) 1px solid;">
             <pie-chart
               id="education-chart"
               :chart-data="datacollection['educationRatio']"
               :options="{ responsive: false, maintainAspectRatio: false }">
             </pie-chart>
-            <el-button type="danger" plain round @click="saveImg('education-chart')" style="margin:10px">Download</el-button>
+            <el-button :disabled="hasChartDownloadButton('education')" type="danger" plain round @click="saveImg('education-chart')" style="margin:10px">Download</el-button>
           </div>
         </div>
       </el-collapse-item>
@@ -182,9 +184,9 @@
         <div class="chartWrapper">
           <div style="width:40%;margin:10px">
             <el-table
-              :data="Object.keys(major).map((v) => {
+              :data="major.tableDisplaylabels.map((v) => {
                 return { 'label': v, 'number': major[v], 'percentage':
-                    (major[v] * 100 / Object.keys(major).reduce((acc, v) => acc + major[v], 0)).toFixed(1),};
+                    (major[v] * 100 / major.tableDisplaylabels.reduce((acc, v) => acc + major[v], 0)).toFixed(1),};
               })"
               :border="true"
               :highlight-current-row="false"
@@ -209,13 +211,13 @@
               </el-table-column>
             </el-table>
           </div>
-          <div style="text-align:center;">
+          <div style="text-align:center;border:rgba(0,0,0,0.1) 1px solid;">
             <pie-chart
               id="major-chart"
               :chart-data="datacollection['majorRatio']"
               :options="{ responsive: false, maintainAspectRatio: false }">
             </pie-chart>
-            <el-button type="danger" plain round @click="saveImg('major-chart')" style="margin:10px">Download</el-button>
+            <el-button :disabled="hasChartDownloadButton('major')" type="danger" plain round @click="saveImg('major-chart')" style="margin:10px">Download</el-button>
           </div>
         </div>
       </el-collapse-item>
@@ -223,7 +225,7 @@
         <div class="chartWrapper">
           <pie-chart
             class="person-chart"
-            :chart-data="datacollection['workFieldRatio']"
+            :chart-data="datacollection['']"
             :options="{ responsive: false, maintainAspectRatio: false }">
           </pie-chart>
         </div>
@@ -232,7 +234,7 @@
         <div class="chartWrapper">
           <pie-chart
             class="person-chart"
-            :chart-data="datacollection['workFieldRatio']"
+            :chart-data="datacollection['']"
             :options="{ responsive: false, maintainAspectRatio: false }">
           </pie-chart>
         </div>
@@ -266,6 +268,9 @@
     },
     components: { PieChart, kanban },
     methods: {
+      hasChartDownloadButton(chartDataType) {
+        return this[chartDataType].tableDisplaylabels.every(l => this[chartDataType][l] === 0);
+      },
       changeRandomColorSeed() {
         this.colorRandomSeed = Math.floor(Math.random() * Math.floor(20000000));
         console.log(this.colorRandomSeed)
@@ -286,41 +291,21 @@
         const { colorRandomSeed } = this;
         // 性別比例
         this.datacollection.sexRatio = {
-          labels: ['Male', 'Female'],
+          labels: this.totalMF.chartDisplayLabels,
           datasets: [{
             label: 'Data One',
             backgroundColor: randomColor({ seed: colorRandomSeed, count: 2, luminosity: 'bright', }),//#f87979
-            data: this.totalMF,
+            data: this.totalMF.chartDisplayLabels.map(l => this.totalMF[l]),
           }],
         };
 
-        const majorLabels = Object.keys(this.major);
-        this.datacollection.majorRatio = {
-          labels: majorLabels,
+        // 入學年齡統計
+        this.datacollection.entry_age_stats = {
+          labels: this.entry_age_stats.chartDisplayLabels,
           datasets: [{
             label: 'Data One',
-            backgroundColor: randomColor({ seed: colorRandomSeed, count: majorLabels.length, luminosity: 'bright', }),
-            data: majorLabels.map(l => this.major[l]),
-          }],
-        };
-
-        const educationLabels = Object.keys(this.education);
-        this.datacollection.educationRatio = {
-          labels: educationLabels,
-          datasets: [{
-            label: 'Data One',
-            backgroundColor: randomColor({ seed: colorRandomSeed, count: educationLabels.length, luminosity: 'bright', }),
-            data: educationLabels.map(l => this.education[l]),
-          }],
-        };
-
-        const workFieldLabels = Object.keys(this.workField);
-        this.datacollection.workFieldRatio = {
-          labels: workFieldLabels,
-          datasets: [{
-            label: 'Data One',
-            backgroundColor: randomColor({ seed: colorRandomSeed, count: workFieldLabels.length, luminosity: 'bright', }),
-            data: workFieldLabels.map(l => this.workField[l]),
+            backgroundColor: randomColor({ seed: colorRandomSeed, count: this.entry_age_stats.chartDisplayLabels.length, luminosity: 'bright', }),
+            data: this.entry_age_stats.chartDisplayLabels.map(l => this.entry_age_stats[l]),
           }],
         };
 
@@ -336,19 +321,27 @@
           return acc + entry_age;
         }, 0) / totalNum).toFixed(2);
 
-        const ageLabels = Object.keys(this.age)
-        this.datacollection.age = {
-          labels: ageLabels,
+        // 最高學歷分佈
+        this.datacollection.educationRatio = {
+          labels: this.education.chartDisplayLabels,
           datasets: [{
             label: 'Data One',
-            backgroundColor: randomColor({ seed: colorRandomSeed, count: ageLabels.length, luminosity: 'bright', }),
-            data: ageLabels.map(l => this.age[l]),
+            backgroundColor: randomColor({ seed: colorRandomSeed, count: this.education.chartDisplayLabels.length, luminosity: 'bright', }),
+            data: this.education.chartDisplayLabels.map(l => this.education[l]),
           }],
-        }
+        };
 
-        // 平均工作年資
-        // 最高學歷分佈
         // 學歷專業項目
+        this.datacollection.majorRatio = {
+          labels: this.major.chartDisplayLabels,
+          datasets: [{
+            label: 'Data One',
+            backgroundColor: randomColor({ seed: colorRandomSeed, count: this.major.chartDisplayLabels.length, luminosity: 'bright', }),
+            data: this.major.chartDisplayLabels.map(l => this.major[l]),
+          }],
+        };
+        
+        
         // 目前工作產業別
         // 國籍之洲別分佈
       },
@@ -382,66 +375,61 @@
     },
     computed: {
       totalMF() {
-        let m = 0;
-        let f = 0;
+        const res = {
+          'Male': 0,
+          'Female': 0,
+          'tableDisplaylabels': ['Male', 'Female'],
+          'chartDisplayLabels': [],
+        };
+
         this.bus.profile.data.forEach((curV) => {
           if (this.selectYear.indexOf(curV.enrollYear) !== -1) {
             switch (curV['性別']) {
               case 'M':
-                m += 1;
+                res.Male += 1;
                 break;
               case 'F':
-                f += 1;
+                res.Female += 1;
                 break;
               default:
             }
           }
         });
-        const res = (m > 0 && f > 0) ? [m, f] : []
+        res.chartDisplayLabels = res.tableDisplaylabels.filter(label => res[label] > 0);
+
         return res;
       },
-      age() {
+      entry_age_stats() {
         const res = {
-          '22~26': 0,
-          '27~31': 0,
-          '32~35': 0,
-          '36~39': 0,
-          '40~44': 0,
-          'Over 45': 0,
+          'tableDisplaylabels': ['22~26', '27~31', '32~35', '36~39', '40~44', 'Over 45'],
+          'chartDisplayLabels': [],
         };
-        const labels = Object.keys(res);
+
+        res.tableDisplaylabels.forEach((l) => {
+          res[l] = 0
+        });
         this.bus.profile.data.forEach((currRow) => {
           if (this.selectYear.indexOf(currRow.enrollYear) !== -1) {
             const birth = currRow['出生年月日'];
             const entry_age = moment(`09-01-${ 1911 + parseInt(currRow.enrollYear) }`, "MM-DD-YYYY").diff(moment(birth), 'years', false);
 
             if (entry_age >= 22 && entry_age <= 26) {
-              res[labels[0]] += 1;
+              res[res.tableDisplaylabels[0]] += 1;
             } else if (entry_age >= 27 && entry_age <= 31) {
-              res[labels[1]] += 1;
+              res[res.tableDisplaylabels[1]] += 1;
             } else if (entry_age >= 32 && entry_age <= 35) {
-              res[labels[2]] += 1;
+              res[res.tableDisplaylabels[2]] += 1;
             } else if (entry_age >= 36 && entry_age <= 39) {
-              res[labels[3]] += 1;
+              res[res.tableDisplaylabels[3]] += 1;
             } else if (entry_age >= 40 && entry_age <= 44) {
-              res[labels[4]] += 1;
+              res[res.tableDisplaylabels[4]] += 1;
             } else if (entry_age >= 45) {
-              res[labels[5]] += 1;
-            } 
-          }
-        });
-        return res;
-      },
-      major() {
-        const res = {};
-        this.bus.profile.data.forEach((curV) => {
-          if (this.selectYear.indexOf(curV.enrollYear) !== -1) {
-            const label = curV['主修1'];
-            if (label !== '-' && label !== undefined) {
-              res[label] = res[label] ? res[label] + 1 : 1;
+              res[res.tableDisplaylabels[5]] += 1;
             }
           }
         });
+        res.chartDisplayLabels = res.tableDisplaylabels.filter(label => res[label] > 0);
+
         return res;
       },
       education() {
@@ -454,6 +442,25 @@
             }
           }
         });
+        res.tableDisplaylabels = Object.keys(res);
+        res.chartDisplayLabels = res.tableDisplaylabels.filter(label => res[label] > 0);
+
+        return res;
+      },
+      major() {
+        const res = {};
+
+        this.bus.profile.data.forEach((curV) => {
+          if (this.selectYear.indexOf(curV.enrollYear) !== -1) {
+            const label = curV['主修1'];
+            if (label !== '-' && label !== undefined) {
+              res[label] = res[label] ? res[label] + 1 : 1;
+            }
+          }
+        });
+        res.tableDisplaylabels = Object.keys(res);
+        res.chartDisplayLabels = res.tableDisplaylabels.filter(label => res[label] > 0);
+
         return res;
       },
       workField() {
