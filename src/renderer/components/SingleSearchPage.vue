@@ -313,6 +313,7 @@
             v-if="searchCondition === 'sid'"
             prop="等第成績"
             label="等第成績"
+            :sort-method="compareGPACategory"
             sortable>
           </el-table-column>
           <el-table-column
@@ -398,6 +399,25 @@
         const bIsReq = this.isCourseDeptRequired(b) === true ? 1 : 0;
         
         return aIsReq - bIsReq;
+      },
+      compareGPACategory(a, b) {
+        const scoreSymbol = {
+          'A': 4,
+          'B': 3,
+          'C': 2,
+          'F': 0,
+          '+': 0.2,
+          '-': -0.2,
+        };
+        const symbols = Object.keys(scoreSymbol);
+        const aScore = a['等第成績'].match(/./g).reduce((acc, v) => {
+          return (symbols.indexOf(v) !== -1) ? acc + scoreSymbol[v] : acc
+        }, 0);
+        const bScore = b['等第成績'].match(/./g).reduce((acc, v) => {
+          return (symbols.indexOf(v) !== -1) ? acc + scoreSymbol[v] : acc
+        }, 0);
+        
+        return aScore - bScore;
       },
       courseQuerySearch(queryString, cb) {
         function createFilter(queryString) {
