@@ -99,7 +99,7 @@
   const storeConfig = new StoreConfig({ configName: 'user-setting', });
 
   const production_path = storeConfig.get('production_path') ? 
-    storeConfig.get('production_path') : path.join('Z://', 'GMBA系統/public');
+    storeConfig.get('production_path') : 'Z:/GMBA系統/public';
   console.log(production_path);
   const public_file_path = fs.existsSync(production_path) ?
     production_path : path.join(__static, 'public');
