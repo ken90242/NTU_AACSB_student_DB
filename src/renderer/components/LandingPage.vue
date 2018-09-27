@@ -196,16 +196,28 @@
       //   this.showDataIssue();
       // }
       if ((!fs.existsSync(path.join(remote.app.getPath('userData'), 'user-setting.json')))) {
-        remote.dialog.showOpenDialog({
-          title: "請選取GMBA系統的public目錄",
-          properties: ["openDirectory"],
-        }, (folderPaths) => {
-          const storeConfig = new StoreConfig({ configName: 'user-setting', });
+        this.$alert('未偵測到資料及照片目錄路徑，請手動選取share folder', '重要', {
+          confirmButtonText: '確定',
+          type: 'info',
+          center: true,
+          showClose: false,
+          closeOnPressEscape: false,
+          closeOnClickModal: false,
+          lockScroll: true,
+          callback: action => {
+            remote.dialog.showOpenDialog({
+              title: "請選取GMBA系統的public目錄",
+              properties: ["openDirectory"],
+            }, (folderPaths) => {
+              const storeConfig = new StoreConfig({ configName: 'user-setting', });
 
-          const publicPath = (folderPaths.length && folderPaths.length > 0) ? folderPaths[0] : 'Z:/GMBA系統/public';
-          console.log(publicPath);
-          storeConfig.set('production_path', publicPath);
-          storeConfig.set('windowBounds', { width: 1000, height: 600 });
+              const publicPath = (folderPaths.length && folderPaths.length > 0) ? folderPaths[0] : 'Z:/GMBA系統/public';
+              console.log(publicPath);
+              storeConfig.set('production_path', publicPath);
+              storeConfig.set('windowBounds', { width: 1000, height: 600 });
+              location.reload();
+            });
+          }
         });
       }
     },
