@@ -5,6 +5,7 @@
   import moment from 'moment';
   import fs from 'fs';
   import { remote } from 'electron';
+  import StoreConfig from '../storeConfig.js'
 
   function getExcelContent2List(xlsxPath) {
     try {
@@ -95,8 +96,14 @@
     }
   }
 
-  const production_path = path.join(remote.app.getPath('userData'), '/public');
-  const public_file_path = fs.existsSync(production_path) ? production_path : path.join(__static, 'public');
+  const storeConfig = new StoreConfig({ configName: 'user-setting', });
+
+  const production_path = storeConfig.get('production_path') ? 
+    storeConfig.get('production_path') : path.join('Z://', 'GMBA系統/public');
+  console.log(production_path);
+  const public_file_path = fs.existsSync(production_path) ?
+    production_path : path.join(__static, 'public');
+
   const bus = new Vue({
     computed: {
       publicDataExisted() {
