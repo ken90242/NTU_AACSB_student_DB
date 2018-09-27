@@ -1,9 +1,19 @@
 import { app, BrowserWindow } from 'electron' // eslint-disable-line
+import StoreConfig from '../renderer/storeConfig.js'
 
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
+
+const storeConfig = new StoreConfig({
+  // We'll call our data file 'user-preferences'
+  configName: 'user-setting',
+  defaults: {
+    windowBounds: { width: 1000, height: 600 }, 
+  }
+});
+
 if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\') // eslint-disable-line
 }
@@ -17,13 +27,22 @@ function createWindow() {
   /**
    * Initial window options
    */
+  let { width, height } = storeConfig.get('windowBounds');
   mainWindow = new BrowserWindow({
-    height: 563,
+    height,
     useContentSize: true,
-    width: 1000,
+    width,
   });
 
   mainWindow.loadURL(winURL);
+
+  mainWindow.on('resize', () => {
+    // The event doesn't pass us the window size, so we call the `getBounds` method which returns an object with
+    // the height, width, and x and y coordinates.
+    let { width, height } = mainWindow.getBounds();
+    // Now that we have them, save them using the `set` method.
+    storeConfig.set('windowBounds', { width, height });
+  });
 
   mainWindow.on('closed', () => {
     mainWindow = null;

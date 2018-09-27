@@ -11,6 +11,9 @@
         <li>歷代版本下載：<a href="https://github.com/ken90242/NTU_AACSB_student_DB/releases/" target="_blank">https://github.com/ken90242/NTU_AACSB_student_DB/releases/</a></li>
       </ul> 
     </div>
+    <el-input v-model="xxx"></el-input>
+    {{ yyy }}
+    <el-button @click="aaa">test</el-button>
     <hr/>
     <div style="margin:5px">
       <h3 style="margin-bottom:5px">本次更新</h3>
@@ -75,14 +78,21 @@
         test: {
           static_path: __static,
           userdata_path: remote.app.getPath('userData'),
+          'user-setting-file': fs.readdirSync(remote.app.getPath('userData'))
+            .filter(v => path.extname(v).indexOf('json') !== -1)
+            .map(v => path.join(remote.app.getPath('userData'), v)),
         },
         app_version: app_version,
         bus: eventBus,
         latest_release_info: null,
+        xxx: remote.app.getPath('userData'),
       };
     },
     components: { kanban },
     methods: {
+      aaa() {
+        shell.openItem(this.xxx);
+      },
       open(link) {
         this.$electron.shell.openExternal(link);
       },
@@ -186,6 +196,9 @@
       // }
     },
     computed: {
+      yyy() {
+        return path.parse(this.xxx);
+      },
       notify_html() {
         const download_link = this.latest_release_info.assets
           .filter(v => v.name !== 'latest.yml')

@@ -38,7 +38,7 @@
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
               :current-page="currentPage"
-              :page-sizes="[10, 50, 100, 300]"
+              :page-sizes="[5, 15, 50, 100, 300]"
               :page-size="pageSize"
               layout="sizes, total, prev, pager, next"
               :total="totalPages">
@@ -68,7 +68,7 @@
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
             :current-page="currentPage"
-            :page-sizes="[10, 50, 100, 300]"
+            :page-sizes="[5, 15, 50, 100, 300]"
             :page-size="pageSize"
             layout="sizes, total, prev, pager, next"
             :total="totalPages">
@@ -192,7 +192,7 @@
         bus: eventBus,
         displayType: 'profile',
         currentPage: 1,
-        pageSize: 10,
+        pageSize: 5,
       };
     },
     methods: {
