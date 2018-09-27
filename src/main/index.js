@@ -10,7 +10,7 @@ const storeConfig = new StoreConfig({
   // We'll call our data file 'user-preferences'
   configName: 'user-setting',
   defaults: {
-    windowBounds: { width: 1000, height: 600 }, 
+    windowBounds: { width: 1000, height: 600 },
   }
 });
 

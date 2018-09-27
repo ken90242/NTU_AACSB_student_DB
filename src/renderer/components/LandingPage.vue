@@ -54,6 +54,7 @@
   import { version as app_version } from '../../../package.json';
   import { ncp } from 'ncp';
   import { remote } from 'electron';
+  import StoreConfig from '../storeConfig.js'
 
   const needUpdate = function(application_v, latest_release_v) {
     const app_v = application_v.split('.');
@@ -194,6 +195,19 @@
       // if (this.bus.publicDataExisted === false) {
       //   this.showDataIssue();
       // }
+      if ((!fs.existsSync(path.join(remote.app.getPath('userData'), 'user-setting.json')))) {
+        remote.dialog.showOpenDialog({
+          title: "請選取GMBA系統的public目錄",
+          properties: ["openDirectory"],
+        }, (folderPaths) => {
+          const storeConfig = new StoreConfig({ configName: 'user-setting', });
+
+          const publicPath = (folderPaths.length && folderPaths.length > 0) ? folderPaths[0] : 'Z:/GMBA系統/public';
+          console.log(publicPath);
+          storeConfig.set('production_path', publicPath);
+          storeConfig.set('windowBounds', { width: 1000, height: 600 });
+        });
+      }
     },
     computed: {
       yyy() {
