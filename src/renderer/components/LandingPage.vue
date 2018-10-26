@@ -2,44 +2,36 @@
   <div id="wrapper">
     <kanban activeIndex="1"></kanban>
     <div style="margin:5px">
-      <h3 style="display:inline-block">程式資訊</h3>
+      <h3 style="display:inline-block">系統資訊</h3>
       <ul style="margin-left:20px">
         <li>版本：v{{ app_version }}</li>
         <li>資料流程圖: <a href="static/assets/data.png" download="data.png">Data.png</a></li>
         <li>項目進度：<a href="https://trello.com/b/fY9TENhi" target="_blank">https://trello.com/b/fY9TENhi</a></li>
         <li>原始程式碼：<a href="https://github.com/ken90242/NTU_AACSB_student_DB" target="_blank">https://github.com/ken90242/NTU_AACSB_student_DB</a></li>
         <li>歷代版本下載：<a href="https://github.com/ken90242/NTU_AACSB_student_DB/releases/" target="_blank">https://github.com/ken90242/NTU_AACSB_student_DB/releases/</a></li>
+        <li>
+          <strong>本次更新</strong>
+          <ol style="margin-left:10px">
+            <li>搜尋頁面排版更動：畢業標準文字調整</li>
+            <li>資料路徑設定功能</li>
+            <li>正式發布1.0.0公開版本</li>
+          </ol>
+        </li>
       </ul> 
     </div>
-    <el-input v-model="xxx"></el-input>
-    {{ yyy }}
-    <el-button @click="aaa">test</el-button>
     <hr/>
     <div style="margin:5px">
-      <h3 style="margin-bottom:5px">本次更新</h3>
-        <ul style="margin-left:20px">
-          <li>sorting其他選課field(*類別、*課程識別碼)\每個都sorting</li>
-          <li>標記是否為預設畢業標準</li>
-          <li>預設照片為學號.jpg or .png...</li>
-          <li>年齡統計要用入學年紀(GMBA問卷來源會是當下入學的年齡)</li>
-          <li>GMBA表單，註1,2,3,4,5，要顯示在搜尋學生那邊(標註)</li>
-          <li>個人查詢中的課程列表增加GPA跟等地分數</li>
-          <li>修改選修label -> 其他label</li>
-          <li>畢業標準上下對調</li>
-          <li>畢業標準 -> 預設畢業標準</li>
-          <li>修改必修課程 -> 學生曾修課程</li>
-          <li>範例大頭貼圖片更換</li>
-          <li>學生背景統整的按鈕(新增、覆蓋)小說明</li>
-          <li>圖表統計流程改善、介面優化</li>
-          <li>改善排列課程的GPA</li>
-          <li>bug fix: 在全部瀏覽頁面，點選F列表後，其他列表的資料會消失</li>
-          <li>bug fix: 標籤在沒資料依然會顯示</li>
-        </ul> 
+      <h3 style="margin-bottom:5px">系統設定</h3>
+      <span>目前資料目錄：{{ publicPath }}</span>
+      <el-button type="danger" size="medium" round @click="ChangePublicDir" style="margin-left:10px;">更改資料目錄</el-button>
     </div>
     <hr/>
     <div style="margin:5px">
-      <h3 style="display:inline-block">內部測試變數：</h3>
-      <p>{{ test }}</p>
+      <h3 style="display:inline-block">內部測試工具</h3>
+      <div style="margin:10px">{{ test }}</div>
+
+      <el-input v-model="testPath" style="width:50%"></el-input>
+      <el-button type="info" @click="openSomething">預設UserData路徑開啟</el-button>
     </div>
     <hr/>
   </div>
@@ -86,13 +78,26 @@
         app_version: app_version,
         bus: eventBus,
         latest_release_info: null,
-        xxx: remote.app.getPath('userData'),
+        testUserDataPath: remote.app.getPath('userData'),
       };
     },
     components: { kanban },
     methods: {
-      aaa() {
-        shell.openItem(this.xxx);
+      ChangePublicDir() {
+        remote.dialog.showOpenDialog({
+          title: "請選取GMBA系統的public目錄",
+          properties: ["openDirectory"],
+        }, (folderPaths) => {
+          if (!folderPaths) { return false }
+          const storeConfig = new StoreConfig({ configName: 'user-setting', });
+          const publicPath = (folderPaths.length && folderPaths.length > 0) ? folderPaths[0] : 'Z:/GMBA系統/public';
+          storeConfig.set('production_path', publicPath);
+          storeConfig.set('windowBounds', { width: 1000, height: 600 });
+          location.reload();
+        });
+      },
+      openSomething() {
+        shell.openItem(this.testUserDataPath);
       },
       open(link) {
         this.$electron.shell.openExternal(link);
@@ -104,73 +109,6 @@
           message: this.notify_html,
           type: 'warning',
           duration: 15000,
-        });
-      },
-      showDataIssue() {
-        this.$confirm('尚未偵測到資料，請擇一操作？', '錯誤', {
-          confirmButtonText: '初始化空白資料',
-          cancelButtonText: '手動新增(新增完後請重啟)',
-          type: 'error',
-          center: true,
-          showClose: false,
-          closeOnPressEscape: false,
-          closeOnClickModal: false,
-          lockScroll: true,
-        }).then(() => {
-          const mkdirSync = function(dirPath) {
-            try {
-              fs.mkdirSync(dirPath)
-            } catch (err) {
-              if (err.code !== 'EEXIST') throw err
-            }
-          }
-          const src = path.join(__static, '/initialize_public');
-          const dest = path.join(remote.app.getPath('userData'), '/public/');
-          
-          mkdirSync(dest);
-
-          ncp(src, dest, (err) => {
-            if (err) {
-              this.$notify({
-                title: '錯誤',
-                message: err,
-                type: 'error',
-              });
-            }
-
-            this.$alert('即將重啟應用程式', '消息', {
-              confirmButtonText: '確定',
-              type: 'info',
-              center: true,
-              showClose: false,
-              closeOnPressEscape: false,
-              closeOnClickModal: false,
-              lockScroll: true,
-              callback: action => {
-                location.reload();
-              }
-            });
-
-            this.$notify({
-              title: '成功',
-              message: '資料初始化成功！',
-              type: 'success',
-            });
-          });
-        }).catch(() => {
-          shell.openItem(remote.app.getPath('userData'));
-          this.$alert('新增完成後，點擊確認以重啟應用程式', '重要', {
-            confirmButtonText: '確認已新增完成',
-            type: 'warning',
-            center: true,
-            showClose: false,
-            closeOnPressEscape: false,
-            closeOnClickModal: false,
-            lockScroll: true,
-            callback: action => {
-              location.reload();
-            }
-          });
         });
       },
     },
@@ -192,9 +130,6 @@
         }) 
     },
     mounted() {
-      // if (this.bus.publicDataExisted === false) {
-      //   this.showDataIssue();
-      // }
       if ((!fs.existsSync(path.join(remote.app.getPath('userData'), 'user-setting.json')))) {
         this.$alert('未偵測到資料及照片目錄路徑，請手動選取share folder', '重要', {
           confirmButtonText: '確定',
@@ -205,26 +140,12 @@
           closeOnClickModal: false,
           lockScroll: true,
           callback: action => {
-            remote.dialog.showOpenDialog({
-              title: "請選取GMBA系統的public目錄",
-              properties: ["openDirectory"],
-            }, (folderPaths) => {
-              const storeConfig = new StoreConfig({ configName: 'user-setting', });
-
-              const publicPath = (folderPaths.length && folderPaths.length > 0) ? folderPaths[0] : 'Z:/GMBA系統/public';
-              console.log(publicPath);
-              storeConfig.set('production_path', publicPath);
-              storeConfig.set('windowBounds', { width: 1000, height: 600 });
-              location.reload();
-            });
+            this.ChangePublicDir();
           }
         });
       }
     },
     computed: {
-      yyy() {
-        return path.parse(this.xxx);
-      },
       notify_html() {
         const download_link = this.latest_release_info.assets
           .filter(v => v.name !== 'latest.yml')
@@ -232,6 +153,10 @@
         const context = `新版本已推出，請<a href=${ download_link } download>點此</a>立即更新！`;
 
         return context;
+      },
+      publicPath(){
+        const storeConfig = new StoreConfig({ configName: 'user-setting', });
+        return storeConfig.get('production_path');
       },
     },
   };

@@ -173,27 +173,29 @@
                   <div slot="header" class="clearfix">
                     <span>畢業資訊</span>
                   </div>
-
+                  <span v-if="needCheckGradStandard" style="color:red">
+                    不符預設畢業標準，需人工確認
+                  </span>
                   <el-form label-position="left" inline class="demo-table-expand">
-                    <el-form-item label="預測畢業年份規定標準">
-                      <span v-if="needCheckGradStandard" style="color:red">
-                        不符預設畢業標準，需人工確認
+                    <el-form-item v-if="!needCheckGradStandard" label="畢業規範學年度">
+                      <span>
+                        {{ personalGradStandard['score']['學年'] }}
                       </span>
-                      <div v-else>
-                        <span>預測規定學年：{{ personalGradStandard['score']['學年'] }}</span>
-                        <span>
-                          /
-                        </span>
-                        <span><strong>預測系定必修</strong>：{{ personalGradStandard['score']['系定必修'] }}</span>
-                        <span>
-                          /
-                        </span>
-                        <span>預設選修：{{ personalGradStandard['score']['選修'] }}</span>
-                        <span>
-                          /
-                        </span>
-                        <span>預設應修最低畢業學分：{{ personalGradStandard['score']['應修最低畢業學分'] }}</span>
-                      </div>
+                    </el-form-item>
+                    <el-form-item v-if="!needCheckGradStandard" label="系定必修學分">
+                      <span>
+                        {{ personalGradStandard['score']['系定必修'] }}
+                      </span>
+                    </el-form-item>
+                    <el-form-item v-if="!needCheckGradStandard" label="應修選修學分">
+                      <span>
+                        {{ personalGradStandard['score']['選修'] }}
+                      </span>
+                    </el-form-item>
+                    <el-form-item v-if="!needCheckGradStandard" label="應修最低畢業學分">
+                      <span>
+                        {{ personalGradStandard['score']['應修最低畢業學分'] }}
+                      </span>
                     </el-form-item>
                     <el-form-item label="已修[系定必修]學分數">
                       <span

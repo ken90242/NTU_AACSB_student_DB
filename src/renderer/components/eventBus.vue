@@ -112,6 +112,7 @@
       profile() {
         const rawData = getExcelContent2List(path.join(public_file_path, '/excels/basic_info.xlsx'));
         rawData.data = rawData.data.map((row) => {
+
           // EXCEL表格從1899開始計算
           const valDiff = moment('1899-12-30').add(parseInt(row['出生年月日'], 10), 'day');
           row['出生年月日'] = moment(valDiff).format('YYYY/MM/DD');
