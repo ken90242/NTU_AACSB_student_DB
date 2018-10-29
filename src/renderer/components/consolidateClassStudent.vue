@@ -112,7 +112,7 @@
           // console.log('done');
           this.$notify({
             title: '匯出',
-            duration: 5000,
+            duration: 0,
             message: '匯出作業完成！',
             type: 'info',
           });
@@ -173,21 +173,25 @@
         this.worksheet.addRow(rowValues);
 
         // !!!!!!!!這邊學號要改變
-        sid = 'R98723075';
+        // sid = 'R98723075';
+        let pic_paths = []
         let default_img_path = '';
 
-        const pic_paths = fs.readdirSync(path.join(this.bus.profilePicFolder, sid))
-          .filter(nm => {
-            if (path.basename(nm, path.extname(nm)).toLowerCase() === sid.toLowerCase()) {
-              default_img_path = nm;
-              return false;
-            } else if (['.png', '.gif', '.bmp', '.jpg'].indexOf(path.extname(nm)) !== -1) {
-              return true;
-            }
-          })
-          .map(fileName => {
-            return path.join(this.bus.profilePicFolder, sid, fileName);
-          });
+        if (fs.existsSync(path.join(this.bus.profilePicFolder, sid))) {
+          pic_paths = fs.readdirSync(path.join(this.bus.profilePicFolder, sid))
+            .filter(nm => {
+              if (path.basename(nm, path.extname(nm)).toLowerCase() === sid.toLowerCase()) {
+                default_img_path = nm;
+                return false;
+              } else if (['.png', '.gif', '.bmp', '.jpg'].indexOf(path.extname(nm)) !== -1) {
+                return true;
+              }
+            })
+            .map(fileName => {
+              return path.join(this.bus.profilePicFolder, sid, fileName);
+            });
+        }
+        
 
         if (default_img_path !== '') {
           default_img_path = path.join(this.bus.profilePicFolder, sid, default_img_path);

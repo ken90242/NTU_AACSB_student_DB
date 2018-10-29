@@ -269,11 +269,11 @@
             label="畢業年月"
             prop="畢業年月">
           </el-table-column>
-          <el-table-column label="個人照片" width="200px">
+          <el-table-column header-align="center" label="個人照片" width="200px">
             <template slot-scope="scope">
               <el-carousel v-if="profile_pics.length > 0" indicator-position="none" height="150px" style="text-align:center">
-                <el-carousel-item v-for="pic_path in profile_pics" :key="pic_path">
-                  <img class="profile_img" :src="'data:image/png;base64,' + base64_encode(pic_path)" />
+                <el-carousel-item v-for="im in profile_base64">
+                  <img class="profile_img" :src="'data:image/png;base64,' + im" />
                 </el-carousel-item>
               </el-carousel>
               <span v-else>無</span>
@@ -392,7 +392,8 @@
         rawSearchInput: 'R98723075', //R00749021
         currentPage: 1,
         pageSize: 10,
-        poi: [], // person of interest，可能符合搜尋條件的學生
+        poi: [], // person of interest，可能符合搜尋條件的學生,
+        profile_base64: [],
       };
     },
     methods: {
@@ -591,8 +592,10 @@
       profile_pics() {
         const sid = this.poi[0]['學號'];
         const file_dir = path.join(this.bus.profilePicFolder, sid);
+        const that = this;
         let res = [];
         let default_img_path = '';
+        this.profile_base64 = [];
 
         if (fs.existsSync(file_dir)) {
           const files = fs.readdirSync(file_dir)
@@ -612,11 +615,16 @@
             // push to the list head
             files.unshift(default_img_path);
           }
-
           if (files.length > 0) {
             res = files;
+            res.forEach((im_path) => {
+              fs.readFile(im_path, (err, bitmap) => {
+                this.profile_base64.push(new Buffer(bitmap).toString('base64'))
+              });
+            });
           }
         }
+
         return res;
       },
       searchInput() {

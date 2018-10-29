@@ -12,9 +12,8 @@
         <li>
           <strong>本次更新</strong>
           <ol style="margin-left:10px">
-            <li>搜尋頁面排版更動：畢業標準文字調整</li>
-            <li>資料路徑設定功能</li>
-            <li>正式發布1.0.0公開版本</li>
+            <li>異步讀取圖片 - 改善單一搜尋反應速度</li>
+            <li>修正無個人照之學生資料匯出錯誤</li>
           </ol>
         </li>
       </ul> 
@@ -30,7 +29,7 @@
       <h3 style="display:inline-block">內部測試工具</h3>
       <div style="margin:10px">{{ test }}</div>
 
-      <el-input v-model="testPath" style="width:50%"></el-input>
+      <el-input v-model="testUserDataPath" style="width:50%"></el-input>
       <el-button type="info" @click="openSomething">預設UserData路徑開啟</el-button>
     </div>
     <hr/>
