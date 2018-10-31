@@ -99,43 +99,63 @@
                 <el-card class="box-card">
                   <div slot="header" class="clearfix">
                     <span>個人資訊</span>
+                    <el-tooltip class="item" effect="dark" placement="right">
+                      <div slot="content">
+                        (G): 資訊來源為GMBA線上問卷<br/>(U): 資訊來源為註冊組資訊
+                      </div>
+                      <span style="margin-left:30px;font-size:12px;font-style:italic;text-decoration:underline">欄位註記說明</span>
+                    </el-tooltip>
                     <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
                   </div>
                   <el-form label-position="left" inline class="demo-table-expand">
-                    <el-form-item label="國籍">
+                    <el-form-item label="國籍(U)">
                       <span>{{ props.row['國籍'] }}</span>
                     </el-form-item>
-                    <el-form-item label="出生年月日">
+                    <el-form-item label="出生年月日(U)">
                       <span>{{ props.row['出生年月日'] }}</span>
                     </el-form-item>
-                    <el-form-item label="年齡">
+                    <el-form-item label="年齡(U)">
                       <span>{{ props.row['年齡'] }}</span>
                     </el-form-item>
-                    <el-form-item label="入學前學籍資訊">
-                      <span>
+                    <el-form-item label="入學前學籍資訊(U)">
+                      <div>
                         {{ props.row['入學前畢業年月'] }} / {{ props.row['入學前畢業學校'] }} - 
                         {{ props.row['入學前畢業系所'] }}
-                      </span>
+                      </div>
                     </el-form-item>
-                    <el-form-item label="家裡電話">
+                    <el-form-item label="入學前學籍資訊(G)">
+                      <ul v-if="personalQuestionnaire.Bachelor.toLowerCase() == 'yes'" style="list-style-type: none;">
+                        <li v-if="personalQuestionnaire.Bachelor.toLowerCase() == 'yes'">
+                          <span style="color:blue"><大學></span> {{ personalQuestionnaire.bachelor_School_name }}({{ personalQuestionnaire.bachelor_School.indexOf('Non') !== -1 ? '外國' : '本國' }}) - {{ personalQuestionnaire.bachelor_Fields }}
+                        </li>
+                        <li v-if="personalQuestionnaire.Master.toLowerCase() == 'yes'">
+                          <span style="color:blue"><碩士></span>: {{ personalQuestionnaire.master_School_name }}({{ personalQuestionnaire.master_School.indexOf('Non') !== -1 ? '外國' : '本國' }}) - {{ personalQuestionnaire.master_Fields }}
+                        </li>
+                        <li v-if="personalQuestionnaire.PhD.toLowerCase() == 'yes'">
+                          <span style="color:blue"><博士></span>: {{ personalQuestionnaire.phd_School_name }}({{ personalQuestionnaire.phd_School.indexOf('Non') !== -1 ? '外國' : '本國' }}) - {{ personalQuestionnaire.phd_Fields }}
+                        </li>
+                      </ul>
+                      <div v-else> GMBA問卷無記載學籍資訊 </div>
+                    </el-form-item>
+                    <el-form-item label="家裡電話(U)">
                       <span>{{ props.row['家裡電話'] }} / {{ props.row['電話3'] }}</span>
                     </el-form-item>
-                    <el-form-item v-if="personalQuestionnaire" label="經常使用家裡電話">
+                    <el-form-item v-if="personalQuestionnaire" label="經常使用家裡電話(G)">
                       <span>{{ personalQuestionnaire.freq_telephone }}</span>
                     </el-form-item>
-                    <el-form-item label="手機">
+                    <el-form-item label="手機(U)">
                       <span>{{ props.row['手機'] }}</span>
                     </el-form-item>
-                    <el-form-item v-if="personalQuestionnaire" label="經常使用手機">
+                    <el-form-item v-if="personalQuestionnaire" label="經常使用手機(G)">
                       <span>{{ personalQuestionnaire.freq_mobile }}</span>
                     </el-form-item>
-                    <el-form-item label="email">
+                    <el-form-item label="email(U)">
                       <span>{{ props.row['email'] }}</span>
                     </el-form-item>
-                    <el-form-item v-if="personalQuestionnaire" label="經常使用email">
+                    <el-form-item v-if="personalQuestionnaire" label="經常使用email(G)">
                       <span>{{ personalQuestionnaire.freq_email }}</span>
                     </el-form-item>
-                    <el-form-item v-if="personalQuestionnaire" label="備註">
+                    <el-form-item v-if="personalQuestionnaire" label="備註(G)">
                       <span>{{ personalQuestionnaire['note1'] === '-' ? '' : personalQuestionnaire['note1'] }}</span>
                       <span>{{ personalQuestionnaire['note2'] === '-' ? '' : personalQuestionnaire['note2'] }}</span>
                       <span>{{ personalQuestionnaire['note3'] === '-' ? '' : personalQuestionnaire['note3'] }}</span>
@@ -389,7 +409,7 @@
         },
         ],
         searchCondition: 'sid',
-        rawSearchInput: 'R98723075', //R00749021
+        rawSearchInput: 'R07749019', //R00749021 //R98723075
         currentPage: 1,
         pageSize: 10,
         poi: [], // person of interest，可能符合搜尋條件的學生,

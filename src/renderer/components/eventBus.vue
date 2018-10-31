@@ -87,8 +87,8 @@
         // basic_infos, course_standatd
         return currentSheetRes;
       }
-    
-      // graduate_standard
+      console.log(xlsxPath)
+      // graduate_standard 
       multiSheetsRes.excel_path = xlsxPath;
       return multiSheetsRes;
     } catch(e) {
@@ -98,16 +98,19 @@
 
   const storeConfig = new StoreConfig({ configName: 'user-setting', });
 
-  const production_path = storeConfig.get('production_path') ? 
-    storeConfig.get('production_path') : 'Z:/GMBA系統/public';
-  console.log(production_path);
-  const public_file_path = fs.existsSync(production_path) ?
-    production_path : path.join(__static, 'public');
+  const public_file_path = storeConfig.get('production_path') && fs.existsSync(storeConfig.get('production_path')) ?
+    storeConfig.get('production_path') : path.join(__static, 'initialize_public');
+    // production_path : path.join(__static, 'initialize_public');
 
   const bus = new Vue({
+    data() {
+      return {
+        public_file_path,
+      };
+    },
     computed: {
-      publicDataExisted() {
-        return fs.existsSync(production_path);
+      shareDataExisted() {
+        return storeConfig.get('production_path') && fs.existsSync(storeConfig.get('production_path'));
       },
       profile() {
         const rawData = getExcelContent2List(path.join(public_file_path, '/excels/basic_info.xlsx'));

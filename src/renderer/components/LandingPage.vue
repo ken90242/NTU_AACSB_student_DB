@@ -14,6 +14,11 @@
           <ol style="margin-left:10px">
             <li>異步讀取圖片 - 改善單一搜尋反應速度</li>
             <li>修正無個人照之學生資料匯出錯誤</li>
+            <li>新增測試工具與變數</li>
+            <li>顯示頁面，上頭的標題加註欄位值來源</li>
+            <li>gmba survey的學校資訊display</li>
+            <li>Freeze table and auto-resize</li>
+            <li>Z:\GMBA系統\public\excels\yvonne_questionnaire 與內部連結yvonne_questionnaire檔案不ㄧ致</li>
           </ol>
         </li>
       </ul> 
@@ -21,7 +26,9 @@
     <hr/>
     <div style="margin:5px">
       <h3 style="margin-bottom:5px">系統設定</h3>
-      <span>目前資料目錄：{{ publicPath }}</span>
+      目前資料目錄：
+      <span v-if="bus.shareDataExisted">{{ bus.public_file_path }}</span>
+      <span v-else style="color:red">無，請立即更改資料目錄</span>
       <el-button type="danger" size="medium" round @click="ChangePublicDir" style="margin-left:10px;">更改資料目錄</el-button>
     </div>
     <hr/>
@@ -30,7 +37,7 @@
       <div style="margin:10px">{{ test }}</div>
 
       <el-input v-model="testUserDataPath" style="width:50%"></el-input>
-      <el-button type="info" @click="openSomething">預設UserData路徑開啟</el-button>
+      <el-button type="info" @click="openSomething">開啟(預設UserData路徑)</el-button>
     </div>
     <hr/>
   </div>
@@ -68,6 +75,7 @@
     data() {
       return {
         test: {
+          public_file_path: eventBus.public_file_path,
           static_path: __static,
           userdata_path: remote.app.getPath('userData'),
           'user-setting-file': fs.readdirSync(remote.app.getPath('userData'))
@@ -110,6 +118,20 @@
           duration: 15000,
         });
       },
+      showShareFolderReq() {
+        this.$alert('未偵測到資料及照片目錄路徑，請手動選取share folder', '重要', {
+          confirmButtonText: '確定',
+          type: 'info',
+          center: true,
+          showClose: false,
+          closeOnPressEscape: false,
+          closeOnClickModal: false,
+          lockScroll: true,
+          callback: action => {
+            this.ChangePublicDir();
+          }
+        });
+      },
     },
     beforeMount() {
       fetch('https://api.github.com/repos/ken90242/NTU_AACSB_student_DB/releases/latest')
@@ -129,19 +151,9 @@
         }) 
     },
     mounted() {
-      if ((!fs.existsSync(path.join(remote.app.getPath('userData'), 'user-setting.json')))) {
-        this.$alert('未偵測到資料及照片目錄路徑，請手動選取share folder', '重要', {
-          confirmButtonText: '確定',
-          type: 'info',
-          center: true,
-          showClose: false,
-          closeOnPressEscape: false,
-          closeOnClickModal: false,
-          lockScroll: true,
-          callback: action => {
-            this.ChangePublicDir();
-          }
-        });
+      if (!fs.existsSync(path.join(remote.app.getPath('userData'), 'user-setting.json')) ||
+          !this.bus.shareDataExisted) {
+        this.showShareFolderReq()
       }
     },
     computed: {
@@ -152,10 +164,6 @@
         const context = `新版本已推出，請<a href=${ download_link } download>點此</a>立即更新！`;
 
         return context;
-      },
-      publicPath(){
-        const storeConfig = new StoreConfig({ configName: 'user-setting', });
-        return storeConfig.get('production_path');
       },
     },
   };

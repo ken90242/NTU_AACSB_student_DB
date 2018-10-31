@@ -1,8 +1,7 @@
 <template>
-  <div id="wrapper">
+  <div id="wrapper" style="padding: 0px 80px;padding-top: 40px;">
     <kanban activeIndex="3"></kanban>
-    <div>
-
+    <div class="freezeTop">
         <el-tabs v-model="displayType" type="card" style="width:100%">
           <el-tab-pane label="A. 研教組年度資料" name="profile"></el-tab-pane>
           <el-tab-pane label="B. 歷年學生修課紀錄" name="course"></el-tab-pane>
@@ -49,7 +48,8 @@
             :data="displayTable['specific']"
             stripe
             border
-            style="width: 90%;margin:10px;">
+            style="width: 90%;margin:10px;"
+            :max-height="tableMaxHeight">
             <el-table-column
               fixed
               prop="學年"
@@ -74,13 +74,13 @@
             :total="totalPages">
           </el-pagination>
         </div>
-
       <div v-if="displayType === 'profile'">
         <el-table
           :data="displayTable"
           stripe
           border
-          style="width: 100%">
+          style="width: 100%;margin:0px;"
+          :max-height="tableMaxHeight">
           <el-table-column
             fixed
             prop="學號"
@@ -100,7 +100,8 @@
           :data="displayTable"
           stripe
           border
-          style="width: 100%">
+          style="width: 100%"
+          :max-height="tableMaxHeight">
           <el-table-column
             fixed
             prop="學年學期"
@@ -120,7 +121,8 @@
           :data="displayTable"
           stripe
           border
-          style="width: 100%">
+          style="width: 100%"
+          :max-height="tableMaxHeight">
           <el-table-column
             fixed
             prop="作者學號"
@@ -140,7 +142,8 @@
           :data="displayTable"
           stripe
           border
-          style="width: 100%">
+          style="width: 100%"
+          :max-height="tableMaxHeight">
           <el-table-column
             fixed
             prop="學年"
@@ -160,7 +163,8 @@
           :data="displayTable"
           stripe
           border
-          style="width: 100%">
+          style="width: 100%"
+          :max-height="tableMaxHeight">
           <el-table-column
             fixed
             prop="time"
@@ -183,6 +187,15 @@
 <script>
   import kanban from './kanban';
   import eventBus from './eventBus';
+  import StoreConfig from '../../renderer/storeConfig.js'
+
+  const storeConfig = new StoreConfig({
+    // We'll call our data file 'user-preferences'
+    configName: 'user-setting',
+    defaults: {
+      windowBounds: { width: 1000, height: 600 },
+    }
+  });
 
   export default {
     name: 'consolidate-page',
@@ -193,6 +206,7 @@
         displayType: 'profile',
         currentPage: 1,
         pageSize: 5,
+        tableMaxHeight: window.innerHeight - 300,
       };
     },
     methods: {
@@ -202,6 +216,15 @@
       handleSizeChange(size) {
         this.pageSize = size;
       },
+      assignTableMaxHeight() {
+        this.tableMaxHeight = window.innerHeight - 300
+      },
+    },
+    mounted() {
+      this.$nextTick(() => {
+        window.addEventListener('resize', this.assignTableMaxHeight);
+        this.assignTableMaxHeight();
+      })
     },
     computed: {
       displayTable() {
@@ -241,7 +264,7 @@
   body { font-family: 'Source Sans Pro', sans-serif; }
 
   #wrapper {
-    padding: 60px 80px;
+    padding: 0px 80px;
     padding-top: 40px;
   }
 
@@ -255,5 +278,25 @@
     padding: 12px;
     border: 3px solid;
     border-radius: 20px;
+  }
+
+
+  /*.el-table__body-wrapper::-webkit-scrollbar {*/
+    /*-webkit-appearance: none;*/
+  /*}*/
+
+  /*.el-table__body-wrapper::-webkit-scrollbar:horizontal {*/
+    /*height: 20px;*/
+    /*width: 240px;*/
+  /*}*/
+
+  /*.el-table__body-wrapper::-webkit-scrollbar-thumb {*/
+    /*border-radius: 8px;*/
+    /*border: 2px solid white;  /*should match background, can't be transparent */
+    /*background-color: rgba(0, 0, 0, .5);
+  }*/
+
+  .freezeTop {
+
   }
 </style>
