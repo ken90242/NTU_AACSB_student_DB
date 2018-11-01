@@ -1,6 +1,6 @@
 <template>
   <div id="wrapper">
-    <kanban :activeIndex="activeIndex"></kanban>
+    <kanban :activeIndex="artActiveIndex"></kanban>
     <div class="left-mainConsole">
       <el-popover
         placement="right"
@@ -40,7 +40,7 @@
         全選
       </el-checkbox>
       <el-checkbox-group v-model="selectYear" @change="handleCheckedYearChange">
-        <el-checkbox v-for="yr in bus.enrollYears" :label="yr" name="type"></el-checkbox>
+        <el-checkbox v-for="yr in enrollYears" :label="yr" name="type"></el-checkbox>
       </el-checkbox-group>
     </div>
     <el-collapse v-model="activeNames" style="margin-left:30px">
@@ -223,20 +223,86 @@
       </el-collapse-item>
       <el-collapse-item title="E. 工作年資分佈" name="5">
         <div class="chartWrapper">
-          <pie-chart
-            class="person-chart"
-            :chart-data="datacollection['']"
-            :options="{ responsive: false, maintainAspectRatio: false }">
-          </pie-chart>
+          <div style="width:40%;margin:10px">
+            <el-table
+              :data="workYears.tableDisplaylabels.map((v) => {
+                return { 'label': v, 'number': workYears[v], 'percentage':
+                    (workYears[v] * 100 / workYears.tableDisplaylabels.reduce((acc, v) => acc + workYears[v], 0)).toFixed(1),};
+              })"
+              :border="true"
+              :highlight-current-row="false"
+              :show-summary="true"
+              sum-text="總計">
+              <el-table-column
+                prop="label"
+                label="科系">
+              </el-table-column>
+              <el-table-column
+                prop="number"
+                label="人數"
+                width="50px">
+              </el-table-column>
+              <el-table-column
+                prop="percentage"
+                label="百分比"
+                width="80px">
+                <template slot-scope="scope">
+                  {{ scope.row.percentage }}%
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <div style="text-align:center;border:rgba(0,0,0,0.1) 1px solid;">
+            <pie-chart
+              id="workYears-chart"
+              class="person-chart"
+              :chart-data="datacollection['workYearsRatio']"
+              :options="{ responsive: false, maintainAspectRatio: false }">
+            </pie-chart>
+            <el-button :disabled="hasChartDownloadButton('workYears')" type="danger" plain round @click="saveImg('workYears-chart')" style="margin:10px">Download</el-button>
+          </div>
         </div>
       </el-collapse-item>
       <el-collapse-item title="F. 產業別" name="6">
         <div class="chartWrapper">
-          <pie-chart
-            class="person-chart"
-            :chart-data="datacollection['']"
-            :options="{ responsive: false, maintainAspectRatio: false }">
-          </pie-chart>
+          <div style="width:40%;margin:10px">
+            <el-table
+              :data="workField.tableDisplaylabels.map((v) => {
+                return { 'label': v, 'number': workField[v], 'percentage':
+                    (workField[v] * 100 / workField.tableDisplaylabels.reduce((acc, v) => acc + workField[v], 0)).toFixed(1),};
+              })"
+              :border="true"
+              :highlight-current-row="false"
+              :show-summary="true"
+              sum-text="總計">
+              <el-table-column
+                prop="label"
+                label="科系">
+              </el-table-column>
+              <el-table-column
+                prop="number"
+                label="人數"
+                width="50px">
+              </el-table-column>
+              <el-table-column
+                prop="percentage"
+                label="百分比"
+                width="80px">
+                <template slot-scope="scope">
+                  {{ scope.row.percentage }}%
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <div style="text-align:center;border:rgba(0,0,0,0.1) 1px solid;">
+            <pie-chart
+              id="workField-chart"
+              class="person-chart"
+              :chart-data="datacollection['workFieldRatio']"
+              :options="{ responsive: false, maintainAspectRatio: false }">
+            </pie-chart>
+            <el-button :disabled="hasChartDownloadButton('workField')" type="danger" plain round @click="saveImg('workField-chart')" style="margin:10px">Download</el-button>
+          </div>
         </div>
       </el-collapse-item>
     </el-collapse>
@@ -245,7 +311,6 @@
 <script>
   import moment from 'moment';
   import kanban from './kanban';
-  import eventBus from './eventBus';
   import PieChart from './PieChart.js';
   import JSZip from 'jszip';
   import { saveAs } from 'file-saver';
@@ -253,11 +318,11 @@
 
   export default {
     name: 'statistic-art',
+    mixins: [kanban],
     data() {
       return {
         colorRandomSeed: 15,//1352388, 8215343, 11069834, 18948486, 17332352, 18927824, 8344352, 804851
-        activeNames: ['1', '2', '3', '4'],
-        bus: eventBus,
+        activeNames: ['1', '2', '3', '4', '5', '6'],
         checkAll: false,
         isIndeterminate: false,
         selectYear: [],
@@ -277,14 +342,14 @@
         this.updateData();
       },
       handleCheckAllChange(val) {
-        this.selectYear = val ? this.bus.enrollYears : [];
+        this.selectYear = val ? this.enrollYears : [];
         this.isIndeterminate = false;
         this.updateData();
       },
       handleCheckedYearChange(value) {
         const checkedCount = value.length;
-        this.checkAll = checkedCount === this.bus.enrollYears.length;
-        this.isIndeterminate = checkedCount > 0 && checkedCount < this.bus.enrollYears.length;
+        this.checkAll = checkedCount === this.enrollYears.length;
+        this.isIndeterminate = checkedCount > 0 && checkedCount < this.enrollYears.length;
         this.updateData();
       },
       updateData() {
@@ -311,7 +376,7 @@
 
         // 平均年齡
         let totalNum = 0;
-        this.datacollection.ageAverage = (this.bus.profile.data.reduce((acc, currRow) => {
+        this.datacollection.ageAverage = (this.profile.data.reduce((acc, currRow) => {
           if (this.selectYear.indexOf(currRow.enrollYear) === -1) {
             return acc;
           }
@@ -340,10 +405,26 @@
             data: this.major.chartDisplayLabels.map(l => this.major[l]),
           }],
         };
-        
+
+        // 年資分佈
+        this.datacollection.workYearsRatio = {
+          labels: this.workYears.chartDisplayLabels,
+          datasets: [{
+            label: 'Data One',
+            backgroundColor: randomColor({ seed: colorRandomSeed, count: this.workYears.chartDisplayLabels.length, luminosity: 'bright', }),
+            data: this.workYears.chartDisplayLabels.map(l => this.workYears[l]),
+          }],
+        };
         
         // 目前工作產業別
-        // 國籍之洲別分佈
+        this.datacollection.workFieldRatio = {
+          labels: this.workField.chartDisplayLabels,
+          datasets: [{
+            label: 'Data One',
+            backgroundColor: randomColor({ seed: colorRandomSeed, count: this.workField.chartDisplayLabels.length, luminosity: 'bright', }),
+            data: this.workField.chartDisplayLabels.map(l => this.workField[l]),
+          }],
+        };
       },
       saveImg(chartId) {
         const canvas = document.getElementById(chartId).firstChild;
@@ -369,7 +450,9 @@
     },
     mounted() {
       this.checkAll = true;
-      this.selectYear = this.bus.enrollYears;
+
+      const years = this.questionnaire.data.map(row => row.enrollYear);
+      this.selectYear = [...new Set(years)].sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
 
       this.updateData();
     },
@@ -382,9 +465,9 @@
           'chartDisplayLabels': [],
         };
 
-        this.bus.profile.data.forEach((curV) => {
+        this.questionnaire.data.forEach((curV) => {
           if (this.selectYear.indexOf(curV.enrollYear) !== -1) {
-            switch (curV['性別']) {
+            switch (curV['Gender']) {
               case 'M':
                 res.Male += 1;
                 break;
@@ -408,10 +491,11 @@
         res.tableDisplaylabels.forEach((l) => {
           res[l] = 0
         });
-        this.bus.profile.data.forEach((currRow) => {
+        this.questionnaire.data.forEach((currRow) => {
           if (this.selectYear.indexOf(currRow.enrollYear) !== -1) {
             const birth = currRow['出生年月日'];
-            const entry_age = moment(`09-01-${ 1911 + parseInt(currRow.enrollYear) }`, "MM-DD-YYYY").diff(moment(birth), 'years', false);
+            const entry_age = currRow['Age']
+            //moment(`09-01-${ 1911 + parseInt(currRow.enrollYear) }`, "MM-DD-YYYY").diff(moment(birth), 'years', false);
 
             if (entry_age >= 22 && entry_age <= 26) {
               res[res.tableDisplaylabels[0]] += 1;
@@ -433,15 +517,23 @@
         return res;
       },
       education() {
-        const res = {};
-        this.bus.profile.data.forEach((curV) => {
+        const res = { 'PhD': 0, 'Master': 0, 'Bachelor': 0 };
+        this.questionnaire.data.forEach((curV) => {
           if (this.selectYear.indexOf(curV.enrollYear) !== -1) {
-            const label = curV['學位1'];
+            /*const label = curV['學位1'];
             if (label !== '-' && label !== undefined) {
               res[label] = res[label] ? res[label] + 1 : 1;
-            }
+            }*/
+            Object.keys(res).forEach((label) => {
+              if (curV[label] === 'Yes') {
+                res[label] += 1;
+              }
+            })
           }
         });
+        res['Master'] -= res['PhD']
+        res['Bachelor'] -= res['Master']
+        res['Bachelor'] -= res['PhD']
         res.tableDisplaylabels = Object.keys(res);
         res.chartDisplayLabels = res.tableDisplaylabels.filter(label => res[label] > 0);
 
@@ -450,12 +542,15 @@
       major() {
         const res = {};
 
-        this.bus.profile.data.forEach((curV) => {
+        this.questionnaire.data.forEach((curV) => {
           if (this.selectYear.indexOf(curV.enrollYear) !== -1) {
-            const label = curV['主修1'];
-            if (label !== '-' && label !== undefined) {
-              res[label] = res[label] ? res[label] + 1 : 1;
-            }
+            if (curV['phd_Fields'] !== '-' && curV['phd_Fields'] !== undefined) {
+              res[curV['phd_Fields']] = res[curV['phd_Fields']] ? res[curV['phd_Fields']] + 1 : 1;
+            } else if (curV['master_Fields'] !== '-' && curV['master_Fields'] !== undefined) {
+              res[curV['master_Fields']] = res[curV['master_Fields']] ? res[curV['master_Fields']] + 1 : 1;
+            } else if (curV['bachelor_Fields'] !== '-' && curV['bachelor_Fields'] !== undefined) {
+              res[curV['bachelor_Fields']] = res[curV['bachelor_Fields']] ? res[curV['bachelor_Fields']] + 1 : 1;
+            } 
           }
         });
         res.tableDisplaylabels = Object.keys(res);
@@ -463,19 +558,44 @@
 
         return res;
       },
-      workField() {
+      workYears() {
         const res = {};
-        this.bus.profile.data.forEach((curV) => {
+        this.questionnaire.data.forEach((curV) => {
           if (this.selectYear.indexOf(curV.enrollYear) !== -1) {
-            const label = curV['公司行業別'];
+            const label = curV['Total_working_years'];
             if (label !== '-' && label !== undefined) {
               res[label] = res[label] ? res[label] + 1 : 1;
             }
           }
         });
+
+        const sortFunc = (a, b) => {
+          let groups = a.match(/\w*(\d+)(?!~{1}\d.)?/g);
+          const aV = groups.reduce((acc, v) => { return acc += parseInt(v) }, 0) / (groups.length);
+          groups = b.match(/\w*(\d+)(?!~{1}\d.)?/g);
+          const bV = groups.reduce((acc, v) => { return acc += parseInt(v) }, 0) / (groups.length);
+          return aV - bV;
+        }
+
+        res.tableDisplaylabels = Object.keys(res).sort(sortFunc);
+        res.chartDisplayLabels = res.tableDisplaylabels.filter(label => res[label] > 0);
         return res;
       },
-      activeIndex() {
+      workField() {
+        const res = {};
+        this.questionnaire.data.forEach((curV) => {
+          if (this.selectYear.indexOf(curV.enrollYear) !== -1) {
+            const label = curV['Field_of_company'];
+            if (label !== '-' && label !== undefined) {
+              res[label] = res[label] ? res[label] + 1 : 1;
+            }
+          }
+        });
+        res.tableDisplaylabels = Object.keys(res);
+        res.chartDisplayLabels = res.tableDisplaylabels.filter(label => res[label] > 0);
+        return res;
+      },
+      artActiveIndex() {
         return this.$route.params.activeIndex;
       },
       charType() {

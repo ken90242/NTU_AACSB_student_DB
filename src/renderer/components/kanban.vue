@@ -1,6 +1,7 @@
 <template>
   <div>
   <img id="logo" src="static/assets/gmba_logo.png" alt="gmba-red-logo">
+  <i v-show="$store.state.excelData.isSyncingData" class="el-icon-loading loadinggif"></i>
   <div class="bar">
     <el-menu :default-active="activeIndex" class="el-menu" mode="horizontal" :router="true">
       <el-menu-item :route="{ name: 'landing-page' }" index="1">
@@ -61,42 +62,14 @@
 
 <script>
   import { shell } from 'electron';
-  import eventBus from './eventBus';
   import path from 'path';
+  import { mapState } from 'vuex';
 
   export default {
     name: 'kanban',
     data() {
       return {
-        // test: path.join(remote.app.getAppPath(), '../../../../'),
-        bus: eventBus,
         selectedOptions: null,
-        options: [{
-          value: path.join(eventBus.profilePicFolder, '/../excels'),
-          label: 'Excels資料夾',
-          children: [{
-            value: eventBus.profile['excel_path'],
-            label: 'A. 研教組年度資料',
-          }, {
-            value: eventBus.course['excel_path'],
-            label: 'B. 歷年學生修課紀錄',
-          }, {
-            value: eventBus.papers['excel_path'],
-            label: 'C. 畢業生論文',
-          }, {
-            value: eventBus.council['excel_path'],
-            label: 'D. 學生會成員',
-          }, {
-            value: eventBus.questionnaire['excel_path'],
-            label: 'E. GMBA線上問卷',
-          }, {
-            value: eventBus.graduateStandard['excel_path'],
-            label: 'F. 畢業標準',
-          },]
-        }, {
-          value: eventBus.profilePicFolder,
-          label: '個人照片資料夾',
-        }],
       };
     },
     props: ['activeIndex'],
@@ -105,7 +78,47 @@
         // console.log(this.selectedOptions)
         shell.openItem(this.selectedOptions[this.selectedOptions.length - 1])
       },
-    }
+    },
+    computed: mapState({
+      shareDataExisted: state => state.excelData.shareDataExisted,
+      public_file_path: state => state.excelData.public_file_path,
+      profile: state => state.excelData.profile,
+      course: state => state.excelData.course,
+      papers: state => state.excelData.papers,
+      council: state => state.excelData.council,
+      questionnaire: state => state.excelData.questionnaire,
+      graduateStandard: state => state.excelData.graduateStandard,
+      profilePicFolder: state => state.excelData.profilePicFolder,
+      enrollYears: state => state.excelData.enrollYears,
+      options() {
+        return [{
+          value: path.join(this.profilePicFolder, '/../excels'),
+          label: 'Excels資料夾',
+          children: [{
+            value: this.profile['excel_path'],
+            label: 'A. 研教組年度資料',
+          }, {
+            value: this.course['excel_path'],
+            label: 'B. 歷年學生修課紀錄',
+          }, {
+            value: this.papers['excel_path'],
+            label: 'C. 畢業生論文',
+          }, {
+            value: this.council['excel_path'],
+            label: 'D. 學生會成員',
+          }, {
+            value: this.questionnaire['excel_path'],
+            label: 'E. GMBA線上問卷',
+          }, {
+            value: this.graduateStandard['excel_path'],
+            label: 'F. 畢業標準',
+          },]
+        }, {
+          value: this.profilePicFolder,
+          label: '個人照片資料夾',
+        }];
+      },
+    }),
   };
 </script>
 
@@ -147,6 +160,15 @@
     margin: 0px;
     width: 420px;
     height: auto;
+  }
+
+  .loadinggif {
+    font-size: 80px;
+    color: #8492a6;
+    margin: 0;
+    margin-left: 40px;
+    font-size: 2em;
+    vertical-align: middle;
   }
 
 </style>

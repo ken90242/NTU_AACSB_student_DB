@@ -1,6 +1,7 @@
 <template>
   <div id="wrapper">
     <kanban activeIndex="1"></kanban>
+    <!-- {{this.$store.state}} -->
     <div style="margin:5px">
       <h3 style="display:inline-block">系統資訊</h3>
       <ul style="margin-left:20px">
@@ -19,6 +20,8 @@
             <li>gmba survey的學校資訊display</li>
             <li>Freeze table and auto-resize</li>
             <li>Z:\GMBA系統\public\excels\yvonne_questionnaire 與內部連結yvonne_questionnaire檔案不ㄧ致</li>
+            <li>內部資料存儲結構重新設計(vuex)</li>
+            <li>修改圖表功能邏輯，重新翻修</li>
           </ol>
         </li>
       </ul> 
@@ -27,7 +30,7 @@
     <div style="margin:5px">
       <h3 style="margin-bottom:5px">系統設定</h3>
       目前資料目錄：
-      <span v-if="bus.shareDataExisted">{{ bus.public_file_path }}</span>
+      <span v-if="shareDataExisted">{{ public_file_path }}</span>
       <span v-else style="color:red">無，請立即更改資料目錄</span>
       <el-button type="danger" size="medium" round @click="ChangePublicDir" style="margin-left:10px;">更改資料目錄</el-button>
     </div>
@@ -45,7 +48,6 @@
 
 <script>
   import kanban from './kanban';
-  import eventBus from './eventBus';
   import path from 'path';
   import fs from 'fs';
   import { shell } from 'electron';
@@ -72,10 +74,11 @@
 
   export default {
     name: 'landing-page',
+    mixins: [kanban],
     data() {
       return {
         test: {
-          public_file_path: eventBus.public_file_path,
+          public_file_path: this.$store.state.excelData.public_file_path,
           static_path: __static,
           userdata_path: remote.app.getPath('userData'),
           'user-setting-file': fs.readdirSync(remote.app.getPath('userData'))
@@ -83,7 +86,6 @@
             .map(v => path.join(remote.app.getPath('userData'), v)),
         },
         app_version: app_version,
-        bus: eventBus,
         latest_release_info: null,
         testUserDataPath: remote.app.getPath('userData'),
       };
@@ -152,11 +154,12 @@
     },
     mounted() {
       if (!fs.existsSync(path.join(remote.app.getPath('userData'), 'user-setting.json')) ||
-          !this.bus.shareDataExisted) {
+          !this.shareDataExisted) {
         this.showShareFolderReq()
       }
     },
     computed: {
+      // to access local state with `this`, a normal function must be used
       notify_html() {
         const download_link = this.latest_release_info.assets
           .filter(v => v.name !== 'latest.yml')

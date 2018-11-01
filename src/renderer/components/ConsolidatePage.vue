@@ -23,7 +23,7 @@
               label="學年">
             </el-table-column>
             <el-table-column
-              v-for="label in bus.graduateStandard.score['head']"
+              v-for="label in graduateStandard.score['head']"
               v-if="label != '學年'"
               :prop="label"
               :label="label">
@@ -56,7 +56,7 @@
               label="學年">
             </el-table-column>
             <el-table-column
-              v-for="label in bus.graduateStandard.specific['head']"
+              v-for="label in graduateStandard.specific['head']"
               v-if="label != '學年'"
               :prop="label"
               :label="label">
@@ -88,7 +88,7 @@
             width="180">
           </el-table-column>
           <el-table-column
-            v-for="label in bus.profile['head']"
+            v-for="label in profile['head']"
             v-if="label != '學號'"
             :prop="label"
             :label="label">
@@ -109,7 +109,7 @@
             width="180">
           </el-table-column>
           <el-table-column
-            v-for="label in bus.course['head']"
+            v-for="label in course['head']"
             v-if="label != '異動碼' && label != '學年學期'"
             :prop="label"
             :label="label">
@@ -130,7 +130,7 @@
             width="180">
           </el-table-column>
           <el-table-column
-            v-for="label in bus.papers['head']"
+            v-for="label in papers['head']"
             v-if="label != '作者學號'"
             :prop="label"
             :label="label">
@@ -151,7 +151,7 @@
             width="180">
           </el-table-column>
           <el-table-column
-            v-for="label in bus.council['head']"
+            v-for="label in council['head']"
             v-if="label != '學年'"
             :prop="label"
             :label="label">
@@ -172,7 +172,7 @@
             width="180">
           </el-table-column>
           <el-table-column
-            v-for="label in bus.questionnaire['head']"
+            v-for="label in questionnaire['head']"
             v-if="label != 'time'"
             :prop="label"
             :label="label">
@@ -186,7 +186,6 @@
 
 <script>
   import kanban from './kanban';
-  import eventBus from './eventBus';
   import StoreConfig from '../../renderer/storeConfig.js'
 
   const storeConfig = new StoreConfig({
@@ -199,10 +198,10 @@
 
   export default {
     name: 'consolidate-page',
+    mixins: [kanban],
     components: { kanban },
     data() {
       return {
-        bus: eventBus,
         displayType: 'profile',
         currentPage: 1,
         pageSize: 5,
@@ -230,22 +229,22 @@
       displayTable() {
         if (this.displayType === 'graduateStandard') {
           return {
-            'score': this.bus[this.displayType].score.data,
-            'specific': this.bus[this.displayType].specific.data.slice(
+            'score': this[this.displayType].score.data,
+            'specific': this[this.displayType].specific.data.slice(
               (this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize,
             ),
           };
         } else {
-          return this.bus[this.displayType].data.slice(
+          return this[this.displayType].data.slice(
             (this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize,
           );
         }
       },
       totalPages() {
         if (this.displayType === 'graduateStandard') {
-          return this.bus[this.displayType].specific.data.length;
+          return this[this.displayType].specific.data.length;
         } else {
-          return this.bus[this.displayType].data.length;
+          return this[this.displayType].data.length;
         }
       },
     },

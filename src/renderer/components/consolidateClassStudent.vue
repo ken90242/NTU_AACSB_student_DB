@@ -1,6 +1,6 @@
 <template>
   <div id="wrapper">
-    <kanban :activeIndex="activeIndex"></kanban>
+    <kanban :activeIndex="conActiveIndex"></kanban>
     <section v-loading.lock="fullscreenLoading">
       <div
         style="display:flex;align-items:center;justify-content:flex-start;width:60%;margin-bottom:10px;">
@@ -41,7 +41,6 @@
 <script>
   import moment from 'moment';
   import kanban from './kanban';
-  import eventBus from './eventBus';
   import path from 'path';
   import Excel from 'exceljs';
   import fs from 'fs';
@@ -49,6 +48,7 @@
 
   export default {
     name: 'consolidate-class-student',
+    mixins: [kanban],
     data() {
       return {
         value2: [12,43,54,611,234,123,54,34,252,542,222,556,124,362,212,331],
@@ -56,7 +56,6 @@
           query = query.toLowerCase();
           return item.sid.toLowerCase().indexOf(query) > -1;
         },
-        bus: eventBus,
         currentIdx: 0,
         fullscreenLoading: false,
         workbook: null,
@@ -177,8 +176,8 @@
         let pic_paths = []
         let default_img_path = '';
 
-        if (fs.existsSync(path.join(this.bus.profilePicFolder, sid))) {
-          pic_paths = fs.readdirSync(path.join(this.bus.profilePicFolder, sid))
+        if (fs.existsSync(path.join(this.profilePicFolder, sid))) {
+          pic_paths = fs.readdirSync(path.join(this.profilePicFolder, sid))
             .filter(nm => {
               if (path.basename(nm, path.extname(nm)).toLowerCase() === sid.toLowerCase()) {
                 default_img_path = nm;
@@ -188,13 +187,13 @@
               }
             })
             .map(fileName => {
-              return path.join(this.bus.profilePicFolder, sid, fileName);
+              return path.join(this.profilePicFolder, sid, fileName);
             });
         }
         
 
         if (default_img_path !== '') {
-          default_img_path = path.join(this.bus.profilePicFolder, sid, default_img_path);
+          default_img_path = path.join(this.profilePicFolder, sid, default_img_path);
           pic_paths.unshift(default_img_path)
         }
 
@@ -270,14 +269,14 @@
         const res = this.pasteSids.match(/[r|R]\d{8}/g)
         return res;
       },
-      activeIndex() {
+      conActiveIndex() {
         return this.$route.params.activeIndex;
       },
       data2() {
         const data = [];
         const sids_names = [];
         const sids = [];
-        this.bus.profile.data.forEach((obj, idx) => {
+        this.profile.data.forEach((obj, idx) => {
           sids[idx] = obj['學號'];
           sids_names[idx] = obj['學號']+obj['中文姓名']+obj['英文姓名'];
         });
@@ -299,7 +298,7 @@
         //
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         const res = {};
-        this.bus.profile.data.forEach((obj) => {
+        this.profile.data.forEach((obj) => {
           const sid = obj['學號'];
           res[sid] = [obj['學號'], obj['中文姓名'], obj['英文姓名'], obj['國籍'], obj['出生年月日'], obj['結束服務年1'], obj['公司中文名稱1'], obj['職稱1'], obj['學位1'], obj['入學前畢業學校'], obj['入學前畢業系所'], obj['email'], obj['email2']];
         });

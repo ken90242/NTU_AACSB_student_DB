@@ -123,7 +123,7 @@
                         {{ props.row['入學前畢業系所'] }}
                       </div>
                     </el-form-item>
-                    <el-form-item label="入學前學籍資訊(G)">
+                    <el-form-item v-if="personalQuestionnaire" label="入學前學籍資訊(G)">
                       <ul v-if="personalQuestionnaire.Bachelor.toLowerCase() == 'yes'" style="list-style-type: none;">
                         <li v-if="personalQuestionnaire.Bachelor.toLowerCase() == 'yes'">
                           <span style="color:blue"><大學></span> {{ personalQuestionnaire.bachelor_School_name }}({{ personalQuestionnaire.bachelor_School.indexOf('Non') !== -1 ? '外國' : '本國' }}) - {{ personalQuestionnaire.bachelor_Fields }}
@@ -135,7 +135,10 @@
                           <span style="color:blue"><博士></span>: {{ personalQuestionnaire.phd_School_name }}({{ personalQuestionnaire.phd_School.indexOf('Non') !== -1 ? '外國' : '本國' }}) - {{ personalQuestionnaire.phd_Fields }}
                         </li>
                       </ul>
-                      <div v-else> GMBA問卷無記載學籍資訊 </div>
+                      <div v-else style="color:red"> GMBA問卷無記載學籍資訊 </div>
+                    </el-form-item>
+                    <el-form-item v-else label="入學前學籍資訊(G)">
+                      <div style="color:red"> GMBA問卷無記載學籍資訊 </div>
                     </el-form-item>
                     <el-form-item label="家裡電話(U)">
                       <span>{{ props.row['家裡電話'] }} / {{ props.row['電話3'] }}</span>
@@ -198,47 +201,71 @@
                   </span>
                   <el-form label-position="left" inline class="demo-table-expand">
                     <el-form-item v-if="!needCheckGradStandard" label="畢業規範學年度">
-                      <span>
+                      <span v-if="personalGradStandard['score']">
                         {{ personalGradStandard['score']['學年'] }}
+                      </span>
+                      <span v-else style="color:red">
+                        畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
                       </span>
                     </el-form-item>
                     <el-form-item v-if="!needCheckGradStandard" label="系定必修學分">
-                      <span>
+                      <span v-if="personalGradStandard['score']">
                         {{ personalGradStandard['score']['系定必修'] }}
+                      </span>
+                      <span v-else style="color:red">
+                        畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
                       </span>
                     </el-form-item>
                     <el-form-item v-if="!needCheckGradStandard" label="應修選修學分">
-                      <span>
+                      <span v-if="personalGradStandard['score']">
                         {{ personalGradStandard['score']['選修'] }}
+                      </span>
+                      <span v-else style="color:red">
+                        畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
                       </span>
                     </el-form-item>
                     <el-form-item v-if="!needCheckGradStandard" label="應修最低畢業學分">
-                      <span>
+                      <span v-if="personalGradStandard['score']">
                         {{ personalGradStandard['score']['應修最低畢業學分'] }}
+                      </span>
+                      <span v-else style="color:red">
+                        畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
                       </span>
                     </el-form-item>
                     <el-form-item label="已修[系定必修]學分數">
                       <span
+                         v-if="personalGradStandard['score']"
                         :style="{
                           'color': personalGraduateScore['totalRequiredScore'] < personalGradStandard['score']['系定必修'] ? 'red' : 'black'
                         }">
                         {{ personalGraduateScore['totalRequiredScore'] }}
                       </span>
+                      <span v-else style="color:red">
+                        畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
+                      </span>
                     </el-form-item>
                     <el-form-item label="已修[其他]學分數">
                       <span
+                        v-if="personalGradStandard['score']"
                         :style="{
                           'color': personalGraduateScore['totalSelectableScore'] < personalGradStandard['score']['選修'] ? 'red' : 'black'
                         }">
                         {{ personalGraduateScore['totalSelectableScore'] }}
                       </span>
+                      <span v-else style="color:red">
+                        畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
+                      </span>
                     </el-form-item>
                     <el-form-item label="已修[總學分數]">
                       <span
+                        v-if="personalGradStandard['score']"
                         :style="{
                           'color': personalGraduateScore['totalSelectableScore'] + personalGraduateScore['totalRequiredScore'] < personalGradStandard['score']['應修最低畢業學分'] ? 'red' : 'black'
                         }">
                         {{ personalGraduateScore['totalSelectableScore'] + personalGraduateScore['totalRequiredScore'] }}
+                      </span>
+                      <span v-else style="color:red">
+                        畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
                       </span>
                     </el-form-item>
                   </el-form>
@@ -392,13 +419,12 @@
   import path from 'path';
   import { remote } from 'electron';
   import kanban from './kanban';
-  import eventBus from './eventBus';
 
   export default {
     components: { kanban },
+    mixins: [kanban],
     data() {
       return {
-        bus: eventBus,
         searchConditionOptions: [{
           value: 'sid',
           label: '學生',
@@ -449,7 +475,7 @@
           };
         }
 
-        let courses = this.bus.course.data.map(obj => obj['課程名稱'])
+        let courses = this.course.data.map(obj => obj['課程名稱'])
         courses = [...new Set(courses)]
           .map((nm) => {
             return {
@@ -497,7 +523,8 @@
         return flag;
       },
       searchBaseOnKeywordACondition(searchInput, searchCondition) {
-        const { profile, course } = this.bus;
+        const { profile, course } = this;
+        // let tmp = new Date().getTime()
 
         const res = {
           student: null,
@@ -505,31 +532,32 @@
         };
   
         this.clearSearchPOIs();
+        
+        
+        // console.log('a', new Date().getTime() - tmp)
+        // tmp = new Date().getTime()
 
         switch (searchCondition) {
           // 查詢學生
           case 'sid':
-            for (let i = 0; i < profile.data.length; i += 1) {
-              if (
-                profile.data[i]['中文姓名'].trim().indexOf(searchInput) !== -1 ||
-                profile.data[i]['英文姓名'].trim().toUpperCase().indexOf(searchInput) !== -1 ||
-                profile.data[i]['學號'].trim().toUpperCase().indexOf(searchInput) !== -1) {
-                // 避免一次載入太多資料不流暢
-                if (this.poi.length < 50) {
-                  this.poi.push(profile.data[i]);
-                }
-              }
-            }
+            this.poi = this.profile.data.filter((v) => {
+              return v['中文姓名'].trim().indexOf(searchInput) !== -1 ||
+                v['英文姓名'].trim().toUpperCase().indexOf(searchInput) !== -1 ||
+                v['學號'].trim().toUpperCase().indexOf(searchInput) !== -1;
+            }).slice(0, 50)
+            
+            // console.log('b', new Date().getTime() - tmp)
+            // tmp = new Date().getTime()
   
             if (this.poi.length === 1) {
-              for (let i = 0; i < course.data.length; i += 1) {
-                if (course.data[i]['學號'] === this.poi[0]['學號']) {
-                  res.course.push(course.data[i]);
-                }
-              }
+              res.course = this.course.data.filter((v => v['學號'] === this.poi[0]['學號']))
               res.student = this.poi;
+              
+              // console.log('c', new Date().getTime() - tmp)
+              // tmp = new Date().getTime()
               break;
             }
+
   
           // 查詢課程
           case 'cid': {
@@ -565,8 +593,7 @@
               return { flag, idx };
             };
 
-            for (let i = 0; i < course.data.length; i += 1) {
-              const targetObj = course.data[i];
+            this.course.data.forEach((targetObj) => {
               if (targetObj['課號'] === searchInput ||
                   targetObj['課程識別碼'] === searchInput ||
                   targetObj['課程名稱'] === searchInput) {
@@ -582,7 +609,10 @@
                   insertNewClassIntoKeyMaps(targetObj);
                 }
               }
-            }
+            })
+            
+            // console.log('d', new Date().getTime() - tmp)
+            // tmp = new Date().getTime()
 
             keysMap.forEach((course) => {
               const scoresList = course.elements
@@ -596,6 +626,9 @@
                 course.meanScore = (rawSumScore / scoresList.length).toFixed(2);
               }
             });
+            
+            // console.log('e', new Date().getTime() - tmp)
+            // tmp = new Date().getTime()
 
             res.course = keysMap;
             break;
@@ -611,7 +644,7 @@
     computed: {
       profile_pics() {
         const sid = this.poi[0]['學號'];
-        const file_dir = path.join(this.bus.profilePicFolder, sid);
+        const file_dir = path.join(this.profilePicFolder, sid);
         const that = this;
         let res = [];
         let default_img_path = '';
@@ -628,10 +661,10 @@
                 return true;
               }
             })
-            .map(nm => path.join(this.bus.profilePicFolder, sid, nm));
+            .map(nm => path.join(this.profilePicFolder, sid, nm));
 
           if (default_img_path !== '') {
-            default_img_path = path.join(this.bus.profilePicFolder, sid, default_img_path);
+            default_img_path = path.join(this.profilePicFolder, sid, default_img_path);
             // push to the list head
             files.unshift(default_img_path);
           }
@@ -668,7 +701,7 @@
         return this[this.displayType].data.length;
       },
       personalCouncil() {
-        let res = this.bus.council.data.filter(obj => obj['學號'] === this.poi[0]['學號']);
+        let res = this.council.data.filter(obj => obj['學號'] === this.poi[0]['學號']);
         if (res.length === 0) {
           res = null;
         } else {
@@ -677,7 +710,7 @@
         return res;
       },
       personalQuestionnaire() {
-        let res = this.bus.questionnaire.data.filter(obj => obj['NTU_ID'] === this.poi[0]['學號']);
+        let res = this.questionnaire.data.filter(obj => obj['NTU_ID'] === this.poi[0]['學號']);
         if (res.length === 0) {
           res = null;
         } else {
@@ -687,7 +720,7 @@
       },
       personalPapers() {
         console.log(this.poi)
-        let res = this.bus.papers.data.filter(obj => obj['作者學號'] === this.poi[0]['學號']);
+        let res = this.papers.data.filter(obj => obj['作者學號'] === this.poi[0]['學號']);
         if (res.length === 0) {
           res = null;
         } else {
@@ -703,13 +736,13 @@
           specific: [],
         };
 
-        this.bus.graduateStandard.score.data.forEach((row) => {
+        this.graduateStandard.score.data.forEach((row) => {
           if (row['學年'] === enrollYear) {
             standard.score = row;
           }
         });
 
-        this.bus.graduateStandard.specific.data.forEach((row) => {
+        this.graduateStandard.specific.data.forEach((row) => {
           if (row['學年'] === enrollYear) {
             standard.specific.push(row);
           }

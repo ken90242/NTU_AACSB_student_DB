@@ -4,6 +4,7 @@ import ElementUI from 'element-ui';
 import prompt from 'electron-prompt';
 import { sha3_512 } from 'js-sha3';
 import 'element-ui/lib/theme-chalk/index.css';
+import Vuex from 'vuex'
 
 import App from './App';
 import router from './router';
@@ -12,6 +13,7 @@ import locale from 'element-ui/lib/locale/lang/zh-TW'
 import StoreConfig from './storeConfig.js'
 
 Vue.use(ElementUI, { locale });
+Vue.use(Vuex)
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'));
 Vue.http = Vue.prototype.$http = axios;
