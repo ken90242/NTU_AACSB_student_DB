@@ -45,6 +45,7 @@
   import Excel from 'exceljs';
   import fs from 'fs';
   import os from 'os';
+  import { remote } from 'electron';
 
   export default {
     name: 'consolidate-class-student',
@@ -104,20 +105,38 @@
         console.time("writeFile");
         this.workbook.xlsx.writeFile(tempFilePath)
         .then(() => {
-          const link = document.getElementById('link');
-          // link.setAttribute('download', '');
-          link.setAttribute('href', `file:\/\/\/${tempFilePath}`);
-          link.click();
-          this.initialize_excel();
-          this.fullscreenLoading = false;
-          // console.log('done');
-          this.$notify({
-            title: '匯出',
-            duration: 15,
-            message: '匯出作業結束！',
-            type: 'info',
+          const newFilePath = remote.dialog.showSaveDialog({
+            defaultPath: `file:\/\/\/${tempFilePath}`,
+            filters: [{
+              name: 'Excel',
+              extensions: ['xlsx'],
+            }],
           });
-          console.timeEnd("writeFile");
+          fs.rename(tempFilePath, newFilePath, (err) => {
+            if (err) {
+              this.$notify({
+                title: '錯誤',
+                duration: 0,
+                message: err,
+                type: 'error',
+              });
+              throw err;
+            }
+            this.initialize_excel();
+            this.fullscreenLoading = false;
+            // console.log('done');
+            this.$notify({
+              title: '匯出',
+              duration: 0,
+              message: '匯出作業成功！',
+              type: 'success',
+            });
+            console.timeEnd("writeFile");
+          });
+          // const link = document.getElementById('link');
+          // link.setAttribute('download', '');
+          // link.setAttribute('href', `file:\/\/\/${tempFilePath}`);
+          // link.click();
         });
       },
       createSingleRow(sid) {
