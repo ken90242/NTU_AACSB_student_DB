@@ -181,6 +181,30 @@ const mutations = {
         } else {
           throw 'questionnaire detectRawYear doesnt exist'
         }
+
+        if (v['PhD'].toLowerCase() === 'yes') {
+          v.highestDegree = 'PhD';
+          v.highestSchoolType = v['phd_School'];
+          v.highestSchoolName = v['phd_School_name'];
+          v.highestField = v['phd_Fields'];
+        } else if (v['Master'].toLowerCase() === 'yes') {
+          v.highestDegree = 'Master';
+          v.highestSchoolType = v['master_School'];
+          v.highestSchoolName = v['master_School_name'];
+          v.highestField = v['master_Fields'];
+        } else if (v['Bachelor'].toLowerCase() === 'yes') {
+          v.highestDegree = 'Bachelor';
+          v.highestSchoolType = v['bachelor_School'];
+          v.highestSchoolName = v['bachelor_School_name'];
+          v.highestField = v['bachelor_Fields'];
+        } else {
+          v.highestDegree = '-';
+          v.highestSchoolType = '-';
+          v.highestSchoolName = '-';
+          v.highestField = '-';
+        }
+
+
         return v;
       });
     } else {

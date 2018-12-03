@@ -1,5 +1,10 @@
 <template>
-  <div id="wrapper">
+  <div
+    id="wrapper"
+    v-loading.fullscreen.lock="avgImageStatus === '處理中...'"
+    :element-loading-text="`${ avgImageStatus } ${ progressBar }% (耗時約數十分鐘，請耐心等候)`"
+    element-loading-spinner="el-icon-loading"
+    element-loading-background="rgba(0, 0, 0, 0.8)">
     <kanban activeIndex="1"></kanban>
     <!-- {{this.$store.state}} -->
     <div style="margin:5px">
@@ -13,15 +18,15 @@
         <li>
           <strong>本次更新</strong>
           <ol style="margin-left:10px">
-            <li>異步讀取圖片 - 改善單一搜尋反應速度</li>
-            <li>修正無個人照之學生資料匯出錯誤</li>
-            <li>新增測試工具與變數</li>
-            <li>顯示頁面，上頭的標題加註欄位值來源</li>
-            <li>gmba survey的學校資訊display</li>
-            <li>Freeze table and auto-resize</li>
-            <li>Z:\GMBA系統\public\excels\yvonne_questionnaire 與內部連結yvonne_questionnaire檔案不ㄧ致</li>
-            <li>內部資料存儲結構重新設計(vuex)</li>
-            <li>修改圖表功能邏輯，重新翻修</li>
+            <li>新增學歷國內外的表細項</li>
+            <li>新增平均年資</li>
+            <li>新增tooltip提示hot-key</li>
+            <li>合計行單位顯示</li>
+            <li>圖片壓縮功能</li>
+            <li>hotfix: 修正學生報表</li>
+            <li>防呆系統設定確認功能</li>
+            <li>優化UX:文字說明</li>
+            <li>調整選單開啟目錄結構</li>
           </ol>
         </li>
       </ul> 
@@ -29,10 +34,24 @@
     <hr/>
     <div style="margin:5px">
       <h3 style="margin-bottom:5px">系統設定</h3>
-      目前資料目錄：
-      <span v-if="shareDataExisted">{{ public_file_path }}</span>
-      <span v-else style="color:red">無，請立即更改資料目錄</span>
-      <el-button type="danger" size="medium" round @click="ChangePublicDir" style="margin-left:10px;">更改資料目錄</el-button>
+      <ul style="list-style-type: none;">
+        <li style="width:60%;display:flex;justify-content:space-between;margin:10px">
+          <div>
+            A. 目前資料目錄：
+            <span v-if="shareDataExisted">{{ public_file_path }}</span>
+            <span v-else style="color:red">無，請立即更改資料目錄</span>
+          </div>
+          <el-button type="primary" size="medium" round @click="openDialogFunc(ChangePublicDir)" style="margin-left:10px;">更改資料目錄</el-button>
+        </li>
+        <li style="width:60%;display:flex;justify-content:space-between;margin:10px">
+          <div>
+            B. 平均壓縮照片大小：
+            <span v-if="avgImageStatus !== ''" style="color:red">{{ avgImageStatus }}</span>
+            <span v-else>{{ avgImageSize }} MB</span>
+          </div>
+          <el-button type="primary" size="medium" round @click="openDialogFunc(compressImages)" style="margin-left:10px;">壓縮所有照片</el-button>
+        </li>
+      </ul>
     </div>
     <hr/>
     <div style="margin:5px">
@@ -43,6 +62,16 @@
       <el-button type="info" @click="openSomething">開啟(預設UserData路徑)</el-button>
     </div>
     <hr/>
+    <el-dialog
+      title="請再次確認 !"
+      :visible.sync="dialogVisible"
+      center>
+      <span>確定執行 "{{ dialogFuncName }}" 功能嗎？</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="danger" @click="executeDialogFunc">確定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -54,7 +83,10 @@
   import { version as app_version } from '../../../package.json';
   import { ncp } from 'ncp';
   import { remote } from 'electron';
-  import StoreConfig from '../storeConfig.js'
+  import StoreConfig from '../storeConfig.js';
+  import { exec } from 'child_process';
+  import compress_images from 'compress-images';
+  import glob from 'glob';
 
   const needUpdate = function(application_v, latest_release_v) {
     const app_v = application_v.split('.');
@@ -88,10 +120,77 @@
         app_version: app_version,
         latest_release_info: null,
         testUserDataPath: remote.app.getPath('userData'),
+        avgImageSize: 0,
+        progressBar: 0,
+        avgImageStatus: '',
+        progressException: true,
+        dialogVisible: false,
+        dialogFunc: () => {},
       };
     },
     components: { kanban },
     methods: {
+      executeDialogFunc() {
+        this.dialogVisible = false;
+        this.dialogFunc();
+      },
+      openDialogFunc(func) {
+        this.dialogVisible = true;
+        this.dialogFunc = func;
+      },
+      updateAvgImageSize() {
+        this.avgImageSize = 0;
+        glob(`${this.profilePicFolder}/**/compressed/*.+(png|gif|svg|jpg)`, (er, files) => {
+          for (let f of files) {
+            this.avgImageSize += parseInt(fs.statSync(f).size, 10);
+          }
+          this.avgImageSize = ((this.avgImageSize / (1024 * 1024)) / files.length).toFixed(2);
+          if (files.length === 0) {
+            this.avgImageStatus = '尚未壓縮';
+          } else {
+            this.avgImageStatus = '';
+          }
+        });
+      },
+      compressImages() {
+        this.avgImageStatus = '處理中...';
+        let progressIndex = 0;
+        const that = this;
+        that.progressBar = 0;
+        glob(`${this.profilePicFolder}/*/*.+(jpg|png|svg|gif)`, function (er, files) {
+          files = files;
+          for(const f of files) {
+            compress_images(f, path.join(path.dirname(f), '/compressed/'),
+              { compress_force: true, statistic: false, autoupdate: false },
+              false,
+              { jpg: { engine: 'mozjpeg', command: ['-quality', '60'] } },
+              { png: { engine: 'pngquant', command: ['--quality=20-50'] } },
+              { svg: { engine: 'svgo', command: '--multipass' } },
+              { gif: { engine: 'gifsicle', command: ['--colors', '64', '--use-col=web'] } }, 
+              (error, completed, statistic) => {
+                if (error !== null) {
+                  console.error(error);
+                }
+                progressIndex += 1;
+
+                if (progressIndex === files.length) {
+                  that.avgImageStatus = '';
+                  that.updateAvgImageSize();
+                  that.$notify({
+                    title: '成功',
+                    duration: 0,
+                    message: '壓縮成功！',
+                    type: 'success',
+                  });
+                } else if (progressIndex % 5 === 0) {
+                  that.progressBar = ((progressIndex / files.length) * 100).toFixed(1);
+                  that.$forceUpdate();
+                }
+              }
+            )
+          }
+        });
+      },
       ChangePublicDir() {
         remote.dialog.showOpenDialog({
           title: "請選取GMBA系統的public目錄",
@@ -136,6 +235,7 @@
       },
     },
     beforeMount() {
+      // update news
       fetch('https://api.github.com/repos/ken90242/NTU_AACSB_student_DB/releases/latest')
         .then(v => v.json())
         .then(v => {
@@ -150,7 +250,10 @@
         })
         .catch(e => {
           throw e;
-        }) 
+        })
+
+      //  calculate image folder size
+      this.updateAvgImageSize();
     },
     mounted() {
       if (!fs.existsSync(path.join(remote.app.getPath('userData'), 'user-setting.json')) ||
@@ -159,6 +262,15 @@
       }
     },
     computed: {
+      dialogFuncName() {
+        let nm = '無';
+        if (this.dialogFunc === this.ChangePublicDir) {
+          nm = '更改資料目錄';
+        } else if(this.dialogFunc === this.compressImages) {
+          nm = '壓縮所有照片';
+        }
+        return nm;
+      },
       // to access local state with `this`, a normal function must be used
       notify_html() {
         const download_link = this.latest_release_info.assets

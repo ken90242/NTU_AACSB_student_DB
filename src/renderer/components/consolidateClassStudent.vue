@@ -1,11 +1,11 @@
 <template>
   <div id="wrapper">
     <kanban :activeIndex="conActiveIndex"></kanban>
-    <section v-loading.lock="fullscreenLoading">
+    <section 
+      v-loading.lock="fullscreenLoading"
+      element-loading-text="預計耗時數分鐘....請耐心等候">
       <div
         style="display:flex;align-items:center;justify-content:flex-start;width:60%;margin-bottom:10px;">
-        <!-- {{value2}}
-        {{manualPasteSids}} -->
         <el-input
           type="textarea"
           :rows="4"
@@ -87,23 +87,25 @@
         this.workbook = new Excel.Workbook();
         this.worksheet = this.workbook.addWorksheet('待命名');
 
-        const TopLabels = ['#', '分組', 'Student ID', 'Name', 'Name', 'Picture', 'Nationality', 'Age', 'Year of work Experience', 'Last Employment', 'Last Job Title', 'Degree', 'School', 'Major', 'non-NTU Email', 'NTU email']
+        const TopLabels = ['#', '分組', 'Student ID', 'Chinese Name', 'English Name', 'Picture', 'Nationality', 'Age', 'Year of work Experience', 'Last Employment', 'Last Job Title', 'Degree', 'School', 'Major', 'non-NTU Email', 'NTU email']
         this.worksheet.addRow(TopLabels);
       },
       createReport() {
+        console.time("createRows");
         this.fullscreenLoading = true;
         this.value2.forEach((idx) => {
           const sid = this.data2[idx].sid;
           this.createSingleRow(sid)
         });
+        console.timeEnd("createRows");
 
         this.changeAllStyle();
-
         const tempFilePath = path.join(os.tmpdir(), '/excel.xlsx');
+        console.time("writeFile");
         this.workbook.xlsx.writeFile(tempFilePath)
         .then(() => {
           const link = document.getElementById('link');
-          link.setAttribute('download', 'excel.xlsx');
+          // link.setAttribute('download', '');
           link.setAttribute('href', `file:\/\/\/${tempFilePath}`);
           link.click();
           this.initialize_excel();
@@ -111,10 +113,11 @@
           // console.log('done');
           this.$notify({
             title: '匯出',
-            duration: 0,
-            message: '匯出作業完成！',
+            duration: 15,
+            message: '匯出作業結束！',
             type: 'info',
           });
+          console.timeEnd("writeFile");
         });
       },
       createSingleRow(sid) {
@@ -142,8 +145,7 @@
         rowValues[7] = poi[3];
         
         // 年齡
-        const birth = poi[4];
-        rowValues[8] = moment().diff(moment(birth), 'years', false);
+        rowValues[8] = poi[4];
         
         // 工作年資
         rowValues[9] = poi[5];
@@ -171,8 +173,6 @@
 
         this.worksheet.addRow(rowValues);
 
-        // !!!!!!!!這邊學號要改變
-        // sid = 'R98723075';
         let pic_paths = []
         let default_img_path = '';
 
@@ -188,6 +188,15 @@
             })
             .map(fileName => {
               return path.join(this.profilePicFolder, sid, fileName);
+            });
+        }
+        if (fs.existsSync(path.join(this.profilePicFolder, sid, 'compressed'))) {
+          fs.readdirSync(path.join(this.profilePicFolder, sid, 'compressed'))
+            .forEach(nm => {
+              if (path.basename(nm, path.extname(nm)).toLowerCase() === sid.toLowerCase()) {
+                default_img_path = nm;
+                return false;
+              }
             });
         }
         
@@ -226,9 +235,9 @@
           'H': { width: 6 },
           'I': { width: 14 },
           'J': { width: 40 },
-          'K': { width: 30 },
+          'K': { width: 35 },
           'L': { width: 19 },
-          'M': { width: 40 },
+          'M': { width: 42 },
           'N': { width: 36 },
           'O': { width: 32 },
           'P': { width: 32 },
@@ -289,6 +298,17 @@
         });
         return data;
       },
+      poisQuestionnaireVersion() {
+        const res = {};
+
+        this.questionnaire.data.forEach((obj) => {
+          const sid = obj['NTU_ID'];
+          const schoolType_Name = `${ obj['highestSchoolType'] }  / ${ obj['highestSchoolName'] }`;
+
+          res[sid] = [obj['NTU_ID'], obj['Chinese_Name'], obj['English_Name'], obj['Nationality'], obj['Age'], obj['Total_working_years'], obj['Last_employment_company'], obj['Job_title'], obj['highestDegree'], schoolType_Name, obj['highestField'], obj['freq_email']];
+        });
+        return res;
+      },
       pois() {
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //
@@ -298,10 +318,24 @@
         //
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         const res = {};
+        const questionnaireSIds = Object.keys(this.poisQuestionnaireVersion);
+        // 被取代：中文姓名, 英文姓名, 國籍, 結束服務年1, 公司中文名稱1, 職稱1, 學位1, 入學前畢業學校, 入學前畢業系所, email
+        const list = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11];
         this.profile.data.forEach((obj) => {
           const sid = obj['學號'];
-          res[sid] = [obj['學號'], obj['中文姓名'], obj['英文姓名'], obj['國籍'], obj['出生年月日'], obj['結束服務年1'], obj['公司中文名稱1'], obj['職稱1'], obj['學位1'], obj['入學前畢業學校'], obj['入學前畢業系所'], obj['email'], obj['email2']];
+          const age = moment().diff(moment(obj['出生年月日']), 'years', false)
+          const ntuMail = `${sid}@ntu.edu.tw`;
+          const total_wk_yr = obj['結束服務年1'] !== '-' ? moment().diff(moment(obj['結束服務年1']), 'years', false) : ''
+
+          res[sid] = [obj['學號'], obj['中文姓名'], obj['英文姓名'], obj['國籍'], age, total_wk_yr, obj['公司中文名稱1'], obj['職稱1'], obj['學位1'], obj['入學前畢業學校'], obj['入學前畢業系所'], obj['email'], ntuMail];
+
+          if (questionnaireSIds.indexOf(sid) !== -1) {
+            list.forEach((position) => {
+              res[sid][position] = this.poisQuestionnaireVersion[sid][position];
+            });
+          }
         });
+
         return res;
       },
     },

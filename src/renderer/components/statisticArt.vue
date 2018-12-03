@@ -56,6 +56,7 @@
                   };
               })"
               :border="true"
+              :summary-method="getSummaries"
               :highlight-current-row="false"
               :show-summary="true"
               sum-text="總計">
@@ -103,6 +104,7 @@
               })"
               :border="true"
               :highlight-current-row="false"
+              :summary-method="getSummaries"
               :show-summary="true"
               sum-text="總計">
               <el-table-column
@@ -137,19 +139,14 @@
       </el-collapse-item>
       <el-collapse-item title="C. 學歷分布" name="3">
         <div class="chartWrapper">
-          <div style="width:25%;margin:10px">
+          <div style="width:60%;margin:10px">
             <el-table
-              :data="education.tableDisplaylabels.map((v) => {
-                return { 
-                  'label': v,
-                  'number': education[v],
-                  'percentage':
-                    (education[v] * 100 / education.tableDisplaylabels.reduce((acc, v) => acc + education[v], 0)).toFixed(1),
-                };
-              })"
+              :data="educationTable"
               :border="true"
               :highlight-current-row="false"
               :show-summary="true"
+              :summary-method="getSummaries"
+              :span-method="objectSpanMethod"
               sum-text="總計">
               <el-table-column
                 prop="label"
@@ -157,15 +154,29 @@
               </el-table-column>
               <el-table-column
                 prop="number"
-                label="人數"
-                width="50px">
+                label="人數">
               </el-table-column>
               <el-table-column
                 prop="percentage"
                 label="百分比"
-                width="80px">
+                width="70px">
                 <template slot-scope="scope">
                   {{ scope.row.percentage }}%
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="type"
+                label="">
+              </el-table-column>
+              <el-table-column
+                prop="type_number"
+                label="人數">
+              </el-table-column>
+              <el-table-column
+                prop="type_percentage"
+                label="百分比">
+                <template slot-scope="scope">
+                  {{ scope.row.type_percentage }}%
                 </template>
               </el-table-column>
             </el-table>
@@ -190,6 +201,7 @@
               })"
               :border="true"
               :highlight-current-row="false"
+              :summary-method="getSummaries"
               :show-summary="true"
               sum-text="總計">
               <el-table-column
@@ -199,7 +211,7 @@
               <el-table-column
                 prop="number"
                 label="人數"
-                width="50px">
+                width="60px">
               </el-table-column>
               <el-table-column
                 prop="percentage"
@@ -232,6 +244,7 @@
               :border="true"
               :highlight-current-row="false"
               :show-summary="true"
+              :summary-method="getSummaries"
               sum-text="總計">
               <el-table-column
                 prop="label"
@@ -240,7 +253,7 @@
               <el-table-column
                 prop="number"
                 label="人數"
-                width="50px">
+                width="60px">
               </el-table-column>
               <el-table-column
                 prop="percentage"
@@ -251,6 +264,9 @@
                 </template>
               </el-table-column>
             </el-table>
+            <el-card>
+              平均年資：{{ datacollection.workYearsAverage }}
+            </el-card>
           </div>
           <div style="text-align:center;border:rgba(0,0,0,0.1) 1px solid;">
             <pie-chart
@@ -273,6 +289,7 @@
               })"
               :border="true"
               :highlight-current-row="false"
+              :summary-method="getSummaries"
               :show-summary="true"
               sum-text="總計">
               <el-table-column
@@ -282,7 +299,7 @@
               <el-table-column
                 prop="number"
                 label="人數"
-                width="50px">
+                width="60px">
               </el-table-column>
               <el-table-column
                 prop="percentage"
@@ -321,7 +338,7 @@
     mixins: [kanban],
     data() {
       return {
-        colorRandomSeed: 15,//1352388, 8215343, 11069834, 18948486, 17332352, 18927824, 8344352, 804851
+        colorRandomSeed: 15,//1352388, 8215343, 11069834, 18948486, 17332352, 18927824, 8344352, 804851, 8209390
         activeNames: ['1', '2', '3', '4', '5', '6'],
         checkAll: false,
         isIndeterminate: false,
@@ -333,7 +350,56 @@
     },
     components: { PieChart, kanban },
     methods: {
+      getSummaries(param) {
+        const { columns, data } = param;
+        const sums = [];
+        columns.forEach((column, index) => {
+          if (index === 0) {
+            sums[index] = '總計';
+            return;
+          }
+          const values = data.map(item => Number(item[column.property]));
+          if (!values.every(value => isNaN(value))) {
+            sums[index] = values.reduce((prev, curr) => {
+              const value = Number(curr);
+              if (!isNaN(value)) {
+                return prev + curr;
+              } else {
+                return prev;
+              }
+            }, 0)
+            if (column.label === '百分比') {
+              sums[index] = sums[index].toFixed(1)
+              sums[index] += '%';
+            } else if (column.label === '人數') {
+              sums[index] += ' 人';
+            }
+          } else {
+            sums[index] = '';
+          }
+        });
+
+        return sums;
+      },
+      objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+        if (columnIndex <= 2) {
+          if (rowIndex % 2 === 0) {
+            return {
+              rowspan: 2,
+              colspan: 1
+            };
+          } else {
+            return {
+              rowspan: 0,
+              colspan: 0
+            };
+          }
+        }
+      },
       hasChartDownloadButton(chartDataType) {
+        if (chartDataType === 'education') {
+          return this[chartDataType][0].tableDisplaylabels.every(l => this[chartDataType][l] === 0);
+        }
         return this[chartDataType].tableDisplaylabels.every(l => this[chartDataType][l] === 0);
       },
       changeRandomColorSeed() {
@@ -388,11 +454,11 @@
 
         // 最高學歷分佈
         this.datacollection.educationRatio = {
-          labels: this.education.chartDisplayLabels,
+          labels: this.education[0].chartDisplayLabels,
           datasets: [{
             label: 'Data One',
-            backgroundColor: randomColor({ seed: colorRandomSeed, count: this.education.chartDisplayLabels.length, luminosity: 'bright', }),
-            data: this.education.chartDisplayLabels.map(l => this.education[l]),
+            backgroundColor: randomColor({ seed: colorRandomSeed, count: this.education[0].chartDisplayLabels.length, luminosity: 'bright', }),
+            data: this.education[0].chartDisplayLabels.map(l => this.education[0][l]),
           }],
         };
 
@@ -415,6 +481,28 @@
             data: this.workYears.chartDisplayLabels.map(l => this.workYears[l]),
           }],
         };
+
+        //平均年資
+        this.datacollection.workYearsAverage = (this.workYears.chartDisplayLabels.reduce((acc, l) => {
+          let res = 0.0;
+          if (l === '2~3') {
+            res = (2.5 * this.workYears[l]);
+          } else if (l === '4~5') {
+            res = (4.5 * this.workYears[l]);
+          } else if (l === '6~9') {
+            res = (7.5 * this.workYears[l]);
+          } else if (l === '10~11') {
+            res = (10.5 * this.workYears[l]);
+          } else if (l === '12~15') {
+            res = (13.5 * this.workYears[l]);
+          } else if (l === 'Over 16') {
+            res = (16 * this.workYears[l]);
+          };
+          return acc + res
+        }, 0.0) / this.workYears.chartDisplayLabels.reduce((acc, l) => {
+          return acc + this.workYears[l];
+        }, 0.0)).toFixed(2).toString() + '\t(超過16年以16年計算)';
+        //this.datacollection.workYearsAverage = (res / total).toFixed(2) + '_(Over 16以16年計算)';
         
         // 目前工作產業別
         this.datacollection.workFieldRatio = {
@@ -457,6 +545,37 @@
       this.updateData();
     },
     computed: {
+      educationTable() {
+        let res = []
+        const education = this.education[0];
+        const education_where = this.education[1];
+
+        education.tableDisplaylabels.forEach((v) => {
+          const x = {
+            'label': v,
+            'number': education[v],
+            'percentage':
+              (education[v] * 100 / education.tableDisplaylabels.reduce((acc, v) => acc + education[v], 0)).toFixed(1),
+            'type': '國內',
+            'type_number': education_where[`${v}_T_School`],
+            'type_percentage': (education_where[`${v}_T_School`] * 100 / education.tableDisplaylabels.reduce((acc, v) => acc + education[v], 0)).toFixed(1),
+            
+          };
+          const y = {
+            'label': v,
+            'number': 0,
+            'percentage': 0.00,
+            'type': '國外',
+            'type_number': education_where[`${v}_NT_School`],
+            'type_percentage': (education_where[`${v}_NT_School`] * 100 / education.tableDisplaylabels.reduce((acc, v) => acc + education[v], 0)).toFixed(1),
+            
+          };
+          res.push(x);
+          res.push(y);
+        });
+
+        return res
+      },
       totalMF() {
         const res = {
           'Male': 0,
@@ -518,6 +637,7 @@
       },
       education() {
         const res = { 'PhD': 0, 'Master': 0, 'Bachelor': 0 };
+        const res_where = { 'PhD_T_School': 0, 'PhD_NT_School': 0, 'Master_T_School': 0, 'Master_NT_School': 0, 'Bachelor_T_School': 0, 'Bachelor_NT_School': 0 };
         this.questionnaire.data.forEach((curV) => {
           if (this.selectYear.indexOf(curV.enrollYear) !== -1) {
             /*const label = curV['學位1'];
@@ -527,6 +647,11 @@
             Object.keys(res).forEach((label) => {
               if (curV[label] === 'Yes') {
                 res[label] += 1;
+                if (curV[`${label.toLowerCase()}_School`] === 'Taiwanese school') {
+                  res_where[`${label}_T_School`] += 1;
+                } else {
+                  res_where[`${label}_NT_School`] += 1
+                }
               }
             })
           }
@@ -534,10 +659,17 @@
         res['Master'] -= res['PhD']
         res['Bachelor'] -= res['Master']
         res['Bachelor'] -= res['PhD']
+        res_where['Master_T_School'] -= res_where['PhD_T_School'];
+        res_where['Master_NT_School'] -= res_where['PhD_NT_School'];
+        res_where['Bachelor_T_School'] -= res_where['Master_T_School'];
+        res_where['Bachelor_NT_School'] -= res_where['Master_NT_School'];
+        res_where['Bachelor_T_School'] -= res_where['PhD_T_School'];
+        res_where['Bachelor_NT_School'] -= res_where['PhD_NT_School'];
+        
         res.tableDisplaylabels = Object.keys(res);
         res.chartDisplayLabels = res.tableDisplaylabels.filter(label => res[label] > 0);
 
-        return res;
+        return [res, res_where];
       },
       major() {
         const res = {};

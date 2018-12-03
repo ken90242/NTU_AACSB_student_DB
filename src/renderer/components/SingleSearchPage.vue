@@ -644,7 +644,10 @@
     computed: {
       profile_pics() {
         const sid = this.poi[0]['學號'];
-        const file_dir = path.join(this.profilePicFolder, sid);
+        let file_dir = path.join(this.profilePicFolder, sid);
+        if (fs.existsSync(path.join(this.profilePicFolder, sid, 'compressed'))) {
+          file_dir = path.join(this.profilePicFolder, sid, 'compressed');
+        }
         const that = this;
         let res = [];
         let default_img_path = '';
@@ -657,7 +660,7 @@
                 default_img_path = nm;
                 return false;
 
-              } else if (['.png', '.gif', '.bmp', '.jpg'].indexOf(path.extname(nm)) !== -1) {
+              } else if (['.png', '.gif', '.svg', '.jpg'].indexOf(path.extname(nm)) !== -1) {
                 return true;
               }
             })

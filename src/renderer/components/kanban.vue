@@ -5,19 +5,35 @@
   <div class="bar">
     <el-menu :default-active="activeIndex" class="el-menu" mode="horizontal" :router="true">
       <el-menu-item :route="{ name: 'landing-page' }" index="1">
-        <i class="el-icon-menu"></i>
-        首頁
-      </el-menu-item>
+          <el-tooltip content="系統設定功能的地方、顯示系統資訊" placement="top-end">
+            <span>
+              <i class="el-icon-menu"></i>
+              首頁
+            </span>
+          </el-tooltip>
+        </el-menu-item>
       <el-menu-item :route="{ name: 'single-search-page' }" index="2">
-        <i class="el-icon-search"></i>
-        快速搜尋
+        <el-tooltip content="搜尋學生及課程資訊" placement="top-end">
+          <span>
+            <i class="el-icon-search"></i>
+            快速搜尋
+          </span>
+        </el-tooltip>
       </el-menu-item>
       <el-menu-item :route="{ name: 'consolidate-page' }" index="3">
-        <i class="el-icon-document"></i>
-        檢視歷年資料
+        <el-tooltip content="瀏覽全部的EXCEL資料" placement="top-end">
+          <span>
+            <i class="el-icon-document"></i>
+            檢視歷年資料
+          </span>
+        </el-tooltip>
       </el-menu-item>
       <el-submenu index="4">
-        <template slot="title">功能區</template>
+          <template slot="title">
+            <el-tooltip content="圖表瀏覽、報表製作" placement="top-end">
+              <span>功能區</span>
+            </el-tooltip>
+          </template>
         <el-menu-item
           index="4-1"
           :route="{ name: 'statistic-art', params: { activeIndex: '4-1' } }">
@@ -29,14 +45,16 @@
           學生背景統整
         </el-menu-item>
       </el-submenu>
-      <el-cascader
-        expand-trigger="hover"
-        class="item"
-        :options="options"
-        v-model="selectedOptions"
-        placeholder="請選擇編輯目標"
-        @change="handleChange">
-      </el-cascader>
+      <el-tooltip content="EXCEL資料及照片資料夾的連結" placement="top-end">
+        <el-cascader
+          expand-trigger="hover"
+          class="item"
+          :options="options"
+          v-model="selectedOptions"
+          placeholder="點擊此處查看目標"
+          @change="handleChange">
+        </el-cascader>
+      </el-tooltip>
     </el-menu>
     <el-badge :value="12" class="item" v-if="false">
       <el-dropdown size="medium" placement="bottom-start">
@@ -93,7 +111,7 @@
       options() {
         return [{
           value: path.join(this.profilePicFolder, '/../excels'),
-          label: 'Excels資料夾',
+          label: 'Excels表格',
           children: [{
             value: this.profile['excel_path'],
             label: 'A. 研教組年度資料',
@@ -115,7 +133,11 @@
           },]
         }, {
           value: this.profilePicFolder,
-          label: '個人照片資料夾',
+          label: '個人照片',
+          children: [{
+            value: this.profilePicFolder,
+            label: 'A. 個人照片資料夾',
+          },]
         }];
       },
     }),

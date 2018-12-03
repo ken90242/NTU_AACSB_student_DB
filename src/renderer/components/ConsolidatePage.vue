@@ -2,68 +2,37 @@
   <div id="wrapper" style="padding: 0px 80px;padding-top: 40px;">
     <kanban activeIndex="3"></kanban>
     <div class="freezeTop">
-        <el-tabs v-model="displayType" type="card" style="width:100%">
-          <el-tab-pane label="A. 研教組年度資料" name="profile"></el-tab-pane>
-          <el-tab-pane label="B. 歷年學生修課紀錄" name="course"></el-tab-pane>
-          <el-tab-pane label="C. 畢業生論文" name="papers"></el-tab-pane>
-          <el-tab-pane label="D. 學生會成員" name="council"></el-tab-pane>
-          <el-tab-pane label="E. GMBA線上問卷" name="questionnaire"></el-tab-pane>
-          <el-tab-pane label="F. 畢業標準" name="graduateStandard"></el-tab-pane>
-        </el-tabs>
-        <section v-if="displayType==='graduateStandard'">
-          <h2>(1) 歷年必選修學分數</h2>
-          <el-table
-            :data="displayTable['score']"
-            stripe
-            border
-            style="width: 60%;margin:20px;">
-            <el-table-column
-              fixed
-              prop="學年"
-              label="學年">
-            </el-table-column>
-            <el-table-column
-              v-for="label in graduateStandard.score['head']"
-              v-if="label != '學年'"
-              :prop="label"
-              :label="label">
-            </el-table-column>
-          </el-table>
-          <br/><br/>
-          <h2>(2) 歷年必修課程</h2>
-          <br/>
-          <div class="paginateWrapper">
-            <el-pagination
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page="currentPage"
-              :page-sizes="[5, 15, 50, 100, 300]"
-              :page-size="pageSize"
-              layout="sizes, total, prev, pager, next"
-              :total="totalPages">
-            </el-pagination>
-          </div>
-          <el-table
-            v-if="displayType === 'graduateStandard'"
-            :data="displayTable['specific']"
-            stripe
-            border
-            style="width: 90%;margin:10px;"
-            :max-height="tableMaxHeight">
-            <el-table-column
-              fixed
-              prop="學年"
-              label="學年">
-            </el-table-column>
-            <el-table-column
-              v-for="label in graduateStandard.specific['head']"
-              v-if="label != '學年'"
-              :prop="label"
-              :label="label">
-            </el-table-column>
-          </el-table>
-        </section>
-        <div v-else class="paginateWrapper">
+      <el-tabs v-model="displayType" type="card" style="width:100%">
+        <el-tab-pane label="A. 研教組年度資料" name="profile"></el-tab-pane>
+        <el-tab-pane label="B. 歷年學生修課紀錄" name="course"></el-tab-pane>
+        <el-tab-pane label="C. 畢業生論文" name="papers"></el-tab-pane>
+        <el-tab-pane label="D. 學生會成員" name="council"></el-tab-pane>
+        <el-tab-pane label="E. GMBA線上問卷" name="questionnaire"></el-tab-pane>
+        <el-tab-pane label="F. 畢業標準" name="graduateStandard"></el-tab-pane>
+      </el-tabs>
+      <section v-if="displayType==='graduateStandard'">
+        <h2>(1) 歷年必選修學分數</h2>
+        <el-table
+          :data="displayTable['score']"
+          stripe
+          border
+          style="width: 60%;margin:20px;">
+          <el-table-column
+            fixed
+            prop="學年"
+            label="學年">
+          </el-table-column>
+          <el-table-column
+            v-for="label in graduateStandard.score['head']"
+            v-if="label != '學年'"
+            :prop="label"
+            :label="label">
+          </el-table-column>
+        </el-table>
+        <br/><br/>
+        <h2>(2) 歷年必修課程</h2>
+        <br/>
+        <div class="paginateWrapper">
           <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
@@ -74,47 +43,83 @@
             :total="totalPages">
           </el-pagination>
         </div>
-      <div v-if="displayType === 'profile'">
         <el-table
-          :data="displayTable"
+          v-if="displayType === 'graduateStandard'"
+          :data="displayTable['specific']"
           stripe
           border
-          style="width: 100%;margin:0px;"
+          style="width: 90%;margin:10px;"
           :max-height="tableMaxHeight">
           <el-table-column
             fixed
-            prop="學號"
-            label="學號"
-            width="180">
+            prop="學年"
+            label="學年">
           </el-table-column>
           <el-table-column
-            v-for="label in profile['head']"
-            v-if="label != '學號'"
+            v-for="label in graduateStandard.specific['head']"
+            v-if="label != '學年'"
             :prop="label"
             :label="label">
           </el-table-column>
         </el-table>
+      </section>
+      <div v-else class="paginateWrapper">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[5, 15, 50, 100, 300]"
+          :page-size="pageSize"
+          layout="sizes, total, prev, pager, next"
+          :total="totalPages">
+        </el-pagination>
+        <span style="display:flex;color:red"></span>
+      </div>
+      <div v-if="displayType === 'profile'">
+        <el-tooltip :content="hotKeyReminder" :offset="50" placement="top-end">
+          <el-table
+            :data="displayTable"
+            stripe
+            border
+            style="width: 100%;margin:0px;"
+            :max-height="tableMaxHeight">
+            <el-table-column
+              fixed
+              prop="學號"
+              label="學號"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              v-for="label in profile['head']"
+              v-if="label != '學號'"
+              :prop="label"
+              :label="label">
+            </el-table-column>
+          </el-table>
+        </el-tooltip>
       </div>
       <div v-if="displayType === 'course'">
-        <el-table
-          :data="displayTable"
-          stripe
-          border
-          style="width: 100%"
-          :max-height="tableMaxHeight">
-          <el-table-column
-            fixed
-            prop="學年學期"
-            label="學年學期"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            v-for="label in course['head']"
-            v-if="label != '異動碼' && label != '學年學期'"
-            :prop="label"
-            :label="label">
-          </el-table-column>
-        </el-table>
+        <el-tooltip :content="hotKeyReminder" :offset="50" placement="top-end">
+          <el-table
+            :data="displayTable"
+            stripe
+            border
+            style="width: 100%"
+            :max-height="tableMaxHeight">
+            <el-table-column
+              fixed
+              prop="學年學期"
+              label="學年學期"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              v-for="label in course['head']"
+              v-if="label != '異動碼' && label != '學年學期'"
+              :prop="label"
+              :label="label">
+            </el-table-column>
+          </el-table>
+        </el-tooltip>
       </div>
       <div v-if="displayType === 'papers'">
         <el-table
@@ -159,25 +164,27 @@
         </el-table>
       </div>
       <div v-if="displayType === 'questionnaire'">
-        <el-table
-          :data="displayTable"
-          stripe
-          border
-          style="width: 100%"
-          :max-height="tableMaxHeight">
-          <el-table-column
-            fixed
-            prop="time"
-            label="time"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            v-for="label in questionnaire['head']"
-            v-if="label != 'time'"
-            :prop="label"
-            :label="label">
-          </el-table-column>
-        </el-table>
+        <el-tooltip :content="hotKeyReminder" :offset="50" placement="top-end">
+          <el-table
+            :data="displayTable"
+            stripe
+            border
+            style="width: 100%"
+            :max-height="tableMaxHeight">
+            <el-table-column
+              fixed
+              prop="time"
+              label="time"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              v-for="label in questionnaire['head']"
+              v-if="label != 'time'"
+              :prop="label"
+              :label="label">
+            </el-table-column>
+          </el-table>
+        </el-tooltip>
       </div>
       
     </div>
@@ -202,6 +209,7 @@
     components: { kanban },
     data() {
       return {
+        hotKeyReminder: '按住 <SHIFT鍵> 後滾動 <滑鼠滾輪> 即可左右滑動捲軸',
         displayType: 'profile',
         currentPage: 1,
         pageSize: 5,
@@ -261,6 +269,10 @@
   }
 
   body { font-family: 'Source Sans Pro', sans-serif; }
+  
+  .paginateWrapper {
+    display: flex;
+  }
 
   #wrapper {
     padding: 0px 80px;
