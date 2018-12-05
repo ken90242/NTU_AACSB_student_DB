@@ -18,16 +18,8 @@
         <li>
           <strong>本次更新</strong>
           <ol style="margin-left:10px">
-            <li>新增學歷國內外的表細項</li>
-            <li>新增平均年資</li>
-            <li>新增tooltip提示hot-key</li>
-            <li>合計行單位顯示</li>
-            <li>圖片壓縮功能</li>
-            <li>hotfix: 修正學生報表</li>
-            <li>防呆系統設定確認功能</li>
-            <li>優化UX:文字說明</li>
-            <li>更動存檔附檔名</li>
-            <li>調整選單開啟目錄結構</li>
+            <li>防呆式壓縮功能(改為一次性)</li>
+            <li>新增下拉年度選單</li>
           </ol>
         </li>
       </ul> 
@@ -50,7 +42,15 @@
             <span v-if="avgImageStatus !== ''" style="color:red">{{ avgImageStatus }}</span>
             <span v-else>{{ avgImageSize }} MB</span>
           </div>
-          <el-button type="primary" size="medium" round @click="openDialogFunc(compressImages)" style="margin-left:10px;">壓縮所有照片</el-button>
+          <el-button
+            :type="avgImageStatus === '' ? 'info' : 'primary'"
+            size="medium"
+            round
+            :disabled="avgImageStatus === ''"
+            @click="openDialogFunc(compressImages)"
+            style="margin-left:10px;">
+              壓縮所有照片
+          </el-button>
         </li>
       </ul>
     </div>

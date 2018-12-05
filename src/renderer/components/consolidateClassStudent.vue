@@ -1,7 +1,8 @@
 <template>
   <div id="wrapper">
     <kanban :activeIndex="conActiveIndex"></kanban>
-    <section 
+    <section
+      class= "sectionWrapper"
       v-loading.lock="fullscreenLoading"
       element-loading-text="預計耗時數分鐘....請耐心等候">
       <div
@@ -112,27 +113,37 @@
               extensions: ['xlsx'],
             }],
           });
-          fs.rename(tempFilePath, newFilePath, (err) => {
-            if (err) {
+          if (newFilePath) {
+            fs.rename(tempFilePath, newFilePath, (err) => {
+              if (err) {
+                this.$notify({
+                  title: '錯誤',
+                  duration: 0,
+                  message: err,
+                  type: 'error',
+                });
+                throw err;
+              }
               this.$notify({
-                title: '錯誤',
+                title: '匯出',
                 duration: 0,
-                message: err,
-                type: 'error',
+                dangerouslyUseHTMLString: true,
+                message: this.notify_html,
+                type: 'success',
               });
-              throw err;
-            }
-            this.initialize_excel();
-            this.fullscreenLoading = false;
-            // console.log('done');
-            this.$notify({
-              title: '匯出',
-              duration: 0,
-              message: '匯出作業成功！',
-              type: 'success',
+              console.timeEnd("writeFile");
             });
-            console.timeEnd("writeFile");
-          });
+          } else {
+            this.$notify({
+              title: '警告',
+              duration: 0,
+              message: '已取消匯出',
+              type: 'warning',
+            });
+          }
+          this.initialize_excel();
+          this.fullscreenLoading = false;
+          
           // const link = document.getElementById('link');
           // link.setAttribute('download', '');
           // link.setAttribute('href', `file:\/\/\/${tempFilePath}`);
@@ -293,6 +304,11 @@
       this.initialize_excel();
     },
     computed: {
+      notify_html() {
+        const context = `匯出作業成功！`;
+
+        return context;
+      },
       manualPasteSids() {
         const res = this.pasteSids.match(/[r|R]\d{8}/g)
         return res;
@@ -361,6 +377,10 @@
   };
 </script>
 <style>
+  .sectionWrapper {
+    /*display:flex;
+    width: 100%;*/
+  }
   #wrapper {
     padding: 60px 80px;
     padding-top: 40px;

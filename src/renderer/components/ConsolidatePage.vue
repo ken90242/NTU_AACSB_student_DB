@@ -33,6 +33,17 @@
         <h2>(2) 歷年必修課程</h2>
         <br/>
         <div class="paginateWrapper">
+          <el-dropdown @command="handleCommand" size="mini">
+            <el-button type="danger" size="mini" round>
+              {{ selectYear === 'all' ? '全部年度' : selectYear + '年度' }}<i class="el-icon-arrow-down el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="all">全部年度</el-dropdown-item>
+              <el-dropdown-item v-for="enrollYear in displayYearsList" :command="enrollYear">
+                {{ enrollYear + ' 年度'}} 
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
           <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
@@ -64,6 +75,17 @@
         </el-table>
       </section>
       <div v-else class="paginateWrapper">
+        <el-dropdown @command="handleCommand" size="mini">
+          <el-button type="danger" size="mini" round>
+            {{ selectYear === 'all' ? '全部年度' : selectYear + '年度' }}<i class="el-icon-arrow-down el-icon--right"></i>
+          </el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="all">全部年度</el-dropdown-item>
+            <el-dropdown-item v-for="enrollYear in displayYearsList" :command="enrollYear">
+              {{ enrollYear + ' 年度'}} 
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -130,13 +152,13 @@
           :max-height="tableMaxHeight">
           <el-table-column
             fixed
-            prop="作者學號"
-            label="作者學號"
+            prop="年份"
+            label="年份"
             width="180">
           </el-table-column>
           <el-table-column
             v-for="label in papers['head']"
-            v-if="label != '作者學號'"
+            v-if="label != '年份'"
             :prop="label"
             :label="label">
           </el-table-column>
@@ -194,6 +216,7 @@
 <script>
   import kanban from './kanban';
   import StoreConfig from '../../renderer/storeConfig.js'
+  import moment from 'moment';
 
   const storeConfig = new StoreConfig({
     // We'll call our data file 'user-preferences'
@@ -210,13 +233,17 @@
     data() {
       return {
         hotKeyReminder: '按住 <SHIFT鍵> 後滾動 <滑鼠滾輪> 即可左右滑動捲軸',
-        displayType: 'profile',
         currentPage: 1,
         pageSize: 5,
         tableMaxHeight: window.innerHeight - 300,
+        selectYear: 'all',
+        displayTypeStoredValue: 'profile',
       };
     },
     methods: {
+      handleCommand(command) {
+        this.selectYear = command;
+      },
       handleCurrentChange(cp) {
         this.currentPage = cp;
       },
@@ -234,6 +261,47 @@
       })
     },
     computed: {
+      displayType: {
+        get(){
+          //this function will determine what is displayed in the input
+          return this.displayTypeStoredValue;
+        },
+        set(newVal){
+          //this function will run whenever the input changes
+          this.displayTypeStoredValue = newVal;
+          this.selectYear = 'all';
+        }
+      },
+      displayYearsList() {
+        let yrs = [];
+        if (this.displayType === 'profile') {
+          yrs = this[this.displayType].data.map((obj) => {
+            return parseInt(obj.enrollYear, 10);
+          });
+        } else if (this.displayType === 'course') {
+          yrs = this[this.displayType].data.map((obj) => {
+            return parseInt(obj['學年學期'].replace('上', '').replace('下', ''), 10);
+          });
+        } else if (this.displayType === 'papers') {
+          yrs = this[this.displayType].data.map((obj) => {
+            return parseInt(obj['年份'], 10);
+          });
+        } else if (this.displayType === 'council') {
+          yrs = this[this.displayType].data.map((obj) => {
+            return parseInt(obj['學年'], 10);
+          });
+        } else if (this.displayType === 'questionnaire') {
+          yrs = this[this.displayType].data.map((obj) => {
+            return parseInt(moment(obj['time']).year(), 10);
+          });
+        } else if(this.displayType === 'graduateStandard') {
+          yrs = this[this.displayType]['specific'].data.map((obj) => {
+            return parseInt(obj['學年'], 10);
+          });
+        }
+        // return [...new Set(yrs)].sort((a, b) => a - b).map(v => v.toString().padStart(3, '0'));
+        return [...new Set(yrs)].sort((a, b) => a - b).map(v => v.toString());  
+      },
       displayTable() {
         if (this.displayType === 'graduateStandard') {
           return {
@@ -243,16 +311,52 @@
             ),
           };
         } else {
-          return this[this.displayType].data.slice(
+          return this[this.displayType].data.filter((obj) => {
+            if (this.selectYear === 'all') {
+              return true;
+            } else if (this.displayType === 'profile') {
+              return parseInt(obj.enrollYear, 10) === parseInt(this.selectYear, 10);
+            } else if (this.displayType === 'course') {
+              return parseInt(obj['學年學期'].replace('上', '').replace('下', '')) === parseInt(this.selectYear, 10);
+            } else if (this.displayType === 'council') {
+              return parseInt(obj['學年'], 10) === parseInt(this.selectYear, 10);
+            } else if (this.displayType === 'papers') {
+              return parseInt(obj['年份'], 10) === parseInt(this.selectYear, 10);
+            } else if (this.displayType === 'questionnaire') {
+              return parseInt(moment(obj['time']).year(), 10) === parseInt(this.selectYear, 10);
+            } else if(this.displayType === 'graduateStandard') {
+              return parseInt(obj['學年'], 10) === parseInt(this.selectYear, 10);
+            }
+          }).slice(
             (this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize,
           );
         }
       },
       totalPages() {
         if (this.displayType === 'graduateStandard') {
-          return this[this.displayType].specific.data.length;
+          return this[this.displayType].specific.data.filter((obj) => {
+            if (this.selectYear === 'all') {
+              return true;
+            } else {
+              return parseInt(obj['學年'], 10) === parseInt(this.selectYear, 10);
+            }
+          }).length;
         } else {
-          return this[this.displayType].data.length;
+          return this[this.displayType].data.filter((obj) => {
+            if (this.selectYear === 'all') {
+              return true;
+            } else if(this.displayType === 'profile') {
+              return parseInt(obj.enrollYear, 10) === parseInt(this.selectYear, 10);
+            } else if(this.displayType === 'course') {
+              return parseInt(obj['學年學期'].replace('上', '').replace('下', '')) === parseInt(this.selectYear, 10);
+            } else if (this.displayType === 'council') {
+              return parseInt(obj['學年'], 10) === parseInt(this.selectYear, 10);
+            } else if (this.displayType === 'papers') {
+              return parseInt(obj['年份'], 10) === parseInt(this.selectYear, 10);
+            } else if (this.displayType === 'questionnaire') {
+              return parseInt(moment(obj['time']).year(), 10) === parseInt(this.selectYear, 10);
+            }
+          }).length;
         }
       },
     },
@@ -272,6 +376,7 @@
   
   .paginateWrapper {
     display: flex;
+    align-items: center;
   }
 
   #wrapper {
@@ -291,23 +396,4 @@
     border-radius: 20px;
   }
 
-
-  /*.el-table__body-wrapper::-webkit-scrollbar {*/
-    /*-webkit-appearance: none;*/
-  /*}*/
-
-  /*.el-table__body-wrapper::-webkit-scrollbar:horizontal {*/
-    /*height: 20px;*/
-    /*width: 240px;*/
-  /*}*/
-
-  /*.el-table__body-wrapper::-webkit-scrollbar-thumb {*/
-    /*border-radius: 8px;*/
-    /*border: 2px solid white;  /*should match background, can't be transparent */
-    /*background-color: rgba(0, 0, 0, .5);
-  }*/
-
-  .freezeTop {
-
-  }
 </style>
