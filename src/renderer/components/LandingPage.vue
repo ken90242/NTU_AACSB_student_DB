@@ -18,8 +18,7 @@
         <li>
           <strong>本次更新</strong>
           <ol style="margin-left:10px">
-            <li>防呆式壓縮功能(改為一次性)</li>
-            <li>新增下拉年度選單</li>
+            <li>bug fix: 部分年度選單無法顯 示</li>
           </ol>
         </li>
       </ul> 

@@ -306,7 +306,12 @@
         if (this.displayType === 'graduateStandard') {
           return {
             'score': this[this.displayType].score.data,
-            'specific': this[this.displayType].specific.data.slice(
+            'specific': this[this.displayType].specific.data.filter((obj) => {
+              if (this.selectYear === 'all') {
+                return true;
+              }
+              return parseInt(obj['學年'], 10) === parseInt(this.selectYear, 10);
+            }).slice(
               (this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize,
             ),
           };
@@ -335,6 +340,7 @@
       totalPages() {
         if (this.displayType === 'graduateStandard') {
           return this[this.displayType].specific.data.filter((obj) => {
+            console.log(this.displayType, parseInt(obj['學年'], 10), parseInt(this.selectYear, 10))
             if (this.selectYear === 'all') {
               return true;
             } else {
