@@ -19,6 +19,7 @@
           <strong>本次更新</strong>
           <ol style="margin-left:10px">
             <li>bug fix: 部分年度選單無法顯 示</li>
+            <li>bug fix: 部分更新自動化</li>
           </ol>
         </li>
       </ul> 
@@ -87,6 +88,7 @@
   import { exec } from 'child_process';
   import compress_images from 'compress-images';
   import glob from 'glob';
+  import downloadFile from '../download.js';
 
   const needUpdate = function(application_v, latest_release_v) {
     const app_v = application_v.split('.');
@@ -130,6 +132,15 @@
     },
     components: { kanban },
     methods: {
+      downloadUpdateDone(statusCode, filename) {
+        shell.openItem(filename);
+        this.progressBar = 0;
+        this.avgImageStatus = '';
+      },
+      syncDownloadUpdate(downloaded_size, expected_size) {
+        this.avgImageStatus = '處理中...';
+        this.progressBar = (downloaded_size/expected_size*100).toFixed(1);
+      },
       executeDialogFunc() {
         this.dialogVisible = false;
         this.dialogFunc();
@@ -210,13 +221,37 @@
       open(link) {
         this.$electron.shell.openExternal(link);
       },
-      showUpdate() {
-        this.$notify({
+      showUpdate(github_version) {
+        this.$msgbox({
           title: '重要',
-          dangerouslyUseHTMLString: true,
-          message: this.notify_html,
+          message: '新版本已推出，請立即更新!',
           type: 'warning',
           duration: 15000,
+          beforeClose: (action, instance, done) => {
+            if (action === 'confirm') {
+              const download_link = this.latest_release_info.assets
+                .filter(v => v.name !== 'latest.yml')
+                .map(v => v.browser_download_url)[0];
+              console.log(github_version)
+              const newFilePath = remote.dialog.showSaveDialog({
+                defaultPath: `gmba-v${github_version}`,
+                filters: [{
+                  name: 'exe 執行檔',
+                  extensions: ['exe'],
+                }],
+              });
+              console.log('newFilePath', newFilePath)
+              if (newFilePath) {
+                this.avgImageStatus = '處理中...';
+                downloadFile(download_link, newFilePath, this.syncDownloadUpdate, this.downloadUpdateDone)
+              }
+
+              done();
+
+            } else {
+              done();
+            }
+          }
         });
       },
       showShareFolderReq() {
@@ -244,7 +279,7 @@
 
           if (needUpdate(app_version, github_version) === true) {
             // Need update!
-            this.showUpdate();
+            this.showUpdate(github_version);
             
           }
         })
@@ -268,18 +303,12 @@
           nm = '更改資料目錄';
         } else if(this.dialogFunc === this.compressImages) {
           nm = '壓縮所有照片';
+        } else if(this.dialogFunc === this.InstallDownloadUpdate) {
+          nm = '安裝更新檔案'
         }
         return nm;
       },
       // to access local state with `this`, a normal function must be used
-      notify_html() {
-        const download_link = this.latest_release_info.assets
-          .filter(v => v.name !== 'latest.yml')
-          .map(v => v.browser_download_url)[0];
-        const context = `新版本已推出，請<a href=${ download_link } download>點此</a>立即更新！`;
-
-        return context;
-      },
     },
   };
 </script>
