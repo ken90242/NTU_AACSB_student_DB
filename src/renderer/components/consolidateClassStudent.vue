@@ -68,21 +68,70 @@
     components: { kanban },
     methods: {
       addPasteSids() {
-        const leftSids = this.data2.map(obj => obj['sid']);
+        // const leftSids = this.data2.map(obj => obj['sid']);
         
-        this.manualPasteSids.forEach((sid) => {
-          const idxRes = leftSids.indexOf(sid);
-          if (idxRes !== -1 && this.value2.indexOf(idxRes) === -1) {
-            this.value2.push(idxRes);
+        // this.manualPasteSids.forEach((sid) => {
+        //   const idxRes = leftSids.indexOf(sid);
+        //   if (idxRes !== -1 && this.value2.indexOf(idxRes) === -1) {
+        //     this.value2.push(idxRes);
+        //   }
+        // });
+        // this.pasteSids = '';
+
+        let BreakException = {};
+        let errsid = ''
+        const leftSids = this.data2.map(obj => obj['sid']);
+        const temp = this.value2;
+        try {
+          this.manualPasteSids.forEach((sid) => {
+            const idxRes = leftSids.indexOf(sid);
+            if (idxRes == -1) {
+              errsid = sid
+              throw BreakException;
+            } else if(this.value2.indexOf(idxRes) === -1) {
+              this.value2.push(idxRes);
+            }
+          });
+          this.pasteSids = '';
+        } catch (e) {
+          if (e == BreakException) {
+            this.value2 = temp;
+            this.$notify({
+              title: '錯誤',
+              duration: 0,
+              message: `${errsid}學生未建檔:\'研教組年度資料\'`,
+              type: 'error',
+            });
           }
-        });
-        this.pasteSids = '';
+        }
       },
       replacePasteSids() {
+        let BreakException = {};
+        let errsid = ''
         const leftSids = this.data2.map(obj => obj['sid']);
-
-        this.value2 = this.manualPasteSids.map((sid) => leftSids.indexOf(sid));
-        this.pasteSids = '';
+        const temp = this.value2;
+        try {
+          this.value2 = []
+          this.manualPasteSids.forEach((sid) => {
+            const idxRes = leftSids.indexOf(sid);
+            if (idxRes == -1) {
+              errsid = sid
+              throw BreakException;
+            }
+            this.value2.push(idxRes);
+          });
+          this.pasteSids = '';
+        } catch (e) {
+          if (e == BreakException) {
+            this.value2 = temp;
+            this.$notify({
+              title: '錯誤 - 資料比對',
+              duration: 0,
+              message: `${errsid}學生未建檔:\'研教組年度資料\'`,
+              type: 'error',
+            });
+          }
+        }
       },
       initialize_excel() {
         this.currentIdx = 0;
@@ -93,62 +142,69 @@
         this.worksheet.addRow(TopLabels);
       },
       createReport() {
-        console.time("createRows");
-        this.fullscreenLoading = true;
-        this.value2.forEach((idx) => {
-          const sid = this.data2[idx].sid;
-          this.createSingleRow(sid)
-        });
-        console.timeEnd("createRows");
-
-        this.changeAllStyle();
-        const tempFilePath = path.join(os.tmpdir(), '/excel.xlsx');
-        console.time("writeFile");
-        this.workbook.xlsx.writeFile(tempFilePath)
-        .then(() => {
-          const newFilePath = remote.dialog.showSaveDialog({
-            defaultPath: `file:\/\/\/${tempFilePath}`,
-            filters: [{
-              name: 'Excel',
-              extensions: ['xlsx'],
-            }],
+        try {
+          console.time("createRows");
+          this.fullscreenLoading = true;
+          this.value2.forEach((idx) => {
+            const sid = this.data2[idx].sid;
+            this.createSingleRow(sid)
           });
-          if (newFilePath) {
-            fs.rename(tempFilePath, newFilePath, (err) => {
-              if (err) {
+          console.timeEnd("createRows");
+
+          this.changeAllStyle();
+          const tempFilePath = path.join(os.tmpdir(), '/excel.xlsx');
+          console.time("writeFile");
+          this.workbook.xlsx.writeFile(tempFilePath)
+          .then(() => {
+            const newFilePath = remote.dialog.showSaveDialog({
+              defaultPath: `file:\/\/\/${tempFilePath}`,
+              filters: [{
+                name: 'Excel',
+                extensions: ['xlsx'],
+              }],
+            });
+            if (newFilePath) {
+              fs.rename(tempFilePath, newFilePath, (err) => {
+                if (err) {
+                  this.$notify({
+                    title: '錯誤 - 報表匯出',
+                    duration: 0,
+                    message: err,
+                    type: 'error',
+                  });
+                  throw err;
+                }
                 this.$notify({
-                  title: '錯誤',
+                  title: '匯出',
                   duration: 0,
-                  message: err,
-                  type: 'error',
+                  dangerouslyUseHTMLString: true,
+                  message: this.notify_html,
+                  type: 'success',
                 });
-                throw err;
-              }
-              this.$notify({
-                title: '匯出',
-                duration: 0,
-                dangerouslyUseHTMLString: true,
-                message: this.notify_html,
-                type: 'success',
+                console.timeEnd("writeFile");
               });
-              console.timeEnd("writeFile");
-            });
-          } else {
-            this.$notify({
-              title: '警告',
-              duration: 0,
-              message: '已取消匯出',
-              type: 'warning',
-            });
-          }
+            } else {
+              this.$notify({
+                title: '警告',
+                duration: 0,
+                message: '已取消匯出',
+                type: 'warning',
+              });
+            }
+            this.initialize_excel();
+            this.fullscreenLoading = false;
+
+          });
+        } catch (e) {
           this.initialize_excel();
           this.fullscreenLoading = false;
-          
-          // const link = document.getElementById('link');
-          // link.setAttribute('download', '');
-          // link.setAttribute('href', `file:\/\/\/${tempFilePath}`);
-          // link.click();
-        });
+          this.$notify({
+            title: '錯誤 - 製作報表',
+            duration: 0,
+            message: `${e}`,
+            type: 'error',
+          });
+        }
       },
       createSingleRow(sid) {
         // pois: [obj['學號'], obj['中文姓名'], obj['英文姓名'], obj['國籍'], obj['出生年月日'], obj['結束服務年'], obj['公司中文名稱1'], obj['職稱1'], obj['入學前畢業學校'], obj['入學前畢業系所'], obj['email'], obj['email2']]

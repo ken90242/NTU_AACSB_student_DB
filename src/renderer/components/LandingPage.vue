@@ -18,8 +18,7 @@
         <li>
           <strong>本次更新</strong>
           <ol style="margin-left:10px">
-            <li>bug fix: 部分年度選單無法顯 示</li>
-            <li>bug fix: 部分更新自動化</li>
+            <li>bug fix: 學生報表警示</li>
           </ol>
         </li>
       </ul> 
