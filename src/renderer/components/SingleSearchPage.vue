@@ -85,13 +85,13 @@
             <template slot-scope="props">
               <el-steps
                 style="padding-bottom: 20px;"
-                :active="schoolSteps.length - 1"
                 finish-status="success"
                 :process-status="'B,O'.indexOf(searchedTableData['student'][0]['異動碼']) == -1 ? 'success' : 'error'"
                 align-center>
                 <el-step
                   v-for="step in schoolSteps"
                   :title="step.state"
+                  :status="step.status"
                   :description="`${ step.date } ${ step.desc }`">
                 </el-step>
               </el-steps>
@@ -349,8 +349,8 @@
             sortable>
           </el-table-column>
           <el-table-column
-            prop="課程識別碼"
-            label="課程識別碼"
+            prop="課號"
+            label="課號"
             sortable>
           </el-table-column>
           <!-- <el-table-column
@@ -408,6 +408,11 @@
               </el-tag>
             </template>
           </el-table-column>
+          <el-table-column
+            v-if="searchCondition === 'sid'"
+            prop="備註"
+            label="備註">
+          </el-table-column>
         </el-table>
       </div>
     </main>
@@ -435,7 +440,7 @@
         },
         ],
         searchCondition: 'sid',
-        rawSearchInput: 'R07749019', //R00749021 //R98723075
+        rawSearchInput: 'R05749011', //R07749019 //R00749021 //R98723075
         currentPage: 1,
         pageSize: 10,
         poi: [], // person of interest，可能符合搜尋條件的學生,
@@ -779,6 +784,7 @@
         steps.push({
           date: row.enrollYear,
           state: '入學',
+          status: 'success',
           desc: '入學',
         });
   
@@ -790,6 +796,7 @@
             steps.push({
               date: row[label1],
               state: '休學',
+              status: 'error',
               desc: row[label2],
             });
           }
@@ -800,6 +807,7 @@
             steps.push({
               date: row['畢業年月'],
               state: '畢業',
+              status: 'success',
               desc: '畢業',
             });
             break;
@@ -807,6 +815,7 @@
             steps.push({
               date: row['異動學期'],
               state: '退學',
+              status: 'error',
               desc: row['退學原因'],
             });
             break;
@@ -816,6 +825,7 @@
             steps.push({
               date: new Date().getYear() - 11,
               state: '在學',
+              status: 'success',
               desc: '在學中',
             });
         }

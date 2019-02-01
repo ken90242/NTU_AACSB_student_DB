@@ -19,6 +19,8 @@
           <strong>本次更新</strong>
           <ol style="margin-left:10px">
             <li>bug fix: 學生報表警示</li>
+            <li>學生修課欄位新增</li>
+            <li>修改就學狀態bar顏色</li>
           </ol>
         </li>
       </ul> 

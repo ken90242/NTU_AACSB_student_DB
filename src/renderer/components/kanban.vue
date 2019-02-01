@@ -2,6 +2,7 @@
   <div>
   <img id="logo" src="static/assets/gmba_logo.png" alt="gmba-red-logo">
   <i v-show="$store.state.excelData.isSyncingData" class="el-icon-loading loadinggif"></i>
+  <span v-show="$store.state.excelData.isSyncingData">更新背景資料中...</span>
   <div class="bar">
     <el-menu :default-active="activeIndex" class="el-menu" mode="horizontal" :router="true">
       <el-menu-item :route="{ name: 'landing-page' }" index="1">
