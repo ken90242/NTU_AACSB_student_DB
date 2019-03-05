@@ -29,7 +29,6 @@
             :label="label">
           </el-table-column>
         </el-table>
-        <br/><br/>
         <h2>(2) 歷年必修課程</h2>
         <br/>
         <div class="paginateWrapper">
@@ -48,7 +47,7 @@
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
             :current-page="currentPage"
-            :page-sizes="[5, 15, 50, 100, 300]"
+            :page-sizes="[5]"
             :page-size="pageSize"
             layout="sizes, total, prev, pager, next"
             :total="totalPages">
@@ -64,14 +63,52 @@
           <el-table-column
             fixed
             prop="學年"
+            width="60"
             label="學年">
           </el-table-column>
           <el-table-column
+            prop="課號"
+            label="課號">
+          </el-table-column>
+          <el-table-column
+            prop="課程識別碼"
+            label="課程識別碼">
+          </el-table-column>
+          <el-table-column
+            prop="課程中文名稱"
+            width="150"
+            label="課程中文名稱">
+          </el-table-column>
+          <el-table-column
+            prop="課程英文名稱"
+            width="180"
+            label="課程英文名稱">
+          </el-table-column>
+          <el-table-column
+            prop="學分數"
+            width="75"
+            label="學分數">
+          </el-table-column>
+          <el-table-column
+            prop="群組別"
+            width="75"
+            label="群組別">
+          </el-table-column>
+          <el-table-column
+            prop="併修"
+            width="60"
+            label="併修">
+          </el-table-column>
+          <el-table-column
+            prop="必修認可範圍"
+            label="必修認可範圍">
+          </el-table-column>
+       <!--    <el-table-column
             v-for="label in graduateStandard.specific['head']"
             v-if="label != '學年'"
             :prop="label"
             :label="label">
-          </el-table-column>
+          </el-table-column> -->
         </el-table>
       </section>
       <div v-else class="paginateWrapper">
@@ -258,7 +295,10 @@
       this.$nextTick(() => {
         window.addEventListener('resize', this.assignTableMaxHeight);
         this.assignTableMaxHeight();
-      })
+      });
+      this.selectYear = this.displayYearsList.reduce((largest, v) => {
+          return parseInt(largest) < parseInt(v) ? v : largest
+      }, this.displayYearsList[0]);
     },
     computed: {
       displayType: {
@@ -269,7 +309,9 @@
         set(newVal){
           //this function will run whenever the input changes
           this.displayTypeStoredValue = newVal;
-          this.selectYear = 'all';
+          this.selectYear = this.displayYearsList.reduce((largest, v) => {
+            return parseInt(largest) < parseInt(v) ? v : largest
+          }, this.displayYearsList[0]);
         }
       },
       displayYearsList() {

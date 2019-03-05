@@ -37,7 +37,40 @@
           </el-form>
         </div>
         <div>
-        <el-table
+          <vscrolling
+            dead-area-color="#f7f7f7"
+            v-if="poi.length > 1"
+            style="height: 60vh;margin-top:2%;border-style:none;">
+            <template slot="thead">
+              <tr>
+                <th>學號</th>
+                <th>中文姓名</th>
+                <th>英文姓名</th>
+                <th>國籍</th>
+                <th class="w2">Email</th>
+                <th class="op">操作</th>
+              </tr>
+            </template>
+            <template slot="tbody">
+              <tr v-for="item in poi">
+                <td>{{ item['學號'] }}</td>
+                <td>{{ item['中文姓名'] }}</td>
+                <td>{{ item['英文姓名'] }}</td>
+                <td>{{ item['國籍'] }}</td>
+                <td class="w2" style="text-align:left">{{ item['email'] }}</td>
+                <td class="op" style="text-align:left;padding:3px;">
+                  <el-button
+                    type="primary"
+                    size="mini"
+                    icon="el-icon-search"
+                    round
+                    @click="selectPOIbyID(item['學號'])">
+                  </el-button>
+                </td>
+              </tr>
+            </template>
+          </vscrolling>
+        <!-- <el-table
           :data="poi"
           v-show="poi.length > 1"
           highlight-current-row
@@ -75,7 +108,7 @@
               </el-button>
             </template>
           </el-table-column>
-        </el-table>
+        </el-table> -->
         <el-table
           :data="searchedTableData['student']"
           v-if="searchCondition === 'sid' && poi.length <= 1"
@@ -196,11 +229,15 @@
                   <div slot="header" class="clearfix">
                     <span>畢業資訊</span>
                   </div>
-                  <span v-if="needCheckGradStandard" style="color:red">
-                    不符預設畢業標準，需人工確認
-                  </span>
                   <el-form label-position="left" inline class="demo-table-expand">
-                    <el-form-item v-if="!needCheckGradStandard" label="畢業規範學年度">
+                    <el-form-item v-show="needCheckGradStandard">
+                      <span style="color:red">
+                        *******************************
+                        <br/>
+                        需人工確認畢業規範標準
+                      </span>
+                    </el-form-item>
+                    <el-form-item label="畢業規範學年度" :style="{'color': needCheckGradStandard ? 'red' : 'black'}">
                       <span v-if="personalGradStandard['score']">
                         {{ personalGradStandard['score']['學年'] }}
                       </span>
@@ -208,7 +245,7 @@
                         畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
                       </span>
                     </el-form-item>
-                    <el-form-item v-if="!needCheckGradStandard" label="系定必修學分">
+                    <el-form-item label="系定必修學分" :style="{'color': needCheckGradStandard ? 'red' : 'black'}">
                       <span v-if="personalGradStandard['score']">
                         {{ personalGradStandard['score']['系定必修'] }}
                       </span>
@@ -216,7 +253,7 @@
                         畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
                       </span>
                     </el-form-item>
-                    <el-form-item v-if="!needCheckGradStandard" label="應修選修學分">
+                    <el-form-item label="應修選修學分" :style="{'color': needCheckGradStandard ? 'red' : 'black'}">
                       <span v-if="personalGradStandard['score']">
                         {{ personalGradStandard['score']['選修'] }}
                       </span>
@@ -224,7 +261,7 @@
                         畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
                       </span>
                     </el-form-item>
-                    <el-form-item v-if="!needCheckGradStandard" label="應修最低畢業學分">
+                    <el-form-item label="應修最低畢業學分" :style="{'color': needCheckGradStandard ? 'red' : 'black'}">
                       <span v-if="personalGradStandard['score']">
                         {{ personalGradStandard['score']['應修最低畢業學分'] }}
                       </span>
@@ -232,40 +269,65 @@
                         畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
                       </span>
                     </el-form-item>
-                    <el-form-item label="已修[系定必修]學分數">
-                      <span
-                         v-if="personalGradStandard['score']"
-                        :style="{
-                          'color': personalGraduateScore['totalRequiredScore'] < personalGradStandard['score']['系定必修'] ? 'red' : 'black'
-                        }">
-                        {{ personalGraduateScore['totalRequiredScore'] }}
-                      </span>
-                      <span v-else style="color:red">
-                        畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
+                    <el-form-item v-show="needCheckGradStandard">
+                      <span style="color:red">
+                        *******************************
                       </span>
                     </el-form-item>
-                    <el-form-item label="已修[其他]學分數">
-                      <span
-                        v-if="personalGradStandard['score']"
-                        :style="{
-                          'color': personalGraduateScore['totalSelectableScore'] < personalGradStandard['score']['選修'] ? 'red' : 'black'
-                        }">
-                        {{ personalGraduateScore['totalSelectableScore'] }}
-                      </span>
-                      <span v-else style="color:red">
-                        畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
-                      </span>
-                    </el-form-item>
-                    <el-form-item label="已修[總學分數]">
-                      <span
-                        v-if="personalGradStandard['score']"
-                        :style="{
-                          'color': personalGraduateScore['totalSelectableScore'] + personalGraduateScore['totalRequiredScore'] < personalGradStandard['score']['應修最低畢業學分'] ? 'red' : 'black'
-                        }">
-                        {{ personalGraduateScore['totalSelectableScore'] + personalGraduateScore['totalRequiredScore'] }}
-                      </span>
-                      <span v-else style="color:red">
-                        畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
+                    <el-tooltip class="item" effect="dark" placement="left">
+                      <div slot="content">
+                        目前必修 / 預設畢業必修
+                      </div>
+                      <el-form-item label="已修[系定必修]學分數">
+                        <span
+                           v-if="personalGradStandard['score']"
+                          :style="{
+                            'color': personalGraduateScore['totalRequiredScore'] < personalGradStandard['score']['系定必修'] ? 'red' : 'black'
+                          }">
+                          {{ personalGraduateScore['totalRequiredScore'] }} / {{ personalGradStandard['score']['系定必修'] }}
+                        </span>
+                        <span v-else style="color:red">
+                          畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
+                        </span>
+                      </el-form-item>
+                    </el-tooltip>
+                    <el-tooltip class="item" effect="dark" placement="left">
+                      <div slot="content">
+                        其他科目(不一定是選修) / 預設畢業選修
+                      </div>
+                      <el-form-item label="已修[其他]學分數">
+                        <span
+                          v-if="personalGradStandard['score']"
+                          :style="{
+                            'color': personalGraduateScore['totalSelectableScore'] < personalGradStandard['score']['選修'] ? 'red' : 'black'
+                          }">
+                          {{ personalGraduateScore['totalSelectableScore'] }} / {{ personalGradStandard['score']['選修'] }}
+                        </span>
+                        <span v-else style="color:red">
+                          畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
+                        </span>
+                      </el-form-item>
+                    </el-tooltip>
+                    <el-tooltip class="item" effect="dark" placement="left">
+                      <div slot="content">
+                        目前總學分 / 預設畢業學分(必修+選修)
+                      </div>
+                      <el-form-item label="已修[總學分數]">
+                        <span
+                          v-if="personalGradStandard['score']"
+                          :style="{
+                            'color': personalGraduateScore['totalSelectableScore'] + personalGraduateScore['totalRequiredScore'] < personalGradStandard['score']['應修最低畢業學分'] ? 'red' : 'black'
+                          }">
+                          {{ personalGraduateScore['totalSelectableScore'] + personalGraduateScore['totalRequiredScore'] }} / {{ personalGradStandard['score']['應修最低畢業學分'] }}
+                        </span>
+                        <span v-else style="color:red">
+                          畢業規範檔未記載{{searchedTableData.student[0].enrollYear}}年度
+                        </span>
+                      </el-form-item>
+                    </el-tooltip>
+                    <el-form-item label="停修學分數">
+                      <span>
+                        {{ personalGraduateScore['totalDropScore'] }}
                       </span>
                     </el-form-item>
                   </el-form>
@@ -275,6 +337,11 @@
                     <span>論文資訊</span>
                   </div>
                   <el-form label-position="left" inline class="demo-table-expand">
+                    <el-form-item  label="指導教授">
+                      <span>
+                        {{ searchedTableData['student'][0]['指導教授'] }}
+                      </span>
+                    </el-form-item>
                     <el-form-item v-if="personalPapers !== null" label="論文資訊">
                       <span>
                         {{ personalPapers['中文標題'] }}
@@ -424,9 +491,10 @@
   import path from 'path';
   import { remote } from 'electron';
   import kanban from './kanban';
+  import vscrolling from 'vue-scrolling-table'
 
   export default {
-    components: { kanban },
+    components: { kanban, vscrolling },
     mixins: [kanban],
     data() {
       return {
@@ -440,7 +508,7 @@
         },
         ],
         searchCondition: 'sid',
-        rawSearchInput: 'R05749011', //R07749019 //R00749021 //R98723075
+        rawSearchInput: 'R03749007',  //R00749021 //R07749019 //R00749021 //R98723075
         currentPage: 1,
         pageSize: 10,
         poi: [], // person of interest，可能符合搜尋條件的學生,
@@ -448,6 +516,22 @@
       };
     },
     methods: {
+      getSchoolSemester(grad_year, grad_month) {
+        // 民國年
+        let school_yr = ''
+        let grad_semester = ''
+        if (grad_month < 2) {
+          school_yr =  grad_year - 1
+          grad_semester = '1'
+        } else if (grad_month < 8) {
+          school_yr =  grad_year - 1
+          grad_semester = '2'
+        } else {
+          school_yr = grad_year
+          grad_semester = '1'
+        }
+        return school_yr + grad_semester
+      },
       compareCourseCategory(a, b) {
         const aIsReq = this.isCourseDeptRequired(a) === true ? 1 : 0;
         const bIsReq = this.isCourseDeptRequired(b) === true ? 1 : 0;
@@ -549,7 +633,7 @@
               return v['中文姓名'].trim().indexOf(searchInput) !== -1 ||
                 v['英文姓名'].trim().toUpperCase().indexOf(searchInput) !== -1 ||
                 v['學號'].trim().toUpperCase().indexOf(searchInput) !== -1;
-            }).slice(0, 50)
+            })
             
             // console.log('b', new Date().getTime() - tmp)
             // tmp = new Date().getTime()
@@ -760,21 +844,28 @@
       personalGraduateScore() {
         let totalRequiredScore = 0;
         let totalSelectableScore = 0;
+        let totalDropScore = 0;
         this.searchedTableData.course.forEach((row) => {
-          if (this.isCourseDeptRequired(row) === true) {
+          if (row['備註'].indexOf('停修') !== -1) {
+            totalDropScore += parseInt(row['學分'], 10);
+          }
+          else if (this.isCourseDeptRequired(row) === true) {
             totalRequiredScore += parseInt(row['學分'], 10);
           } else {
             totalSelectableScore += parseInt(row['學分'], 10);
           }
         });
-        return { totalRequiredScore, totalSelectableScore };
+        return { totalRequiredScore, totalSelectableScore, totalDropScore };
       },
       needCheckGradStandard() {
         const enrollYear = this.searchedTableData.student[0].enrollYear;
-        const firstLeaveSchoolYear = this.searchedTableData.student[0]['第一次休學'] === '-' ? 
-                0 : parseInt(this.searchedTableData.student[0]['第一次休學'].substring(0, 3));
-
-        return (enrollYear <= firstLeaveSchoolYear) ? true : false;
+        // const firstLeaveSchoolYear = this.searchedTableData.student[0]['第一次休學'] === '-' ? 
+        //         0 : parseInt(this.searchedTableData.student[0]['第一次休學'].substring(0, 3));
+        const firstClassYear = this.searchedTableData.course.reduce((min, row) => {
+          const cur_sem = parseInt(row['學年學期'].substring(0,3), 10);
+          return cur_sem < min ? cur_sem : min;
+        }, 1e4);//1e4: random big enough number
+        return (enrollYear < firstClassYear) ? true : false;
       },
       schoolSteps() { // 在學狀態
         const row = this.searchedTableData.student[0];
@@ -782,7 +873,7 @@
         const seq = ['一', '二', '三', '四', '五', '六', '七', '八'];
 
         steps.push({
-          date: row.enrollYear,
+          date: row.enrollYear + '年度',
           state: '入學',
           status: 'success',
           desc: '入學',
@@ -801,11 +892,15 @@
             });
           }
         });
-  
+        let school_semester = ''
         switch (row['異動碼']) {
           case 'G':
+            const grad_month = parseInt(row['畢業年月'].slice(3), 10);
+            const grad_year = parseInt(row['畢業年月'].slice(0,3), 10);
+            school_semester = this.getSchoolSemester(grad_year, grad_month);
+            
             steps.push({
-              date: row['畢業年月'],
+              date:  school_semester + '(' + grad_year + '年' + grad_month + '月)',
               state: '畢業',
               status: 'success',
               desc: '畢業',
@@ -822,8 +917,11 @@
           case 'B':
             break;
           default:
+            const month = new Date().getMonth() + 1;
+            const year = new Date().getFullYear() - 1911;
+            school_semester = this.getSchoolSemester(year, month);
             steps.push({
-              date: new Date().getYear() - 11,
+              date: school_semester + '(' + year + '年' + month + '月)',
               state: '在學',
               status: 'success',
               desc: '在學中',
@@ -850,6 +948,7 @@
   #wrapper {
     padding: 60px 80px;
     padding-top: 40px;
+    padding-bottom: 0px;
   }
 
   main {
@@ -899,5 +998,18 @@
   .profile_img {
     max-width: 200px;
     height: 100%;
+  }
+  table.scrolling {
+    text-align: center;
+  }
+  table.scrolling .w2 {
+    width: 20.5em;
+    min-width: 20.5em;
+    max-width: 20.5em;
+  }
+  table.scrolling .op {
+    width: 8.5em;
+    min-width: 8.5em;
+    max-width: 8.5em;
   }
 </style>
