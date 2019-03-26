@@ -128,6 +128,7 @@ function profileDataProcess(rawData, public_file_path) {
       rawData.head.push(v);
     }
   });
+
   artificialMaintain.data.forEach((v) => {
     rawData.data.forEach((w) => {
       if (w['學號'] === v['學號']) {
@@ -246,9 +247,10 @@ const actions = {
       'papers': '/excels/papers.xlsx',
       'questionnaire': '/excels/yvonne_questionnaire.xlsx',
       'graduate_standard': '/excels/graduate_standard.xlsx',
+      'graduate_credits': '/excels/graduate_credits_taken.xlsx'
     };
 
-    ['profile', 'course', 'council', 'papers', 'questionnaire', 'graduate_standard'].forEach((dataName) => {
+    ['graduate_credits', 'profile', 'course', 'council', 'papers', 'questionnaire', 'graduate_standard'].forEach((dataName) => {
       commit('loadData', { dataName, excel_where: path.join(state.public_file_path, excel_pos[dataName]) });
     })
   },

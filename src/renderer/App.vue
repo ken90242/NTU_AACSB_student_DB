@@ -20,7 +20,7 @@
       commit('updatePublicFilePath');
       dispatch('initialLoadData');
       this.intervalFunc = setInterval(function() {
-          [ 'profile', 'course', 'council', 'papers', 'questionnaire', 'graduate_standard' ].forEach((dataName) => {
+          [ 'graduate_credits', 'profile', 'course', 'council', 'papers', 'questionnaire', 'graduate_standard' ].forEach((dataName) => {
             const dataObj = (dataName === 'graduate_standard') ? 
               this.$store.state.excelData.graduateStandard : this.$store.state.excelData[dataName]
             const modifiedDate = fs.statSync(dataObj.excel_path).mtimeMs;

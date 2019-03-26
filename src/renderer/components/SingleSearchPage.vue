@@ -144,6 +144,9 @@
                     <el-form-item label="國籍(U)">
                       <span>{{ props.row['國籍'] }}</span>
                     </el-form-item>
+                    <el-form-item label="身分證字號(U)">
+                      <span>{{ props.row['身分證字號'] }}</span>
+                    </el-form-item>
                     <el-form-item label="出生年月日(U)">
                       <span>{{ props.row['出生年月日'] }}</span>
                     </el-form-item>
@@ -308,6 +311,19 @@
                         </span>
                       </el-form-item>
                     </el-tooltip>
+                    <el-table
+                      :data="personalGraduateCreditsTaken"
+                      border
+                      style="width: 100%">
+                      <el-table-column
+                        prop="semester"
+                        label="學年學期">
+                      </el-table-column>
+                      <el-table-column
+                        prop="credits"
+                        label="學分數">
+                      </el-table-column>
+                    </el-table>
                     <el-tooltip class="item" effect="dark" placement="left">
                       <div slot="content">
                         目前總學分 / 預設畢業學分(必修+選修)
@@ -508,7 +524,7 @@
         },
         ],
         searchCondition: 'sid',
-        rawSearchInput: 'R03749007',  //R00749021 //R07749019 //R00749021 //R98723075
+        rawSearchInput: 'R00749001', //R03749007 //R00749021 //R07749019 //R00749021 //R98723075
         currentPage: 1,
         pageSize: 10,
         poi: [], // person of interest，可能符合搜尋條件的學生,
@@ -819,6 +835,23 @@
           res = res[0];
         }
         return res;
+      },
+      personalGraduateCreditsTaken() {
+        const result = {}
+        const personalCredits = this.graduate_credits.data.filter(obj => obj['學號'] === this.poi[0]['學號']);
+        // set = new Set(personalCredits.map((obj => obj['採計學年學期'])));
+        personalCredits.forEach((obj) => {
+          const key = obj['採計學年學期'];
+          const credit = parseInt(obj['採計學分數'], 10);
+          if (key in result) {
+            result[key] += credit;
+          } else {
+            result[key] = credit;
+          }
+        });
+        return Object.keys(result).map((key) => {
+          return { 'semester': key, 'credits': result[key], };
+        });
       },
       personalGradStandard() {
         // assume rawSearchInput is student id

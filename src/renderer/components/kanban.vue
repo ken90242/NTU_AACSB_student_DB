@@ -109,10 +109,11 @@
       graduateStandard: state => state.excelData.graduateStandard,
       profilePicFolder: state => state.excelData.profilePicFolder,
       enrollYears: state => state.excelData.enrollYears,
+      graduate_credits: state => state.excelData.graduate_credits,
       options() {
         return [{
           value: path.join(this.profilePicFolder, '/../excels'),
-          label: 'Excels表格',
+          label: 'Excels表格(A-G)',
           children: [{
             value: this.profile['excel_path'],
             label: 'A. 研教組年度資料',
@@ -131,7 +132,10 @@
           }, {
             value: this.graduateStandard['excel_path'],
             label: 'F. 畢業標準',
-          },]
+          }, {
+            value: this.graduate_credits['excel_path'],
+            label: 'G. 歷年學生採計學分數',
+            }]
         }, {
           value: this.profilePicFolder,
           label: '個人照片',

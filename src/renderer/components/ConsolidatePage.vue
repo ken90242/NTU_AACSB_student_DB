@@ -9,6 +9,7 @@
         <el-tab-pane label="D. 學生會成員" name="council"></el-tab-pane>
         <el-tab-pane label="E. GMBA線上問卷" name="questionnaire"></el-tab-pane>
         <el-tab-pane label="F. 畢業標準" name="graduateStandard"></el-tab-pane>
+        <el-tab-pane label="G. 歷年學生採計學分數" name="graduate_credits"></el-tab-pane>
       </el-tabs>
       <section v-if="displayType==='graduateStandard'">
         <h2>(1) 歷年必選修學分數</h2>
@@ -245,7 +246,20 @@
           </el-table>
         </el-tooltip>
       </div>
-      
+      <div v-if="displayType === 'graduate_credits'">
+        <el-table
+          :data="displayTable"
+          stripe
+          border
+          style="width: 100%"
+          :max-height="tableMaxHeight">
+          <el-table-column
+            v-for="label in graduate_credits['head']"
+            :prop="label"
+            :label="label">
+          </el-table-column>
+        </el-table>
+      </div>
     </div>
   </div>
 </template>
@@ -271,7 +285,7 @@
       return {
         hotKeyReminder: '按住 <SHIFT鍵> 後滾動 <滑鼠滾輪> 即可左右滑動捲軸',
         currentPage: 1,
-        pageSize: 5,
+        pageSize: 50,
         tableMaxHeight: window.innerHeight - 300,
         selectYear: 'all',
         displayTypeStoredValue: 'profile',
@@ -304,6 +318,11 @@
       displayType: {
         get(){
           //this function will determine what is displayed in the input
+          if (this.displayTypeStoredValue === 'graduateStandard') {
+            this.pageSize = 5;
+          } else {
+            this.pageSize = 50;
+          }
           return this.displayTypeStoredValue;
         },
         set(newVal){
@@ -340,8 +359,11 @@
           yrs = this[this.displayType]['specific'].data.map((obj) => {
             return parseInt(obj['學年'], 10);
           });
+        } else if(this.displayType === 'graduate_credits') {
+          yrs = this[this.displayType].data.map((obj) => {
+            return parseInt(obj['採計學年學期'], 10);
+          });
         }
-        // return [...new Set(yrs)].sort((a, b) => a - b).map(v => v.toString().padStart(3, '0'));
         return [...new Set(yrs)].sort((a, b) => a - b).map(v => v.toString());  
       },
       displayTable() {
@@ -371,8 +393,10 @@
               return parseInt(obj['年份'], 10) === parseInt(this.selectYear, 10);
             } else if (this.displayType === 'questionnaire') {
               return parseInt(moment(obj['time']).year(), 10) === parseInt(this.selectYear, 10);
-            } else if(this.displayType === 'graduateStandard') {
+            } else if (this.displayType === 'graduateStandard') {
               return parseInt(obj['學年'], 10) === parseInt(this.selectYear, 10);
+            } else if (this.displayType == 'graduate_credits') {
+              return parseInt(obj['採計學年學期'], 10) === parseInt(this.selectYear, 10);
             }
           }).slice(
             (this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize,
@@ -382,7 +406,6 @@
       totalPages() {
         if (this.displayType === 'graduateStandard') {
           return this[this.displayType].specific.data.filter((obj) => {
-            console.log(this.displayType, parseInt(obj['學年'], 10), parseInt(this.selectYear, 10))
             if (this.selectYear === 'all') {
               return true;
             } else {
@@ -403,6 +426,8 @@
               return parseInt(obj['年份'], 10) === parseInt(this.selectYear, 10);
             } else if (this.displayType === 'questionnaire') {
               return parseInt(moment(obj['time']).year(), 10) === parseInt(this.selectYear, 10);
+            } else if (this.displayType === 'graduate_credits') {
+              return parseInt(obj['採計學年學期'], 10) === parseInt(this.selectYear, 10);
             }
           }).length;
         }
