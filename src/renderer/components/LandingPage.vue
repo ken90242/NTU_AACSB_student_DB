@@ -18,10 +18,7 @@
         <li>
           <strong>本次更新</strong>
           <ol style="margin-left:10px">
-            <li>3/05-修正(Celia)：修正畢業標準預設顯示為5頁，其他為50頁</li>
-            <li>3/25-功能(Lisa)：新增兩個欄位(1)採計學分數(2)採計學年學期</li>
-            <li>3/25-功能(Lisa)：新增一個欄位”身分證字號”</li>
-            <li>3/25-架構(Lisa)：對應excel檔案: GMBA歷年學生採計學分數</li>
+            <li>6/19-功能(Celia)：畢業人數簡表</li>
           </ol>
         </li>
       </ul> 

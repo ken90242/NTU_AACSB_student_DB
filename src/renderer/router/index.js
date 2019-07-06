@@ -31,6 +31,11 @@ export default new Router({
       component: require('@/components/consolidateClassStudent').default,
     },
     {
+      path: '/studentimportexport',
+      name: 'student-import-export',
+      component: require('@/components/studentImportExport').default,
+    },
+    {
       path: '*',
       redirect: '/',
     },

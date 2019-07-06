@@ -45,6 +45,11 @@
           :route="{ name: 'consolidate-class-student', params: { activeIndex: '4-2' } }">
           學生背景統整
         </el-menu-item>
+        <el-menu-item
+          index="4-3"
+          :route="{ name: 'student-import-export', params: { activeIndex: '4-3' } }">
+          學生去向統計
+        </el-menu-item>
       </el-submenu>
       <el-tooltip content="EXCEL資料及照片資料夾的連結" placement="top-end">
         <el-cascader
