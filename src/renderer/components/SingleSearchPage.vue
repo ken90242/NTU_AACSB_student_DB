@@ -160,12 +160,14 @@
                       </div>
                     </el-form-item>
                     <el-form-item v-if="personalQuestionnaire" label="入學前學籍資訊(G)">
+                      <ul v-if="personalQuestionnaire.AA_Degree.toLowerCase() == 'yes'" style="list-style-type: none;">
+                        <li v-if="personalQuestionnaire.AA_Degree.toLowerCase() == 'yes'">
+                          <span style="color:blue"><副學士></span>: {{ personalQuestionnaire.AA_School_name }}({{ personalQuestionnaire.AA_School.indexOf('Non') !== -1 ? '外國' : '本國' }}) - {{ personalQuestionnaire.AA_Fields }}
+                        </li>
+                      </ul>
                       <ul v-if="personalQuestionnaire.Bachelor.toLowerCase() == 'yes'" style="list-style-type: none;">
                         <li v-if="personalQuestionnaire.Bachelor.toLowerCase() == 'yes'">
                           <span style="color:blue"><大學></span> {{ personalQuestionnaire.bachelor_School_name }}({{ personalQuestionnaire.bachelor_School.indexOf('Non') !== -1 ? '外國' : '本國' }}) - {{ personalQuestionnaire.bachelor_Fields }}
-                        </li>
-                        <li v-if="personalQuestionnaire.Bachelor.toLowerCase() == 'yes'">
-                          <span style="color:blue"><副學士></span> {{ personalQuestionnaire.bachelor_School_name }}({{ personalQuestionnaire.bachelor_School.indexOf('Non') !== -1 ? '外國' : '本國' }}) - {{ personalQuestionnaire.bachelor_Fields }}
                         </li>
                         <li v-if="personalQuestionnaire.Master.toLowerCase() == 'yes'">
                           <span style="color:blue"><碩士></span>: {{ personalQuestionnaire.master_School_name }}({{ personalQuestionnaire.master_School.indexOf('Non') !== -1 ? '外國' : '本國' }}) - {{ personalQuestionnaire.master_Fields }}
