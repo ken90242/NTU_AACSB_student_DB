@@ -72,18 +72,23 @@ function getExcelContent2List(xlsxPath) {
         });
       // 補上最後一個row的資料，並清空
       totalDataFields.push(filledUpFields(rowData, keys));
+
+      // fill up first sheet
+      if (Object.keys(currentSheetRes).length === 0) {
+        currentSheetRes = {
+          head: totalHeadFields,
+          data: totalDataFields,
+          excel_path: xlsxPath,
+        };
+      }
+
       rowData = {};
 
-      currentSheetRes = {
-        head: totalHeadFields,
-        data: totalDataFields,
-        excel_path: xlsxPath,
-      };
       multiSheetsRes[sheetname] = currentSheetRes;
     });
-  
-    if (Object.keys(multiSheetsRes).length === 1) {
-      // basic_infos, course_standatd
+    console.log(xlsxPath)
+    // if (Object.keys(multiSheetsRes).length === 1) {
+    if (xlsxPath.indexOf('graduate_standard') === -1) {
       return currentSheetRes;
     }
     console.log(xlsxPath)

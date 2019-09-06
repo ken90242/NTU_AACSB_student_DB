@@ -36,6 +36,124 @@
           <a id="link"></a>
         </div>
       </div>
+      <div>
+        <br/>
+        <h3>Excel欄位出處說明</h3>
+        <br/>
+        <el-tag type="danger" effect="dark"> X </el-tag> > <el-tag effect="dark"> Y </el-tag> : 若X資料存在，X覆蓋Y
+        <el-tooltip :content="hotKeyReminder" :offset="50" placement="top-end">
+          <el-table
+            :data="[{}]"
+            style="width: 100%">
+            <el-table-column
+              label="Student ID"
+              width="180">
+              <template slot-scope="scope">
+                <el-tag type="info" effect="dark"> 上方輸入學號 </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="Chinese Name"
+              width="180">
+              <template slot-scope="scope">
+                <el-tag type="danger" effect="dark"> Yvoone </el-tag>
+                  >
+                <el-tag effect="dark"> 註冊組 </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="English Name"
+              width="180">
+              <template slot-scope="scope">
+                <el-tag type="danger" effect="dark"> Yvoone </el-tag>
+                  >
+                <el-tag effect="dark"> 註冊組 </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="Picture"
+              width="180">
+              <template slot-scope="scope">
+                <el-tag type="info" effect="dark"> 照片資料夾 </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="Nationality"
+              width="180">
+              <template slot-scope="scope">
+                <el-tag type="danger" effect="dark"> Yvoone </el-tag>
+                  >
+                <el-tag effect="dark"> 註冊組 </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="Age"
+              width="180">
+              <template slot-scope="scope">
+                <el-tag effect="dark"> 註冊組 </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="Year of Work Experience"
+              width="180">
+              <template slot-scope="scope">
+                <el-tag type="danger" effect="dark"> Yvoone </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="Last Employment"
+              width="180">
+              <template slot-scope="scope">
+                <el-tag type="danger" effect="dark"> Yvoone </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="Last Job Title"
+              width="180">
+              <template slot-scope="scope">
+                <el-tag type="danger" effect="dark"> Yvoone </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="Degree"
+              width="180">
+              <template slot-scope="scope">
+                <el-tag type="danger" effect="dark"> Yvoone </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="School"
+              width="180">
+              <template slot-scope="scope">
+                <el-tag type="danger" effect="dark"> Yvoone </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="Major"
+              width="180">
+              <template slot-scope="scope">
+                <el-tag type="danger" effect="dark"> Yvoone </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="non-NTU"
+              width="180">
+              <template slot-scope="scope">
+                <el-tag type="danger" effect="dark"> Yvoone </el-tag>
+                  >
+                <el-tag effect="dark"> 註冊組 </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="NTU"
+              width="180">
+              <template slot-scope="scope">
+                <el-tag type="info" effect="dark"> 程式生成 </el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tooltip>
+      </div>
     </section>
   </div>
 </template>
@@ -46,6 +164,7 @@
   import Excel from 'exceljs';
   import fs from 'fs';
   import os from 'os';
+  import mv from 'mv';
   import { remote } from 'electron';
 
   export default {
@@ -53,6 +172,7 @@
     mixins: [kanban],
     data() {
       return {
+        hotKeyReminder: '按住 <SHIFT鍵> 後滾動 <滑鼠滾輪> 即可左右滑動捲軸',
         value2: [12,43,54,611,234,123,54,34,252,542,222,556,124,362,212,331],
         filterMethod(query, item) {
           query = query.toLowerCase();
@@ -164,7 +284,7 @@
               }],
             });
             if (newFilePath) {
-              fs.rename(tempFilePath, newFilePath, (err) => {
+              mv(tempFilePath, newFilePath, (err) => {
                 if (err) {
                   this.$notify({
                     title: '錯誤 - 報表匯出',
@@ -231,8 +351,11 @@
         rowValues[7] = poi[3];
         
         // 年齡
-        rowValues[8] = poi[4];
-        
+        if (isNaN(poi[4]) === true) {
+          rowValues[8] = '';
+        } else {
+          rowValues[8] = poi[4];
+        }
         // 工作年資
         rowValues[9] = poi[5];
         

@@ -4,7 +4,7 @@
     <section class="sectionWrapper">
       <div>
         <h2>(1) 畢業人數簡表</h2>
-        <br/>
+        <font color="blue">左方為入學年，上方為畢業/退學/休學年</font>
         <el-table
           :data="graduate_table"
           style="width: 100%">
@@ -24,7 +24,17 @@
       <br/>
       <div>
         <h2>(2) 休學人數簡表</h2>
+        <font color="blue">
+        皆為學年制，9~1月為第一學期，2~8月為第二學期
         <br/>
+        ex:
+        <br/>
+        1021 -> 101學年度，第一學期
+        <br/>
+        1027 -> 101學年度，第二學期
+        <br/>
+        1028 -> 102學年度，第一學期
+        </font>
         <el-table
           :data="suspension_table"
           style="width: 100%">
@@ -44,7 +54,13 @@
       <br/>
       <div>
         <h2>(3) 退學人數簡表</h2>
-        <br/>
+        <font color="blue">
+          先由註冊組表格中的異動碼來判別：G畢業、O退學、B休學
+          <br/><br/>
+          畢業&退學從"異動學期"欄位來紀錄時間
+          <br/><br/>
+          休學則由"第N次休學"紀錄時間
+        </font>
         <el-table
           :data="dropout_table"
           style="width: 100%">

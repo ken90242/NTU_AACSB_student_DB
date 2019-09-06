@@ -1,7 +1,7 @@
 <template>
   <div
     id="wrapper"
-    v-loading.fullscreen.lock="avgImageStatus === '處理中...'"
+    v-loading.fullscreen.lock="avgImageStatus === '處理中...' || backupRelatedWork"
     :element-loading-text="`${ avgImageStatus } ${ progressBar }% (耗時約數十分鐘，請耐心等候)`"
     element-loading-spinner="el-icon-loading"
     element-loading-background="rgba(0, 0, 0, 0.8)">
@@ -18,7 +18,11 @@
         <li>
           <strong>本次更新</strong>
           <ol style="margin-left:10px">
-            <li>6/19-功能(Celia)：畢業人數簡表</li>
+            <li>7-17-介面(Celia)：學生去向統計補上說明文字</li>
+            <li>7/31-功能(Ken)：手動備份與還原功能(Beta)</li>
+            <li>9/5-修正(Lisa)：年齡欄位未填時會有數值錯誤</li>
+            <li>9/5-修正(Lisa)：檔案無法匯出至公用資料夾</li>
+            <li>9/5-介面(Lisa)：Excel檔資料欄位來源說明</li>
           </ol>
         </li>
       </ul> 
@@ -50,6 +54,43 @@
             style="margin-left:10px;">
               壓縮所有照片
           </el-button>
+        </li>
+        <el-dialog
+          title="Excels 備份還原"
+          :visible.sync="drawer"
+          center>
+          <el-divider>
+            <h2 style="text-align: center;">
+              <i class="el-icon-time"></i> + <i class="el-icon-document"></i>變動
+            </h2>
+          </el-divider>
+          <div v-infinite-scroll="infiniteListLoad" style="overflow:auto;">
+            <div class="infinite-list" v-for="i in infiniteList">
+              <el-tooltip class="item" effect="light" :content="i['changed_files']" placement="right">
+                <el-button
+                  class="infinite-list-item"
+                  type="danger"
+                  plain
+                  icon="el-icon-time"
+                  @click="restoreBackupFile(i['filename'])">
+                  {{ i['datetime'] }}</i>
+                </el-button>
+              </el-tooltip>
+            </div>
+          </div>
+        </el-dialog>
+        <li style="width:60%;display:flex;justify-content:space-between;margin:10px">
+          <div>
+            C. Excel檔案備份還原：
+          </div>
+          <div>
+            <el-button type="primary" size="medium" round @click="backupRightNow" style="margin-left:10px;">
+              立即備份
+            </el-button>
+            <el-button type="primary" size="medium" round @click="drawer=true" style="">
+              檢視備份紀錄
+            </el-button>
+          </div>
         </li>
       </ul>
     </div>
@@ -88,6 +129,9 @@
   import compress_images from 'compress-images';
   import glob from 'glob';
   import downloadFile from '../download.js';
+  import backup from 'backup';
+  import moment from 'moment';
+  import crypto from 'crypto';
 
   const needUpdate = function(application_v, latest_release_v) {
     const app_v = application_v.split('.');
@@ -110,6 +154,10 @@
     mixins: [kanban],
     data() {
       return {
+        backupRecords: [],
+        infiniteList: [],
+        infiniteNum: 0,
+        drawer: false,
         test: {
           public_file_path: this.$store.state.excelData.public_file_path,
           static_path: __static,
@@ -127,10 +175,205 @@
         progressException: true,
         dialogVisible: false,
         dialogFunc: () => {},
+        backupRelatedWork: false,
       };
     },
     components: { kanban },
     methods: {
+      backupRightNow() {
+        // 檢查是否更新然後備份
+        this.backupRelatedWork = true;
+        fs.readdir('public/excels', (err, files) => {
+          const lastest_date = files.reduce((pastV, newF) => {
+            let newV = fs.statSync('public/excels/' + newF).mtime;
+            if (newV > pastV) {
+              return newV;
+            } else {
+              return pastV;
+            }
+          }, 0);
+          if (fs.existsSync('public/backups') === false) {
+            fs.mkdirSync('public/backups');
+          }
+          if (fs.existsSync('public/backups/lock') === false) {
+            fs.writeFileSync('public/backups/lock', '');
+            try {
+              this.examine_history(moment(lastest_date).format('YYYYMMDD_HHmmss'));
+            } catch (e) {
+              console.error(e);
+            } finally {
+              fs.unlinkSync('public/backups/lock');
+            }
+          }
+        });
+      },
+      getBackupRecords() {
+        const txt = fs.readFileSync('public/backups/excels_history.json');
+        const history = JSON.parse(txt)
+        let change_history = [];
+        const files = ['basic_info', 'course_record', 'graduate_credits_taken', 'graduate_standard', 'papers', 'student_council', 'yvonne_questionnaire'];
+        Object.keys(history).sort().reduce((later, eariler) => {
+          if (later !== 'initial') {
+            const res = files.reduce((arr, ff) => {
+              if (history[eariler][ff] !== history[later][ff]) {
+                arr.push(ff);
+              }
+              return arr;
+            }, []);
+            change_history.push({'datetime': eariler, 'changed_files': res})
+          } else {
+            change_history.push({'datetime': eariler, 'changed_files': files})
+          }
+          return eariler;
+        }, 'initial');
+        change_history = change_history.reverse().map(obj => {
+          let date = obj['datetime'].split('_')[0];
+          let time = obj['datetime'].split('_')[1];
+          date = date.slice(0,4) + '年' + date.slice(4,6) + '月' + date.slice(6,8) + '日';
+          time = time.slice(0,2) + '時' + time.slice(2,4) + '分' + time.slice(4,6) + '秒';
+          const datetime = date + '    ' + time;
+          let changed_files = obj['changed_files'].reduce((acc, v) => {
+            let vv = '';
+            switch(v) {
+              case 'basic_info':
+                vv = '註冊組-學生資料';
+                break;
+              case 'course_record':
+                vv = '課程紀錄';
+                break;
+              case 'graduate_credits_taken':
+                vv = '學分採計';
+                break;
+              case 'graduate_standard':
+                vv = '畢業標準'
+                break;
+              case 'papers':
+                vv = '學生論文'
+                break;
+              case 'student_council':
+                vv = '學生會'
+                break;
+              case 'yvonne_questionnaire':
+                vv = '線上表單-學生';
+                break;
+            }
+            return acc === '' ? vv : acc + ' / ' + vv;
+          }, '');
+          if (changed_files === '') {
+            changed_files = '無更動';
+          }
+          changed_files = 'Difference: ' + changed_files;
+          return { 'datetime': datetime, 'changed_files': changed_files, 'filename': obj['datetime']};
+        });
+        this.backupRecords = change_history;
+        this.$forceUpdate();
+      },
+      examine_history(lastest_date) {
+        const that = this;
+        let history = {}
+        if (fs.existsSync('public/backups/excels_history.json') === true) {
+          const txt = fs.readFileSync('public/backups/excels_history.json')
+          history = JSON.parse(txt);
+        }
+        if (Object.keys(history).indexOf(lastest_date) === -1) {
+          const md5_list = {
+            'basic_info': this.md5File('public/excels/basic_info.xlsx'),
+            'course_record': this.md5File('public/excels/course_record.xlsx'),
+            'graduate_credits_taken': this.md5File('public/excels/graduate_credits_taken.xlsx'),
+            'graduate_standard': this.md5File('public/excels/graduate_standard.xlsx'),
+            'papers': this.md5File('public/excels/papers.xlsx'),
+            'student_council': this.md5File('public/excels/student_council.xlsx'),
+            'yvonne_questionnaire': this.md5File('public/excels/yvonne_questionnaire.xlsx'),
+          };
+          history[lastest_date] = md5_list
+          const jsonContent = JSON.stringify(history);
+          fs.writeFileSync('public/backups/excels_history.json', jsonContent, { 'encoding': 'utf8' });
+
+          const backup_path = 'public/backups/';
+          const size_limit = 100;
+          if (Object.keys(history).length > size_limit) {
+            const over_size = Object.keys(history).length - size_limit;
+            Object.keys(history).sort().splice(0, over_size).forEach(datetime => {
+              delete history[datetime];
+              fs.unlink(backup_path + datetime + '.backup', (err) => {
+                if (err) {
+                  console.error(err);
+                  return;
+                }
+              })
+
+            });
+            const jsonContent = JSON.stringify(history);
+            fs.writeFileSync('public/backups/excels_history.json', jsonContent, { 'encoding': 'utf8' });
+          }
+          that.getBackupRecords();
+          that.backupRelatedWork = false;
+          that.$notify.success({
+            title: '已成功備份資料檔案'
+          });
+          backup.backup('public/excels', 'public/backups/' + lastest_date + '.backup');
+        } else {
+          that.backupRelatedWork = false;
+          that.getBackupRecords();
+          that.$notify.warning({
+            title: '備份檔案已存在'
+          });
+        }
+      },
+      md5File(path) {
+        const txt = fs.readFileSync(path, 'utf8');
+        var md5Value = crypto.createHash('md5').update(txt, 'utf8').digest('hex');
+        return md5Value;
+      },
+      restoreBackupFile(filename) {
+        this.$confirm('此操作將會移除現存所有Excel檔案，是否繼續?', '嚴重警告', {
+          confirmButtonText: '確定',
+          cancelButtonText: '取消',
+          type: 'error'
+        }).then(() => {
+          const original_cwd = process.cwd();
+          process.chdir('public/excels');
+          backup.restore('../backups/' + filename + '.backup', process.cwd(), (err, path) => {
+            process.chdir(original_cwd)
+            // backup restored files
+            fs.readdir('public/excels', (err, files) => {
+              const lastest_date = files.reduce((pastV, newF) => {
+                let newV = fs.statSync('public/excels/' + newF).mtime;
+                if (newV > pastV) {
+                  return newV;
+                } else {
+                  return pastV;
+                }
+              }, 0);
+              if (fs.existsSync('public/backups/lock') === false) {
+                fs.writeFileSync('public/backups/lock', '');
+                try {
+                  this.examine_history(moment(lastest_date).format('YYYYMMDD_HHmmss'));
+                } catch (e) {
+                  console.error(e);
+                } finally {
+                  fs.unlinkSync('public/backups/lock');
+                }
+              }
+            });
+            this.$notify.success({
+              title: '成功還原'
+            });
+            // update backup&restore interface
+            this.infiniteList = [];
+          });
+        }).catch(() => {
+          this.$notify.info({
+            title: '已取消還原'
+          });
+        });
+        
+
+      },
+      infiniteListLoad() {
+        this.infiniteNum += 20;
+        this.infiniteList = this.backupRecords.slice(0, this.infiniteNum);
+      },
       downloadUpdateDone(statusCode, filename) {
         shell.openItem(filename);
         this.progressBar = 0;
@@ -288,6 +531,7 @@
 
       //  calculate image folder size
       this.updateAvgImageSize();
+      this.getBackupRecords();
     },
     mounted() {
       if (!fs.existsSync(path.join(remote.app.getPath('userData'), 'user-setting.json')) ||
@@ -337,6 +581,17 @@
   .githublogo {
     height: auto;
     width: 40px;
+  }
+  
+  .infinite-list {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+  }
+  .infinite-list-item {
+    /*width: auto;*/
+    font-size: 18px;
+    margin-bottom: 2px;
   }
 
 </style>
