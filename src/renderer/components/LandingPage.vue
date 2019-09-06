@@ -84,10 +84,10 @@
             C. Excel檔案備份還原：
           </div>
           <div>
-            <el-button type="primary" size="medium" round @click="backupRightNow" style="margin-left:10px;">
+            <el-button type="primary" size="medium" round @click="backupRightNow" style="margin-left:10px;" disabled>
               立即備份
             </el-button>
-            <el-button type="primary" size="medium" round @click="drawer=true" style="">
+            <el-button type="primary" size="medium" round @click="drawer=true" style="" disabled>
               檢視備份紀錄
             </el-button>
           </div>

@@ -832,7 +832,6 @@
         return res;
       },
       personalPapers() {
-        console.log(this.poi)
         let res = this.papers.data.filter(obj => obj['作者學號'] === this.poi[0]['學號']);
         if (res.length === 0) {
           res = null;

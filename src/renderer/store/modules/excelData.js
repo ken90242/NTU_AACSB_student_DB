@@ -72,27 +72,23 @@ function getExcelContent2List(xlsxPath) {
         });
       // 補上最後一個row的資料，並清空
       totalDataFields.push(filledUpFields(rowData, keys));
-
-      // fill up first sheet
-      if (Object.keys(currentSheetRes).length === 0) {
-        currentSheetRes = {
-          head: totalHeadFields,
-          data: totalDataFields,
-          excel_path: xlsxPath,
-        };
-      }
-
-      rowData = {};
-
+      // console.log('currentSheetReslength', currentSheetRes, Object.keys(currentSheetRes).length)
+      
+      currentSheetRes = {
+        head: totalHeadFields,
+        data: totalDataFields,
+        excel_path: xlsxPath,
+      };
+      console.log(Object.keys(multiSheetsRes))
       multiSheetsRes[sheetname] = currentSheetRes;
     });
-    console.log(xlsxPath)
-    // if (Object.keys(multiSheetsRes).length === 1) {
-    if (xlsxPath.indexOf('graduate_standard') === -1) {
+  
+    if (Object.keys(multiSheetsRes).length === 1) {
+      // basic_infos, course_standatd
       return currentSheetRes;
     }
-    console.log(xlsxPath)
-    // graduate_standard 
+
+    // graduate_standard
     multiSheetsRes.excel_path = xlsxPath;
     return multiSheetsRes;
   } catch(e) {
