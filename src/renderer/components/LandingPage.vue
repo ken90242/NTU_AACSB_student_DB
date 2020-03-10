@@ -18,11 +18,7 @@
         <li>
           <strong>本次更新</strong>
           <ol style="margin-left:10px">
-            <li>7-17-介面(Celia)：學生去向統計補上說明文字</li>
-            <li>7/31-功能(Ken)：手動備份與還原功能(Beta)</li>
-            <li>9/5-修正(Lisa)：年齡欄位未填時會有數值錯誤</li>
-            <li>9/5-修正(Lisa)：檔案無法匯出至公用資料夾</li>
-            <li>9/5-介面(Lisa)：Excel檔資料欄位來源說明</li>
+            <li>2020-3-10 功能：論文連結</li>
           </ol>
         </li>
       </ul> 
