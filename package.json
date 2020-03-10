@@ -5,6 +5,7 @@
   "description": "An electron-vue project",
   "license": "UNLICENSED",
   "main": "./dist/electron/main.js",
+  "engine-strict": true,
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
