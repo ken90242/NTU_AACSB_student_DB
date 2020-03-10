@@ -20,7 +20,14 @@ init:
   - git config --global core.autocrlf input
 
 install:
-  - ps: Install-Product node 8 x64
+  # install nodejs > v12	  # install nodejs version 12.x
+  - curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -	  - ps: |
+  - sudo apt-get install -y nodejs	    try {
+      Install-Product node $env:nodejs_version $env:platform
+    } catch {
+      echo "Unable to install node $env:nodejs_version, trying update..."
+      Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:nodejs_version) $env:platform
+    }
   #- choco install yarn --ignore-dependencies
   - git reset --hard HEAD
   - yarn
