@@ -364,20 +364,22 @@
                       </span>
                     </el-form-item>
                     <el-form-item v-if="personalPapers !== null" label="論文資訊">
-                      <span>
-                        {{ personalPapers['中文標題'] }}
-                      </span>
-                      ,
-                      <span>
-                        {{ personalPapers['英文標題'] }}
-                      </span>
-                      ,
-                      <span>
-                        {{ personalPapers['年份'] }}
-                      </span>
-                      ,
-                      <span>
-                        指導教授：{{ personalPapers['指導教授'] }}
+                      <span :class="PersonalPaperLinks?'has_paper_link':'no_paper_link'" @click="openFile(PersonalPaperLinks)">
+                        <span>
+                          {{ personalPapers['中文標題'] }}
+                        </span>
+                        ,
+                        <span>
+                          {{ personalPapers['英文標題'] }}
+                        </span>
+                        ,
+                        <span>
+                          {{ personalPapers['年份'] }}
+                        </span>
+                        ,
+                        <span>
+                          指導教授：{{ personalPapers['指導教授'] }}
+                        </span>
                       </span>
                     </el-form-item>
                     <el-form-item v-else label="論文資訊">
@@ -510,7 +512,7 @@
 <script>
   import fs from 'fs';
   import path from 'path';
-  import { remote } from 'electron';
+  import { shell } from 'electron';
   import kanban from './kanban';
   import vscrolling from 'vue-scrolling-table'
 
@@ -537,6 +539,13 @@
       };
     },
     methods: {
+      openFile(path) {
+        if (!shell.openItem(path)) {
+          this.$notify.error({
+            title: '此學生論文檔案尚未建立',
+          });
+        }
+      },
       getSchoolSemester(grad_year, grad_month) {
         // 民國年
         let school_yr = ''
@@ -637,7 +646,7 @@
         // let tmp = new Date().getTime()
 
         const res = {
-          student: null,
+          student: [],
           course: [],
         };
   
@@ -805,14 +814,6 @@
         */
         return this.searchBaseOnKeywordACondition(this.searchInput, this.searchCondition);
       },
-      displayTable() {
-        return this[this.displayType].data.slice(
-          (this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize,
-        );
-      },
-      totalPages() {
-        return this[this.displayType].data.length;
-      },
       personalCouncil() {
         let res = this.council.data.filter(obj => obj['學號'] === this.poi[0]['學號']);
         if (res.length === 0) {
@@ -839,6 +840,35 @@
           res = res[0];
         }
         return res;
+      },
+      PersonalPaperLinks() {
+        const sid = this.poi[0]['學號'];
+        let file_dir = path.join(this.profilePaperFolder, sid);
+        this.paper_links = [];
+
+        if (fs.existsSync(file_dir)) {
+          const files = fs.readdirSync(file_dir)
+            .filter(nm => {
+              if (['.pdf', '.doc', '.docx'].indexOf(path.extname(nm)) !== -1) {
+                return true;
+              }
+            })
+            .map(nm => path.join(file_dir, nm));
+
+
+          if (files.length > 0) {
+            files.forEach((im_path) => {
+              this.paper_links.push(im_path);
+            });
+          }
+        }
+        if (this.paper_links.length > 0) {
+          return this.paper_links[0];
+        }
+        else
+        {
+          return "";
+        }
       },
       personalGraduateCreditsTaken() {
         const result = {}
@@ -1048,5 +1078,15 @@
     width: 8.5em;
     min-width: 8.5em;
     max-width: 8.5em;
+  }
+  .has_paper_link:hover {
+    cursor: pointer;
+    color: black;
+  }
+  .no_paper_link:hover {
+    cursor: not-allowed;
+  }
+  .has_paper_link {
+    text-decoration: underline;
   }
 </style>

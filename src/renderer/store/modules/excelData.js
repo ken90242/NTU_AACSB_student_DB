@@ -158,6 +158,7 @@ const state = {
   shareDataExisted: false,
   public_file_path: null,
   enrollYears: null,
+  profilePaperFolder: null,
   profilePicFolder: null,
   loadExcelDate: 0,
   isSyncingData: false,
@@ -218,7 +219,7 @@ const mutations = {
     const p = storeConfig.get('production_path');
     const dirLs = fs.readdirSync(p);
 
-    const parentFolderExist = ['excels', 'profile_pics'].every((dir) => dirLs.indexOf(dir) !== -1)
+    const parentFolderExist = ['excels'].every((dir) => dirLs.indexOf(dir) !== -1)
     const childernDataExist = dirLs.filter(v => v === 'excels' ).map((v) => {
       return fs.readdirSync(path.join(default_public_file_path, v));
     }).reduce((acc, list) => { 
@@ -233,6 +234,7 @@ const mutations = {
 
     state.public_file_path = public_file_path;
     state.profilePicFolder = path.join(public_file_path, 'profile_pics/')
+    state.profilePaperFolder = path.join(public_file_path, 'papers/')
   },
   chgSyncingData(state, { status }) {
     state.isSyncingData = status;

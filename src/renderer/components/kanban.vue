@@ -112,6 +112,7 @@
       council: state => state.excelData.council,
       questionnaire: state => state.excelData.questionnaire,
       graduateStandard: state => state.excelData.graduateStandard,
+      profilePaperFolder: state => state.excelData.profilePaperFolder,
       profilePicFolder: state => state.excelData.profilePicFolder,
       enrollYears: state => state.excelData.enrollYears,
       graduate_credits: state => state.excelData.graduate_credits,
@@ -143,10 +144,13 @@
             }]
         }, {
           value: this.profilePicFolder,
-          label: '個人照片',
+          label: '學生個人檔案',
           children: [{
             value: this.profilePicFolder,
             label: 'A. 個人照片資料夾',
+          }, {
+            value: this.profilePaperFolder,
+            label: 'B. 個人論文資料夾',
           },]
         }];
       },

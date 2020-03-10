@@ -192,11 +192,41 @@
             fixed
             prop="年份"
             label="年份"
+            width="60">
+          </el-table-column>
+          <el-table-column
+            fixed
+            prop="作者學號"
+            label="作者學號"
+            width="120">
+          </el-table-column>
+          <el-table-column
+            fixed
+            prop="中文標題"
+            label="中文標題"
             width="180">
+            <template slot-scope="scope">
+              <span :class="PersonalPaperLinks(scope.row['作者學號']) ? 'has_paper_link' : 'no_paper_link'"
+                    @click="openFile(PersonalPaperLinks(scope.row['作者學號']))">
+                {{ scope.row["中文標題"] }}
+              </span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            fixed
+            prop="英文標題"
+            label="英文標題"
+            width="180">
+            <template slot-scope="scope">
+              <span :class="PersonalPaperLinks(scope.row['作者學號']) ? 'has_paper_link' : 'no_paper_link'"
+                    @click="openFile(PersonalPaperLinks(scope.row['作者學號']))">
+                {{ scope.row["英文標題"] }}
+              </span>
+            </template>
           </el-table-column>
           <el-table-column
             v-for="label in papers['head']"
-            v-if="label != '年份'"
+            v-if="label != '年份' && label != '作者學號' && label != '中文標題' && label != '英文標題'"
             :prop="label"
             :label="label">
           </el-table-column>
@@ -265,9 +295,12 @@
 </template>
 
 <script>
+  import fs from 'fs';
+  import path from 'path';
   import kanban from './kanban';
   import StoreConfig from '../../renderer/storeConfig.js'
   import moment from 'moment';
+  import { shell } from 'electron';
 
   const storeConfig = new StoreConfig({
     // We'll call our data file 'user-preferences'
@@ -292,6 +325,13 @@
       };
     },
     methods: {
+      openFile(path) {
+        if (!shell.openItem(path)) {
+          this.$notify.error({
+            title: '此學生論文檔案尚未建立'
+          });
+        }
+      },
       handleCommand(command) {
         this.selectYear = command;
       },
@@ -303,6 +343,34 @@
       },
       assignTableMaxHeight() {
         this.tableMaxHeight = window.innerHeight - 300
+      },
+      PersonalPaperLinks(sid) {
+        let file_dir = path.join(this.profilePaperFolder, sid);
+        this.paper_links = [];
+
+        if (fs.existsSync(file_dir)) {
+          const files = fs.readdirSync(file_dir)
+            .filter(nm => {
+              if (['.pdf', '.doc', '.docx'].indexOf(path.extname(nm)) !== -1) {
+                return true;
+              }
+            })
+            .map(nm => path.join(file_dir, nm));
+
+
+          if (files.length > 0) {
+            files.forEach((im_path) => {
+              this.paper_links.push(im_path);
+            });
+          }
+        }
+        if (this.paper_links.length > 0) {
+          return this.paper_links[0];
+        }
+        else
+        {
+          return "";
+        }
       },
     },
     mounted() {
@@ -468,5 +536,14 @@
     border: 3px solid;
     border-radius: 20px;
   }
-
+  .has_paper_link:hover {
+    cursor: pointer;
+    color: black;
+  }
+  .no_paper_link:hover {
+    cursor: not-allowed;
+  }
+  .has_paper_link {
+    text-decoration: underline;
+  }
 </style>

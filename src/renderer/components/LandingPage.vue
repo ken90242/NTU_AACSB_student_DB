@@ -375,6 +375,7 @@
         this.infiniteList = this.backupRecords.slice(0, this.infiniteNum);
       },
       downloadUpdateDone(statusCode, filename) {
+        // Open installation setup
         shell.openItem(filename);
         this.progressBar = 0;
         this.avgImageStatus = '';
@@ -534,6 +535,23 @@
       this.getBackupRecords();
     },
     mounted() {
+      if (!fs.existsSync(path.join(this.public_file_path, 'profile_pics'))) {
+        fs.mkdirSync(path.join(this.public_file_path, 'profile_pics'));
+        fs.writeFileSync(path.join(this.public_file_path, 'profile_pics', '請使用大寫學號命名'), '', 'utf8');
+        fs.mkdirSync(path.join(this.public_file_path, 'profile_pics', 'R00000000'));
+        fs.writeFileSync(path.join(this.public_file_path, 'profile_pics', 'R00000000', 'sample.jpg'), '', 'utf8');
+      }
+      if (!fs.existsSync(path.join(this.public_file_path, 'papers'))) {
+        fs.mkdirSync(path.join(this.public_file_path, 'papers'));
+        fs.writeFileSync(path.join(this.public_file_path, 'papers', '請使用大寫學號命名'), '', 'utf8');
+        fs.writeFileSync(path.join(this.public_file_path, 'papers', '僅支援PDF及WORD'), '', 'utf8');
+
+        fs.mkdirSync(path.join(this.public_file_path, 'papers', 'R00000000'));
+        fs.writeFileSync(path.join(this.public_file_path, 'papers', 'R00000000', 'sample.docx'), '', 'utf8');
+        fs.mkdirSync(path.join(this.public_file_path, 'papers', 'R11111111'));
+        fs.writeFileSync(path.join(this.public_file_path, 'papers', 'R11111111', 'sample.pdf'), '', 'utf8');
+        console.log('2222');
+      }
       if (!fs.existsSync(path.join(remote.app.getPath('userData'), 'user-setting.json')) ||
           !this.shareDataExisted) {
         this.showShareFolderReq()
