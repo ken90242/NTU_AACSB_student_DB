@@ -326,7 +326,7 @@
     },
     methods: {
       openFile(path) {
-        if (!shell.openItem(path)) {
+        if (path === "" || !shell.openItem(path)) {
           this.$notify.error({
             title: '此學生論文檔案尚未建立'
           });

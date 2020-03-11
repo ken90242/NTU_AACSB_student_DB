@@ -19,6 +19,7 @@
           <strong>本次更新</strong>
           <ol style="margin-left:10px">
             <li>2020-3-10 功能：論文連結</li>
+            <li>2020-3-11 修正：Windows檔案開啟</li>
           </ol>
         </li>
       </ul> 
