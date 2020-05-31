@@ -141,6 +141,11 @@
                     <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
                   </div>
                   <el-form label-position="left" inline class="demo-table-expand">
+                    <el-form-item label="入學前申請文件">
+                      <span :class="PersonalApplyDocs ? 'has_paper_link':'no_paper_link'" @click="openFile(PersonalApplyDocs)">
+                        {{ PersonalApplyDocs === "" ? '無' : '文件連結' }}
+                      </span>
+                    </el-form-item>
                     <el-form-item label="國籍(U)">
                       <span>{{ props.row['國籍'] }}</span>
                     </el-form-item>
@@ -840,6 +845,35 @@
           res = res[0];
         }
         return res;
+      },
+      PersonalApplyDocs() {
+        const sid = this.poi[0]['學號'];
+        let file_dir = path.join(this.profileApplyDocFolder, sid);
+        this.apply_doc_links = [];
+
+        if (fs.existsSync(file_dir)) {
+          const files = fs.readdirSync(file_dir)
+            .filter(nm => {
+              if (['.pdf', '.doc', '.docx'].indexOf(path.extname(nm)) !== -1) {
+                return true;
+              }
+            })
+            .map(nm => path.join(file_dir, nm));
+
+
+          if (files.length > 0) {
+            files.forEach((im_path) => {
+              this.apply_doc_links.push(im_path);
+            });
+          }
+        }
+        if (this.apply_doc_links.length > 0) {
+          return this.apply_doc_links[0];
+        }
+        else
+        {
+          return "";
+        }
       },
       PersonalPaperLinks() {
         const sid = this.poi[0]['學號'];

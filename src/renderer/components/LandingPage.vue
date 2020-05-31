@@ -18,8 +18,7 @@
         <li>
           <strong>本次更新</strong>
           <ol style="margin-left:10px">
-            <li>2020-3-10 功能：論文連結</li>
-            <li>2020-3-11 修正：Windows檔案開啟</li>
+            <li>2020-6-01 功能：申請文件連結</li>
           </ol>
         </li>
       </ul> 
@@ -547,6 +546,16 @@
         fs.writeFileSync(path.join(this.public_file_path, 'papers', 'R00000000', 'sample.docx'), '', 'utf8');
         fs.mkdirSync(path.join(this.public_file_path, 'papers', 'R11111111'));
         fs.writeFileSync(path.join(this.public_file_path, 'papers', 'R11111111', 'sample.pdf'), '', 'utf8');
+        console.log('2222');
+      }
+      if (!fs.existsSync(path.join(this.public_file_path, 'apply_docs'))) {
+        fs.mkdirSync(path.join(this.public_file_path, 'apply_docs'));
+        fs.writeFileSync(path.join(this.public_file_path, 'apply_docs', '請使用大寫學號命名'), '', 'utf8');
+        fs.writeFileSync(path.join(this.public_file_path, 'apply_docs', '僅支援PDF及WORD'), '', 'utf8');
+        fs.mkdirSync(path.join(this.public_file_path, 'apply_docs', 'R00000000'));
+        fs.writeFileSync(path.join(this.public_file_path, 'apply_docs', 'R00000000', 'sample.docx'), '', 'utf8');
+        fs.mkdirSync(path.join(this.public_file_path, 'apply_docs', 'R11111111'));
+        fs.writeFileSync(path.join(this.public_file_path, 'apply_docs', 'R11111111', 'sample.pdf'), '', 'utf8');
         console.log('2222');
       }
       if (!fs.existsSync(path.join(remote.app.getPath('userData'), 'user-setting.json')) ||

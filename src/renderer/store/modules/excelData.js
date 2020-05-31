@@ -159,6 +159,7 @@ const state = {
   public_file_path: null,
   enrollYears: null,
   profilePaperFolder: null,
+  profileApplyDocFolder: null,
   profilePicFolder: null,
   loadExcelDate: 0,
   isSyncingData: false,
@@ -235,6 +236,7 @@ const mutations = {
     state.public_file_path = public_file_path;
     state.profilePicFolder = path.join(public_file_path, 'profile_pics/')
     state.profilePaperFolder = path.join(public_file_path, 'papers/')
+    state.profileApplyDocFolder = path.join(public_file_path, 'apply_docs/')
   },
   chgSyncingData(state, { status }) {
     state.isSyncingData = status;

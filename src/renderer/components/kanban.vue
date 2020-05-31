@@ -113,6 +113,7 @@
       questionnaire: state => state.excelData.questionnaire,
       graduateStandard: state => state.excelData.graduateStandard,
       profilePaperFolder: state => state.excelData.profilePaperFolder,
+      profileApplyDocFolder: state => state.excelData.profileApplyDocFolder,
       profilePicFolder: state => state.excelData.profilePicFolder,
       enrollYears: state => state.excelData.enrollYears,
       graduate_credits: state => state.excelData.graduate_credits,
@@ -151,6 +152,9 @@
           }, {
             value: this.profilePaperFolder,
             label: 'B. 個人論文資料夾',
+          }, {
+            value: this.profileApplyDocFolder,
+            label: 'C. 個人申請文件資料夾',
           },]
         }];
       },
