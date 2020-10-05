@@ -388,7 +388,7 @@
         this.dialogVisible = true;
         this.dialogFunc = func;
       },
-      updateAvgImageSize() {
+      updateUncompressedImages() {
         this.avgImageStatus = '待壓縮';
 
         glob(`${this.profilePicFolder}/**/*.+(png|gif|svg|jpg|JPG)`, (er, raw_files) => {
@@ -416,6 +416,13 @@
         const that = this;
         that.progressBar = 0;
 
+        let errorMessage = "";
+        const oldConsoleLog = console.log;
+        console.log = function (message) {
+            errorMessage += message + "\n";
+            oldConsoleLog.apply(console, arguments);
+        };
+
         Object.values(this.uncompressedImages).forEach((f) => {
           compress_images(path.dirname(f) + "/*.{jpg,JPG,jpeg,JPEG,gif,png,svg}", path.join(path.dirname(f), '/compressed/'),
             { compress_force: true, statistic: false, autoupdate: false },
@@ -426,13 +433,27 @@
             { gif: { engine: 'gifsicle', command: ['--colors', '64', '--use-col=web'] } },
             (error, completed, statistic) => {
               if (error !== null) {
-                console.error(error);
+                
+                that.$notify({
+                  title: '壓縮失敗',
+                  duration: 0,
+                  message: errorMessage,
+                  type: 'error',
+                });
+
+                that.updateUncompressedImages();
+                that.avgImageStatus = '待壓縮';
+
+                console.log = oldConsoleLog;                
+
+                return;
               }
+
               progressIndex += 1;
 
               if (progressIndex === this.uncompressedImageAmount) {
                 that.avgImageStatus = '';
-                that.updateAvgImageSize();
+                that.updateUncompressedImages();
                 that.$notify({
                   title: '成功',
                   duration: 0,
@@ -533,7 +554,7 @@
         })
 
       //  calculate image folder size
-      this.updateAvgImageSize();
+      this.updateUncompressedImages();
       this.getBackupRecords();
     },
     mounted() {
