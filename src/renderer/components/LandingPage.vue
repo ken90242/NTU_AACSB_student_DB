@@ -37,9 +37,8 @@
         </li>
         <li style="width:60%;display:flex;justify-content:space-between;margin:10px">
           <div>
-            B. 平均壓縮照片大小：
-            <span v-if="avgImageStatus !== ''" style="color:red">{{ avgImageStatus }}</span>
-            <span v-else>{{ avgImageSize }} MB</span>
+            B. 尚未壓縮照片數量：
+            <span>{{ this.uncompressedImageAmount }}</span>
           </div>
           <el-button
             :type="avgImageStatus === '' ? 'info' : 'primary'"
@@ -48,7 +47,7 @@
             :disabled="avgImageStatus === ''"
             @click="openDialogFunc(compressImages)"
             style="margin-left:10px;">
-              壓縮所有照片
+            {{ avgImageStatus === '' ? "無可壓縮照片" : "立即壓縮照片" }}
           </el-button>
         </li>
         <el-dialog
@@ -165,7 +164,8 @@
         app_version: app_version,
         latest_release_info: null,
         testUserDataPath: remote.app.getPath('userData'),
-        avgImageSize: 0,
+        uncompressedImages: {},
+        uncompressedImageAmount: 0,
         progressBar: 0,
         avgImageStatus: '',
         progressException: true,
@@ -389,17 +389,25 @@
         this.dialogFunc = func;
       },
       updateAvgImageSize() {
-        this.avgImageSize = 0;
-        glob(`${this.profilePicFolder}/**/compressed/*.+(png|gif|svg|jpg)`, (er, files) => {
-          for (let f of files) {
-            this.avgImageSize += parseInt(fs.statSync(f).size, 10);
+        this.avgImageStatus = '待壓縮';
+
+        glob(`${this.profilePicFolder}/**/*.+(png|gif|svg|jpg|JPG)`, (er, raw_files) => {
+          for (let rf of raw_files) {
+            if (rf.match(/.*R\d{8}.*/))
+            {
+              this.uncompressedImages[path.basename(rf)] = rf;
+            }
           }
-          this.avgImageSize = ((this.avgImageSize / (1024 * 1024)) / files.length).toFixed(2);
-          if (files.length === 0) {
-            this.avgImageStatus = '尚未壓縮';
-          } else {
-            this.avgImageStatus = '';
-          }
+          glob(`${this.profilePicFolder}/**/compressed/*.+(png|gif|svg|jpg|JPG)`, (er, compressed_files) => {
+            for (let cf of compressed_files) {
+              delete this.uncompressedImages[path.basename(cf)];
+            }
+            console.log(this.uncompressedImages);
+
+            this.uncompressedImageAmount = Object.keys(this.uncompressedImages).length;
+
+            this.avgImageStatus = this.uncompressedImageAmount > 0 ? '待壓縮' : '';
+          });
         });
       },
       compressImages() {
@@ -407,38 +415,36 @@
         let progressIndex = 0;
         const that = this;
         that.progressBar = 0;
-        glob(`${this.profilePicFolder}/*/*.+(jpg|png|svg|gif)`, function (er, files) {
-          files = files;
-          for(const f of files) {
-            compress_images(f, path.join(path.dirname(f), '/compressed/'),
-              { compress_force: true, statistic: false, autoupdate: false },
-              false,
-              { jpg: { engine: 'mozjpeg', command: ['-quality', '60'] } },
-              { png: { engine: 'pngquant', command: ['--quality=20-50'] } },
-              { svg: { engine: 'svgo', command: '--multipass' } },
-              { gif: { engine: 'gifsicle', command: ['--colors', '64', '--use-col=web'] } }, 
-              (error, completed, statistic) => {
-                if (error !== null) {
-                  console.error(error);
-                }
-                progressIndex += 1;
 
-                if (progressIndex === files.length) {
-                  that.avgImageStatus = '';
-                  that.updateAvgImageSize();
-                  that.$notify({
-                    title: '成功',
-                    duration: 0,
-                    message: '壓縮成功！',
-                    type: 'success',
-                  });
-                } else if (progressIndex % 5 === 0) {
-                  that.progressBar = ((progressIndex / files.length) * 100).toFixed(1);
-                  that.$forceUpdate();
-                }
+        Object.values(this.uncompressedImages).forEach((f) => {
+          compress_images(f, path.join(path.dirname(f), '/compressed/'),
+            { compress_force: true, statistic: false, autoupdate: false },
+            false,
+            { jpg: { engine: 'mozjpeg', command: ['-quality', '60'] } },
+            { png: { engine: 'pngquant', command: ['--quality=20-50'] } },
+            { svg: { engine: 'svgo', command: '--multipass' } },
+            { gif: { engine: 'gifsicle', command: ['--colors', '64', '--use-col=web'] } },
+            (error, completed, statistic) => {
+              if (error !== null) {
+                console.error(error);
               }
-            )
-          }
+              progressIndex += 1;
+
+              if (progressIndex === this.uncompressedImageAmount) {
+                that.avgImageStatus = '';
+                that.updateAvgImageSize();
+                that.$notify({
+                  title: '成功',
+                  duration: 0,
+                  message: '壓縮成功！',
+                  type: 'success',
+                });
+              } else if (progressIndex % 5 === 0) {
+                that.progressBar = ((progressIndex / this.uncompressedImageAmount) * 100).toFixed(1);
+                that.$forceUpdate();
+              }
+            }
+          )
         });
       },
       ChangePublicDir() {
