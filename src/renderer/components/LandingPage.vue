@@ -417,7 +417,7 @@
         that.progressBar = 0;
 
         Object.values(this.uncompressedImages).forEach((f) => {
-          compress_images(f, path.join(path.dirname(f), '/compressed/'),
+          compress_images(path.dirname(f) + "/*.{jpg,JPG,jpeg,JPEG,gif,png,svg}", path.join(path.dirname(f), '/compressed/'),
             { compress_force: true, statistic: false, autoupdate: false },
             false,
             { jpg: { engine: 'mozjpeg', command: ['-quality', '60'] } },
