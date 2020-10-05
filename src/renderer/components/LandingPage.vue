@@ -18,7 +18,7 @@
         <li>
           <strong>本次更新</strong>
           <ol style="margin-left:10px">
-            <li>2020-6-01 功能：申請文件連結</li>
+            <li>2020-10-05 修正：壓縮照片</li>
           </ol>
         </li>
       </ul> 
