@@ -441,48 +441,48 @@
           };
 
           Object.values(this.uncompressedImages).forEach((f) => {
-            compress_images(f, path.join(path.dirname(f), '/compressed/'),
-              { compress_force: true, statistic: false, autoupdate: false },
-              false,
-              { jpg: { engine: 'mozjpeg', command: ['-quality', '60'] } },
-              { png: { engine: 'pngquant', command: ['--quality=20-50'] } },
-              { svg: { engine: 'svgo', command: '--multipass' } },
-              { gif: { engine: 'gifsicle', command: ['--colors', '64', '--use-col=web'] } },
-              (error, completed, statistic) => {
-                if (error !== null) {
+            // compress_images(f, path.join(path.dirname(f), '/compressed/'),
+            //   { compress_force: true, statistic: false, autoupdate: false },
+            //   false,
+            //   { jpg: { engine: 'mozjpeg', command: ['-quality', '60'] } },
+            //   { png: { engine: 'pngquant', command: ['--quality=20-50'] } },
+            //   { svg: { engine: 'svgo', command: '--multipass' } },
+            //   { gif: { engine: 'gifsicle', command: ['--colors', '64', '--use-col=web'] } },
+            //   (error, completed, statistic) => {
+            //     if (error !== null) {
                   
-                  that.$notify({
-                    title: '壓縮失敗',
-                    duration: 0,
-                    message: errorMessage,
-                    type: 'error',
-                  });
+            //       that.$notify({
+            //         title: '壓縮失敗',
+            //         duration: 0,
+            //         message: errorMessage,
+            //         type: 'error',
+            //       });
 
-                  that.updateUncompressedImages();
-                  that.avgImageStatus = '待壓縮';
+            //       that.updateUncompressedImages();
+            //       that.avgImageStatus = '待壓縮';
 
-                  console.log = oldConsoleLog;
+            //       console.log = oldConsoleLog;
 
-                  return;
-                }
+            //       return;
+            //     }
 
-                progressIndex += 1;
+            //     progressIndex += 1;
 
-                if (progressIndex === this.uncompressedImageAmount) {
-                  that.avgImageStatus = '';
-                  that.updateUncompressedImages();
-                  that.$notify({
-                    title: '成功',
-                    duration: 0,
-                    message: '壓縮成功！',
-                    type: 'success',
-                  });
-                } else if (progressIndex % 5 === 0) {
-                  that.progressBar = ((progressIndex / this.uncompressedImageAmount) * 100).toFixed(1);
-                  that.$forceUpdate();
-                }
-              }
-            )
+            //     if (progressIndex === this.uncompressedImageAmount) {
+            //       that.avgImageStatus = '';
+            //       that.updateUncompressedImages();
+            //       that.$notify({
+            //         title: '成功',
+            //         duration: 0,
+            //         message: '壓縮成功！',
+            //         type: 'success',
+            //       });
+            //     } else if (progressIndex % 5 === 0) {
+            //       that.progressBar = ((progressIndex / this.uncompressedImageAmount) * 100).toFixed(1);
+            //       that.$forceUpdate();
+            //     }
+            //   }
+            // )
           });
         } catch (e)
         {
