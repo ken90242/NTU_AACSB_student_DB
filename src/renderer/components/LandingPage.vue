@@ -381,12 +381,28 @@
         this.progressBar = (downloaded_size/expected_size*100).toFixed(1);
       },
       executeDialogFunc() {
-        this.dialogVisible = false;
-        this.dialogFunc();
+        try
+        {
+          this.dialogVisible = false;
+          this.dialogFunc();
+        } catch(e)
+        {
+          fs.appendFile('gmba.log', `[ERROR] ${e}: ${e.stack}`, function (err) {
+            console.log('saved!');
+          });
+        }
       },
       openDialogFunc(func) {
-        this.dialogVisible = true;
-        this.dialogFunc = func;
+        try
+        {
+          this.dialogVisible = true;
+          this.dialogFunc = func;
+        } catch(e)
+        {
+          fs.writeFile('gmba.log', `[ERROR] ${e}: ${e.stack}`, function (err) {
+            console.log('saved!');
+          });
+        }
       },
       updateUncompressedImages() {
         this.avgImageStatus = '待壓縮';
@@ -470,7 +486,7 @@
           });
         } catch (e)
         {
-          fs.writeFile('gmba.log', `[ERROR] ${e}: ${e.stack}`, function (err) {
+          fs.appendFile('gmba.log', `[ERROR] ${e}: ${e.stack}`, function (err) {
             console.log('saved!');
           });
         }
