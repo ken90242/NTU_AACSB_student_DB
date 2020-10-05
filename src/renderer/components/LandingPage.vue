@@ -564,7 +564,7 @@
         .then(v => v.json())
         .then(v => {
           this.latest_release_info = v;
-          const github_version = v.tag_name.match(/\d\.\d\.\d/g)[0]
+          const github_version = v.tag_name.match(/\d+\.\d+\.\d+/g)[0]
 
           if (needUpdate(app_version, github_version) === true) {
             // Need update!
