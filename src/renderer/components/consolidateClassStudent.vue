@@ -228,12 +228,12 @@
       replacePasteSids() {
         let BreakException = {};
         let errsid = ''
-        const leftSids = this.data2.map(obj => obj['sid']);
+        const leftSids = this.data2.map(obj => obj['sid'].toUpperCase());
         const temp = this.value2;
         try {
           this.value2 = []
           this.manualPasteSids.forEach((sid) => {
-            const idxRes = leftSids.indexOf(sid);
+            const idxRes = leftSids.indexOf(sid.toUpperCase());
             if (idxRes == -1) {
               errsid = sid
               throw BreakException;
@@ -389,36 +389,37 @@
           pic_paths = fs.readdirSync(path.join(this.profilePicFolder, sid))
             .filter(nm => {
               if (path.basename(nm, path.extname(nm)).toLowerCase() === sid.toLowerCase()) {
-                default_img_path = nm;
+                default_img_path = path.join(this.profilePicFolder, sid, nm);
                 return false;
-              } else if (['.png', '.gif', '.bmp', '.jpg'].indexOf(path.extname(nm)) !== -1) {
+              } else if (path.basename(nm, path.extname(nm)).toLowerCase().indexOf(sid.toLowerCase()) != -1) {
+                default_img_path = path.join(this.profilePicFolder, sid, nm);
+                return false;
+              } else if (['.png', '.gif', '.bmp', '.jpg'].indexOf(path.extname(nm).toLowerCase()) !== -1) {
                 return true;
               }
             })
-            .map(fileName => {
-              return path.join(this.profilePicFolder, sid, fileName);
-            });
         }
         if (fs.existsSync(path.join(this.profilePicFolder, sid, 'compressed'))) {
           fs.readdirSync(path.join(this.profilePicFolder, sid, 'compressed'))
             .forEach(nm => {
               if (path.basename(nm, path.extname(nm)).toLowerCase() === sid.toLowerCase()) {
-                default_img_path = nm;
+                default_img_path = path.join(this.profilePicFolder, sid, 'compressed', nm);
+                return false;
+              } else if (path.basename(nm, path.extname(nm)).toLowerCase().indexOf(sid.toLowerCase()) != -1) {
+                default_img_path = path.join(this.profilePicFolder, sid, 'compressed', nm);
                 return false;
               }
             });
         }
-        
 
         if (default_img_path !== '') {
-          default_img_path = path.join(this.profilePicFolder, sid, default_img_path);
           pic_paths.unshift(default_img_path)
         }
 
         if (pic_paths.length > 0) {
           const imageId = this.workbook.addImage({
             filename: pic_paths[0],
-            extension: path.extname(pic_paths[0]).replace('\.', ''),
+            extension: path.extname(pic_paths[0]).replace('\.', '').toLowerCase(),
           });
           const pic_pos = `F${ currentIdx + 2 }:F${ currentIdx + 2 }`
           this.worksheet.addImage(imageId, pic_pos);

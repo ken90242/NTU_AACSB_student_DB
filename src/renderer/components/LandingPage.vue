@@ -44,7 +44,7 @@
             :type="avgImageStatus === '' ? 'info' : 'primary'"
             size="medium"
             round
-            :disabled="true"
+            :disabled="false"
             @click="openDialogFunc(compressImages)"
             style="margin-left:10px;">
             {{ avgImageStatus === '' ? "無可壓縮照片" : "立即壓縮照片" }}
@@ -434,17 +434,12 @@
           that.progressBar = 0;
 
           let errorMessage = "";
-          const oldConsoleLog = console.log;
-          console.log = function (message) {
-              errorMessage += message + "\n";
-              oldConsoleLog.apply(console, arguments);
-          };
 
           Object.values(this.uncompressedImages).forEach((f) => {
             compress_images(f, path.join(path.dirname(f), '/compressed/'),
               { compress_force: true, statistic: false, autoupdate: false },
               false,
-              { jpg: { engine: 'mozjpeg', command: ['-quality', '25'] } },
+              { jpg: { engine: "mozjpeg", command: ["-quality", "60"] } },
               { png: { engine: 'pngquant', command: ['--quality=20-50'] } },
               { svg: { engine: 'svgo', command: '--multipass' } },
               { gif: { engine: 'gifsicle', command: ['--colors', '64', '--use-col=web'] } },
@@ -460,8 +455,6 @@
 
                   that.updateUncompressedImages();
                   that.avgImageStatus = '待壓縮';
-
-                  console.log = oldConsoleLog;
 
                   return;
                 }
@@ -486,9 +479,7 @@
           });
         } catch (e)
         {
-          fs.appendFile('gmba.log', `[ERROR] ${e}: ${e.stack}`, function (err) {
-            console.log('saved!');
-          });
+          console.log(e, e.stack);
         }
       },
       ChangePublicDir() {
