@@ -16,4 +16,7 @@ static/public/profile_pics/*
 static/public/apply_docs/*
 log/
 public/
+package-lock.json
+yarn.lock
+yarn-error.log
 

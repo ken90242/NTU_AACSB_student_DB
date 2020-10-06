@@ -44,7 +44,7 @@
             :type="avgImageStatus === '' ? 'info' : 'primary'"
             size="medium"
             round
-            :disabled="false"
+            :disabled="avgImageStatus === ''"
             @click="openDialogFunc(compressImages)"
             style="margin-left:10px;">
             {{ avgImageStatus === '' ? "無可壓縮照片" : "立即壓縮照片" }}
