@@ -63,7 +63,7 @@
   "dependencies": {
     "axios": "^0.16.1",
     "backup": "^1.1.0",
-    "chart.js": "^2.7.1",
+    "chart.js": "^2.9.4",
     "compress-images": "^1.4.6",
     "crypto": "^1.0.1",
     "electron-prompt": "^1.2.0",
