@@ -398,6 +398,7 @@
                 return true;
               }
             })
+            .map(picName => path.join(this.profilePicFolder, sid, picName));
         }
         if (fs.existsSync(path.join(this.profilePicFolder, sid, 'compressed'))) {
           fs.readdirSync(path.join(this.profilePicFolder, sid, 'compressed'))
